@@ -6,9 +6,7 @@
   <meta name="theme-color" content="#1a1a2e" />
   <title>TryIt Fortune — ဟောကိန်း</title>
 
-  <!-- Telegram WebApp SDK -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <!-- Adsgram SDK -->
   <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -18,7 +16,6 @@
 </head>
 <body>
 
-  <!-- Animated Background -->
   <div class="bg-orbs">
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
@@ -27,7 +24,7 @@
 
   <main class="app" id="app">
 
-    <!-- ============ SCREEN 1: HOME ============ -->
+    <!-- SCREEN 1: HOME -->
     <section class="screen active" id="screen-home">
       <div class="glass-card home-card">
         <div class="crystal-ball">
@@ -37,7 +34,7 @@
         <p class="subtitle-my">🔮 သင့်အတွက်သာ ဟောကိန်း</p>
         <p class="subtitle-en">Your Personal Fortune Reading</p>
 
-        <button class="btn-primary" onclick="goToScreen('screen-sign')">
+        <button class="btn-primary" onclick="goToScreen('screen-name')">
           <span>✨ Start Reading</span>
           <small>စတင် ဖတ်ကြည့်မယ်</small>
         </button>
@@ -59,26 +56,51 @@
       </div>
     </section>
 
-    <!-- ============ SCREEN 2: ZODIAC ============ -->
+    <!-- SCREEN 2: NAME -->
+    <section class="screen" id="screen-name">
+      <div class="glass-card">
+        <div class="step-indicator">Step 1 / 4</div>
+        <h2 class="title-sec">သင့်နာမည်က ဘာလဲ?</h2>
+        <p class="sub-en">What should we call you?</p>
+
+        <input
+          type="text"
+          id="nameInput"
+          class="q-date name-input"
+          placeholder="နာမည် ထည့်ပါ..."
+          maxlength="30"
+          autocomplete="off"
+        />
+
+        <p class="name-hint">✨ သင့်နာမည်နဲ့ ကိုက်ညီတဲ့ ဟောကိန်း ဖတ်ပေးမယ်</p>
+
+        <div class="btn-row">
+          <button class="btn-ghost" onclick="goToScreen('screen-home')">← Back</button>
+          <button class="btn-primary-sm" id="nextName" disabled>Next →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: ZODIAC -->
     <section class="screen" id="screen-sign">
       <div class="glass-card">
-        <div class="step-indicator">Step 1 / 3</div>
+        <div class="step-indicator">Step 2 / 4</div>
         <h2 class="title-sec">သင့် Zodiac Sign က ဘာလဲ?</h2>
         <p class="sub-en">Choose your zodiac sign</p>
 
         <div class="zodiac-grid" id="zodiacGrid"></div>
 
         <div class="btn-row">
-          <button class="btn-ghost" onclick="goToScreen('screen-home')">← Back</button>
+          <button class="btn-ghost" onclick="goToScreen('screen-name')">← Back</button>
           <button class="btn-primary-sm" id="nextSign" disabled>Next →</button>
         </div>
       </div>
     </section>
 
-    <!-- ============ SCREEN 3: PERIOD ============ -->
+    <!-- SCREEN 4: PERIOD -->
     <section class="screen" id="screen-period">
       <div class="glass-card">
-        <div class="step-indicator">Step 2 / 3</div>
+        <div class="step-indicator">Step 3 / 4</div>
         <h2 class="title-sec">ဘယ်အချိန်အတွက် ဖတ်မလဲ?</h2>
         <p class="sub-en">Choose your time period</p>
 
@@ -112,9 +134,10 @@
       </div>
     </section>
 
-    <!-- ============ SCREEN 4: QUESTIONS ============ -->
+    <!-- SCREEN 5: QUESTIONS -->
     <section class="screen" id="screen-questions">
       <div class="glass-card">
+        <div class="step-indicator">Step 4 / 4</div>
         <div class="progress-wrap">
           <div class="progress-bar">
             <div class="progress-fill" id="progressFill"></div>
@@ -124,9 +147,7 @@
           </div>
         </div>
 
-        <div class="question-wrap" id="questionWrap">
-          <!-- Questions injected by JS -->
-        </div>
+        <div class="question-wrap" id="questionWrap"></div>
 
         <div class="btn-row">
           <button class="btn-ghost" id="qBack">← Back</button>
@@ -135,13 +156,13 @@
       </div>
     </section>
 
-    <!-- ============ SCREEN 5: LOADING ============ -->
+    <!-- SCREEN 6: LOADING -->
     <section class="screen" id="screen-loading">
       <div class="glass-card loading-card">
         <div class="loading-ball">
           <div class="crystal-inner pulse"></div>
         </div>
-        <h2 class="title-sec">ဟောကိန်း ဖတ်နေတယ်...</h2>
+        <h2 class="title-sec" id="loadingText">ဟောကိန်း ဖတ်နေတယ်...</h2>
         <p class="sub-en">Reading your fortune...</p>
         <div class="loading-dots">
           <span></span><span></span><span></span>
@@ -149,7 +170,7 @@
       </div>
     </section>
 
-    <!-- ============ SCREEN 6: RESULT ============ -->
+    <!-- SCREEN 7: RESULT -->
     <section class="screen" id="screen-result">
       <div class="glass-card result-card">
         <div class="result-header">
@@ -160,11 +181,10 @@
           </div>
         </div>
 
+        <div class="result-greeting" id="resultGreeting">မင်္ဂလာပါ</div>
         <div class="result-period" id="resultPeriod">🌞 ဒီနေ့ Fortune</div>
 
-        <div class="result-categories" id="resultCategories">
-          <!-- Injected -->
-        </div>
+        <div class="result-categories" id="resultCategories"></div>
 
         <div class="lucky-card" id="luckyCard">
           <h3 class="lucky-title">🍀 သင့် ကံကောင်း</h3>
@@ -201,12 +221,12 @@
 
   </main>
 
-  <!-- Ad Overlay -->
+  <!-- AD OVERLAY -->
   <div class="ad-overlay" id="adOverlay">
     <div class="glass-card ad-card">
       <div class="ad-icon">🎁</div>
       <h3>Unlock Full Fortune</h3>
-      <p class="sub-my">အပြည့်အစုံ ဖတ်ဖို့ ကြော်ငြာ ကြည့်ပါ</p>
+      <p class="sub-my" id="adSubText">အပြည့်အစုံ ဖတ်ဖို့ ကြော်ငြာ ကြည့်ပါ</p>
       <button class="btn-primary" id="btnWatchAd">▶ Watch Ad</button>
       <button class="btn-ghost-sm" id="btnSkipAd">Skip</button>
     </div>
@@ -215,4 +235,4 @@
   <script src="data.js"></script>
   <script src="script.js"></script>
 </body>
-            </html>
+</html>
