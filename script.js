@@ -1,10 +1,8 @@
 // ============ ADSGRAM CONFIG ============
-// ⚠️ ဒီနေရာမှာ သင့် Block ID ထည့်ပါ
 const ADSGRAM_BLOCK_ID = "54078";
 
 let adController = null;
 
-// Initialize Telegram WebApp
 if (window.Telegram && window.Telegram.WebApp) {
   window.Telegram.WebApp.ready();
   window.Telegram.WebApp.expand();
@@ -12,6 +10,7 @@ if (window.Telegram && window.Telegram.WebApp) {
 
 // ============ STATE ============
 const state = {
+  name: '',
   sign: null,
   period: null,
   currentQ: 0,
@@ -26,6 +25,14 @@ function goToScreen(id) {
   if (target) {
     target.classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Auto-focus name input
+    if (id === 'screen-name') {
+      setTimeout(() => {
+        const inp = document.getElementById('nameInput');
+        if (inp) inp.focus();
+      }, 300);
+    }
   }
 }
 
@@ -35,6 +42,34 @@ function init() {
   buildQuestions();
   attachEventListeners();
   loadTodayCount();
+  loadSavedName();
+}
+
+// ============ NAME INPUT ============
+function loadSavedName() {
+  const saved = localStorage.getItem('fortune_name');
+  if (saved) {
+    const inp = document.getElementById('nameInput');
+    if (inp) {
+      inp.value = saved;
+      state.name = saved;
+      document.getElementById('nextName').disabled = false;
+    }
+  }
+}
+
+function handleNameInput() {
+  const inp = document.getElementById('nameInput');
+  const next = document.getElementById('nextName');
+  const val = inp.value.trim();
+  state.name = val;
+  next.disabled = val.length < 1;
+}
+
+function saveName() {
+  if (state.name) {
+    localStorage.setItem('fortune_name', state.name);
+  }
 }
 
 // ============ ZODIAC GRID ============
@@ -112,7 +147,6 @@ function renderQuestion() {
     wrap.appendChild(optWrap);
   }
 
-  // Update progress
   document.getElementById('qCurrent').textContent = state.currentQ + 1;
   document.getElementById('qTotal').textContent = QUESTIONS.length;
   document.getElementById('progressFill').style.width =
@@ -131,6 +165,20 @@ function updateNextBtn() {
 
 // ============ EVENT LISTENERS ============
 function attachEventListeners() {
+  // NAME INPUT
+  const nameInp = document.getElementById('nameInput');
+  nameInp.addEventListener('input', handleNameInput);
+  nameInp.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && state.name) {
+      saveName();
+      goToScreen('screen-sign');
+    }
+  });
+  document.getElementById('nextName').addEventListener('click', () => {
+    saveName();
+    goToScreen('screen-sign');
+  });
+
   // Zodiac next
   document.getElementById('nextSign').addEventListener('click', () => {
     if (state.sign) goToScreen('screen-period');
@@ -167,9 +215,7 @@ function attachEventListeners() {
   });
 
   // Ad overlay
-  document.getElementById('btnWatchAd').addEventListener('click', () => {
-    watchAdAndUnlock();
-  });
+  document.getElementById('btnWatchAd').addEventListener('click', watchAdAndUnlock);
   document.getElementById('btnSkipAd').addEventListener('click', () => {
     document.getElementById('adOverlay').classList.remove('show');
     revealAllCategories();
@@ -181,7 +227,10 @@ function attachEventListeners() {
 
 // ============ LOADING + RESULT ============
 function showLoadingAndResult() {
+  const loadingText = document.getElementById('loadingText');
+  loadingText.textContent = `${state.name} အတွက် ဟောကိန်း ဖတ်နေတယ်...`;
   goToScreen('screen-loading');
+
   setTimeout(() => {
     generateFortune();
     renderResult();
@@ -198,10 +247,9 @@ function generateFortune() {
   const catData = categories.map(cat => {
     const texts = FORTUNE_TEXTS[cat][period] || FORTUNE_TEXTS[cat].today;
     const text = texts[Math.floor(Math.random() * texts.length)];
-    return { cat, text };
+    return { cat, text: personalizeText(text, state.name) };
   });
 
-  // Lucky
   const color = LUCKY_COLORS[Math.floor(Math.random() * LUCKY_COLORS.length)];
   const number = Math.floor(Math.random() * 9) + 1;
   const day = LUCKY_DAYS[Math.floor(Math.random() * LUCKY_DAYS.length)];
@@ -211,6 +259,26 @@ function generateFortune() {
     categories: catData,
     lucky: { color, number, day, time },
   };
+}
+
+// ============ NAME PERSONALIZATION ============
+function personalizeText(text, name) {
+  if (!name) return text;
+  const safeName = escapeHtml(name);
+  const templates = [
+    `<strong>${safeName}</strong> ရေ၊ ${text}`,
+    `<strong>${safeName}</strong>၊ ${text}`,
+    `<strong>${safeName}</strong> အတွက် — ${text}`,
+    `${text} <strong>${safeName}</strong> ရေ၊ သတိထားပါ။`,
+    `<strong>${safeName}</strong> ရေ၊ ${text}`,
+  ];
+  return templates[Math.floor(Math.random() * templates.length)];
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
 }
 
 // ============ RENDER RESULT ============
@@ -231,10 +299,12 @@ const PERIOD_LABEL = {
 function renderResult() {
   const f = state.fortune;
   const sign = state.sign;
+  const name = escapeHtml(state.name);
 
   document.getElementById('resultSign').textContent = sign.symbol;
   document.getElementById('resultTitle').textContent = `${sign.name} · ${sign.my}`;
   document.getElementById('resultSub').textContent = 'သင့်အတွက်သာ ✨';
+  document.getElementById('resultGreeting').innerHTML = `မင်္ဂလာပါ <strong>${name}</strong> 👋`;
   document.getElementById('resultPeriod').textContent = PERIOD_LABEL[state.period];
 
   const wrap = document.getElementById('resultCategories');
@@ -255,7 +325,6 @@ function renderResult() {
     wrap.appendChild(card);
   });
 
-  // Lucky
   document.getElementById('luckyColor').textContent = f.lucky.color.emoji + ' ' + f.lucky.color.name;
   document.getElementById('luckyNumber').textContent = f.lucky.number;
   document.getElementById('luckyDay').textContent = f.lucky.day;
@@ -264,6 +333,10 @@ function renderResult() {
 
 // ============ AD OVERLAY ============
 function showAdOverlay() {
+  const sub = document.getElementById('adSubText');
+  if (sub && state.name) {
+    sub.textContent = `${state.name} ရေ၊ အပြည့်အစုံ ဖတ်ဖို့ ကြော်ငြာ ကြည့်ပါ`;
+  }
   document.getElementById('adOverlay').classList.add('show');
 }
 
@@ -293,7 +366,7 @@ function revealAllCategories() {
 // ============ SHARE ============
 function shareFortune() {
   const f = state.fortune;
-  const text = `🔮 TryIt Fortune\n♌ ${state.sign.name}\n🍀 Lucky: ${f.lucky.color.emoji} ${f.lucky.number}\n\nTry yours!`;
+  const text = `🔮 TryIt Fortune\n👤 ${state.name}\n♌ ${state.sign.name}\n🍀 Lucky: ${f.lucky.color.emoji} ${f.lucky.number}\n\nTry yours!`;
 
   if (window.Telegram && window.Telegram.WebApp) {
     window.Telegram.WebApp.switchInlineQuery(text);
@@ -311,6 +384,7 @@ function restart() {
   state.currentQ = 0;
   state.answers = {};
   state.fortune = null;
+  // Name ကို မဖျက် — localStorage မှာ သိမ်းထား
   document.querySelectorAll('.zodiac-item').forEach(b => b.classList.remove('selected'));
   document.getElementById('nextSign').disabled = true;
   goToScreen('screen-home');
