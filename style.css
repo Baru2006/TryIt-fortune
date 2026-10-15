@@ -833,3 +833,52 @@ body {
   .title-main { font-size: 38px; }
   .crystal-ball { width: 140px; height: 140px; }
 }
+
+/* ===== NAME INPUT ===== */
+.name-input {
+  font-family: 'Padauk', 'Poppins', sans-serif;
+  font-size: 16px;
+  text-align: center;
+  padding: 18px 20px !important;
+  letter-spacing: 0.5px;
+}
+
+.name-input::placeholder {
+  color: var(--text-muted);
+  font-family: 'Padauk', sans-serif;
+}
+
+.name-input:focus {
+  outline: none;
+  border-color: var(--accent-1);
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.name-hint {
+  font-family: 'Padauk', sans-serif;
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 14px;
+  line-height: 1.6;
+}
+
+/* ===== RESULT GREETING ===== */
+.result-greeting {
+  font-family: 'Padauk', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #fbbf24, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 12px;
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+
+.cat-body strong {
+  color: #fbbf24;
+  font-weight: 700;
+}
