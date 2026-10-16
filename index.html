@@ -2,12 +2,11 @@
 <html lang="my">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#1a1a2e" />
-  <title>TryIt Fortune — ဟောကိန်း</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="theme-color" content="#0a0a15" />
+  <title>TryIt Hub</title>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,223 +15,133 @@
 </head>
 <body>
 
+  <!-- Background Orbs -->
   <div class="bg-orbs">
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
     <div class="orb orb-3"></div>
   </div>
 
-  <main class="app" id="app">
+  <!-- App Container -->
+  <div class="app">
 
-    <!-- SCREEN 1: HOME -->
-    <section class="screen active" id="screen-home">
-      <div class="glass-card home-card">
-        <div class="crystal-ball">
-          <div class="crystal-inner"></div>
-        </div>
-        <h1 class="title-main">TryIt Fortune</h1>
-        <p class="subtitle-my">🔮 သင့်အတွက်သာ ဟောကိန်း</p>
-        <p class="subtitle-en">Your Personal Fortune Reading</p>
+    <!-- HEADER -->
+    <header class="app-header glass-card">
+      <div class="logo-wrap">
+        <img src="assets/logo.png" alt="TryIt Hub" class="logo-img" />
+      </div>
+      <div class="header-text">
+        <h1>TryIt Hub</h1>
+        <p>အားလုံး တစ်နေရာတည်း</p>
+      </div>
+      <button class="header-btn" onclick="openMenu()">
+        <span>⋮</span>
+      </button>
+    </header>
 
-        <button class="btn-primary" onclick="goToScreen('screen-name')">
-          <span>✨ Start Reading</span>
-          <small>စတင် ဖတ်ကြည့်မယ်</small>
+    <!-- HERO BANNER -->
+    <section class="hero-banner glass-card">
+      <div class="hero-content">
+        <span class="hero-badge">✨ New</span>
+        <h2>Fortune App ဖြင့်</h2>
+        <p>သင့်အတွက်သာ ဟောကိန်း ဖတ်ကြည့်ပါ</p>
+        <button class="hero-btn" onclick="goToPage('pages/fortune.html')">
+          🚀 Start Now
         </button>
+      </div>
+      <div class="hero-glow"></div>
+    </section>
 
-        <div class="stats-row">
-          <div class="stat-item">
-            <span class="stat-num" id="todayCount">1,234</span>
-            <span class="stat-lbl">Today</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-num">♈♌♓</span>
-            <span class="stat-lbl">12 Signs</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-num">5</span>
-            <span class="stat-lbl">Categories</span>
-          </div>
+    <!-- SECTION 1: OUR ONLINE GAME/TOOL -->
+    <section class="section">
+      <div class="section-head">
+        <h3>🎮 Our Online Game/Tool</h3>
+        <span class="section-line"></span>
+      </div>
+      <div class="grid-2">
+        <div class="grid-card glass-card" onclick="goToPage('pages/fortune.html')">
+          <div class="grid-icon">🔮</div>
+          <span class="grid-label">Fortune</span>
+          <span class="grid-sub">ဟောကိန်း</span>
+        </div>
+        <div class="grid-card glass-card" onclick="goToPage('pages/rpg.html')">
+          <div class="grid-icon">🎮</div>
+          <span class="grid-label">RPG</span>
+          <span class="grid-sub">စွန့်စားခန်း</span>
+        </div>
+        <div class="grid-card glass-card" onclick="goToPage('pages/tools.html')">
+          <div class="grid-icon">🛠</div>
+          <span class="grid-label">Tools</span>
+          <span class="grid-sub">ကိရိယာ</span>
+        </div>
+        <div class="grid-card glass-card" onclick="goToPage('pages/calculator.html')">
+          <div class="grid-icon">🧮</div>
+          <span class="grid-label">Calculator</span>
+          <span class="grid-sub">တွက်စက်</span>
         </div>
       </div>
     </section>
 
-    <!-- SCREEN 2: NAME -->
-    <section class="screen" id="screen-name">
-      <div class="glass-card">
-        <div class="step-indicator">Step 1 / 4</div>
-        <h2 class="title-sec">သင့်နာမည်က ဘာလဲ?</h2>
-        <p class="sub-en">What should we call you?</p>
+    <!-- SECTION 2: POPULAR APP/GAME -->
+    <section class="section">
+      <div class="section-head">
+        <h3>⭐ Popular App & Game</h3>
+        <span class="section-line"></span>
+      </div>
+      <div class="grid-2" id="popularGrid">
+        <!-- Populated by script.js from data.js -->
+      </div>
+    </section>
 
-        <input
-          type="text"
-          id="nameInput"
-          class="q-date name-input"
-          placeholder="နာမည် ထည့်ပါ..."
-          maxlength="30"
-          autocomplete="off"
-        />
+    <!-- SECTION 3: ONLINE TOOLS -->
+    <section class="section">
+      <div class="section-head">
+        <h3>🌐 Online Tools</h3>
+        <span class="section-line"></span>
+      </div>
+      <div class="tools-list" id="toolsList">
+        <!-- Populated by script.js -->
+      </div>
+    </section>
 
-        <p class="name-hint">✨ သင့်နာမည်နဲ့ ကိုက်ညီတဲ့ ဟောကိန်း ဖတ်ပေးမယ်</p>
-
-        <div class="btn-row">
-          <button class="btn-ghost" onclick="goToScreen('screen-home')">← Back</button>
-          <button class="btn-primary-sm" id="nextName" disabled>Next →</button>
+    <!-- SECTION 4: OUR ONLINE APP & GAME -->
+    <section class="section">
+      <div class="section-head">
+        <h3>📱 Our Online App & Game</h3>
+        <span class="section-line"></span>
+      </div>
+      <div class="grid-2">
+        <div class="grid-card glass-card" onclick="goToPage('pages/fortune.html')">
+          <div class="grid-icon">🔮</div>
+          <span class="grid-label">Fortune</span>
+          <span class="grid-sub">ဟောကိန်း</span>
+        </div>
+        <div class="grid-card glass-card" onclick="goToPage('pages/calculator.html')">
+          <div class="grid-icon">🧮</div>
+          <span class="grid-label">Calculator</span>
+          <span class="grid-sub">တွက်စက်</span>
+        </div>
+        <div class="grid-card glass-card" onclick="goToPage('pages/tts.html')">
+          <div class="grid-icon">🔊</div>
+          <span class="grid-label">Text to Speech</span>
+          <span class="grid-sub">အသံဖန်တီး</span>
+        </div>
+        <div class="grid-card glass-card" onclick="goToPage('pages/tools.html')">
+          <div class="grid-icon">🛠</div>
+          <span class="grid-label">All Tools</span>
+          <span class="grid-sub">အားလုံး</span>
         </div>
       </div>
     </section>
 
-    <!-- SCREEN 3: ZODIAC -->
-    <section class="screen" id="screen-sign">
-      <div class="glass-card">
-        <div class="step-indicator">Step 2 / 4</div>
-        <h2 class="title-sec">သင့် Zodiac Sign က ဘာလဲ?</h2>
-        <p class="sub-en">Choose your zodiac sign</p>
+    <!-- FOOTER -->
+    <footer class="app-footer">
+      <p>✨ TryIt Hub · Made with 💜</p>
+    </footer>
 
-        <div class="zodiac-grid" id="zodiacGrid"></div>
-
-        <div class="btn-row">
-          <button class="btn-ghost" onclick="goToScreen('screen-name')">← Back</button>
-          <button class="btn-primary-sm" id="nextSign" disabled>Next →</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- SCREEN 4: PERIOD -->
-    <section class="screen" id="screen-period">
-      <div class="glass-card">
-        <div class="step-indicator">Step 3 / 4</div>
-        <h2 class="title-sec">ဘယ်အချိန်အတွက် ဖတ်မလဲ?</h2>
-        <p class="sub-en">Choose your time period</p>
-
-        <div class="period-list">
-          <button class="period-btn" data-period="today">
-            <span class="period-icon">🌞</span>
-            <div class="period-info">
-              <strong>ဒီနေ့</strong>
-              <small>Today's Fortune</small>
-            </div>
-          </button>
-          <button class="period-btn" data-period="month">
-            <span class="period-icon">🌙</span>
-            <div class="period-info">
-              <strong>ဒီလ</strong>
-              <small>This Month</small>
-            </div>
-          </button>
-          <button class="period-btn" data-period="year">
-            <span class="period-icon">⭐</span>
-            <div class="period-info">
-              <strong>ဒီနှစ်</strong>
-              <small>This Year</small>
-            </div>
-          </button>
-        </div>
-
-        <div class="btn-row">
-          <button class="btn-ghost" onclick="goToScreen('screen-sign')">← Back</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- SCREEN 5: QUESTIONS -->
-    <section class="screen" id="screen-questions">
-      <div class="glass-card">
-        <div class="step-indicator">Step 4 / 4</div>
-        <div class="progress-wrap">
-          <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
-          </div>
-          <div class="progress-text">
-            <span id="qCurrent">1</span> / <span id="qTotal">10</span>
-          </div>
-        </div>
-
-        <div class="question-wrap" id="questionWrap"></div>
-
-        <div class="btn-row">
-          <button class="btn-ghost" id="qBack">← Back</button>
-          <button class="btn-primary-sm" id="qNext">Next →</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- SCREEN 6: LOADING -->
-    <section class="screen" id="screen-loading">
-      <div class="glass-card loading-card">
-        <div class="loading-ball">
-          <div class="crystal-inner pulse"></div>
-        </div>
-        <h2 class="title-sec" id="loadingText">ဟောကိန်း ဖတ်နေတယ်...</h2>
-        <p class="sub-en">Reading your fortune...</p>
-        <div class="loading-dots">
-          <span></span><span></span><span></span>
-        </div>
-      </div>
-    </section>
-
-    <!-- SCREEN 7: RESULT -->
-    <section class="screen" id="screen-result">
-      <div class="glass-card result-card">
-        <div class="result-header">
-          <div class="sign-badge" id="resultSign">♌</div>
-          <div>
-            <h2 class="result-title" id="resultTitle">Leo</h2>
-            <p class="result-sub" id="resultSub">သင့်အတွက်သာ</p>
-          </div>
-        </div>
-
-        <div class="result-greeting" id="resultGreeting">မင်္ဂလာပါ</div>
-        <div class="result-period" id="resultPeriod">🌞 ဒီနေ့ Fortune</div>
-
-        <div class="result-categories" id="resultCategories"></div>
-
-        <div class="lucky-card" id="luckyCard">
-          <h3 class="lucky-title">🍀 သင့် ကံကောင်း</h3>
-          <div class="lucky-row">
-            <div class="lucky-item">
-              <span class="lucky-label">အရောင်</span>
-              <span class="lucky-value" id="luckyColor">🟡 အဝါ</span>
-            </div>
-            <div class="lucky-item">
-              <span class="lucky-label">ဂဏန်း</span>
-              <span class="lucky-value" id="luckyNumber">၇</span>
-            </div>
-          </div>
-          <div class="lucky-row">
-            <div class="lucky-item">
-              <span class="lucky-label">နေ့</span>
-              <span class="lucky-value" id="luckyDay">ဗုဒ္ဓဟူး</span>
-            </div>
-            <div class="lucky-item">
-              <span class="lucky-label">အချိန်</span>
-              <span class="lucky-value" id="luckyTime">မနက် ၉-၁၁</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="btn-row-result">
-          <button class="btn-ghost" id="btnShare">📤 Share</button>
-          <button class="btn-primary-sm" onclick="restart()">🔄 Try Again</button>
-        </div>
-
-        <p class="footer-note">✨ Made with love · TryIt Hub</p>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- AD OVERLAY -->
-  <div class="ad-overlay" id="adOverlay">
-    <div class="glass-card ad-card">
-      <div class="ad-icon">🎁</div>
-      <h3>Unlock Full Fortune</h3>
-      <p class="sub-my" id="adSubText">အပြည့်အစုံ ဖတ်ဖို့ ကြော်ငြာ ကြည့်ပါ</p>
-      <button class="btn-primary" id="btnWatchAd">▶ Watch Ad</button>
-      <button class="btn-ghost-sm" id="btnSkipAd">Skip</button>
-    </div>
   </div>
 
   <script src="data.js"></script>
   <script src="script.js"></script>
 </body>
-</html>
+            </html>
