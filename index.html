@@ -2,15 +2,16 @@
 <html lang="my">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <meta name="theme-color" content="#0a0a15" />
   <title>TryIt Hub</title>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -22,126 +23,91 @@
     <div class="orb orb-3"></div>
   </div>
 
-  <!-- App Container -->
   <div class="app">
 
-    <!-- HEADER -->
+    <!-- ============ HEADER ============ -->
     <header class="app-header glass-card">
       <div class="logo-wrap">
-        <img src="assets/Untitled173_20260913235716.png" alt="TryIt Hub" class="logo-img" />
+        <img src="assets/logo.png" alt="TryIt Hub" />
       </div>
-      <div class="header-text">
+      <div class="header-info">
         <h1>TryIt Hub</h1>
-        <p>အားလုံး တစ်နေရာတည်း</p>
+        <p>This is a description of this Hub</p>
       </div>
-      <button class="header-btn" onclick="openMenu()">
-        <span>⋮</span>
-      </button>
     </header>
 
-    <!-- HERO BANNER -->
-    <section class="hero-banner glass-card">
-      <div class="hero-content">
-        <span class="hero-badge">✨ New</span>
-        <h2>Fortune App ဖြင့်</h2>
-        <p>သင့်အတွက်သာ ဟောကိန်း ဖတ်ကြည့်ပါ</p>
+    <!-- ============ HERO BANNER ============ -->
+    <section class="hero glass-card">
+      <div class="hero-img-wrap">
+        <img src="assets/hero.png" alt="Hero" class="hero-img" />
+      </div>
+      <div class="hero-body">
+        <h2 class="hero-title">TryIt Hub</h2>
+        <p class="hero-desc">Everything you need in one place</p>
         <button class="hero-btn" onclick="goToPage('pages/fortune.html')">
-          🚀 Start Now
+          <span class="btn-icon" data-icon="rocket"></span>
+          <span>Explore Now</span>
         </button>
       </div>
-      <div class="hero-glow"></div>
     </section>
 
-    <!-- SECTION 1: OUR ONLINE GAME/TOOL -->
+    <!-- ============ SECTION 1: TOOLS ============ -->
     <section class="section">
       <div class="section-head">
-        <h3>🎮 Our Online Game/Tool</h3>
-        <span class="section-line"></span>
+        <h3>Online Useful Tools</h3>
+        <button class="see-more" onclick="goToPage('pages/tools.html')">
+          See more
+          <span class="see-more-arrow" data-icon="arrowRight"></span>
+        </button>
       </div>
-      <div class="grid-2">
-        <div class="grid-card glass-card" onclick="goToPage('pages/fortune.html')">
-          <div class="grid-icon">🔮</div>
-          <span class="grid-label">Fortune</span>
-          <span class="grid-sub">ဟောကိန်း</span>
-        </div>
-        <div class="grid-card glass-card" onclick="goToPage('pages/rpg.html')">
-          <div class="grid-icon">🎮</div>
-          <span class="grid-label">RPG</span>
-          <span class="grid-sub">စွန့်စားခန်း</span>
-        </div>
-        <div class="grid-card glass-card" onclick="goToPage('pages/tools.html')">
-          <div class="grid-icon">🛠</div>
-          <span class="grid-label">Tools</span>
-          <span class="grid-sub">ကိရိယာ</span>
-        </div>
-        <div class="grid-card glass-card" onclick="goToPage('pages/calculator.html')">
-          <div class="grid-icon">🧮</div>
-          <span class="grid-label">Calculator</span>
-          <span class="grid-sub">တွက်စက်</span>
-        </div>
-      </div>
+      <div class="scroll-row" id="toolsGrid"></div>
     </section>
 
-    <!-- SECTION 2: POPULAR APP/GAME -->
+    <!-- ============ SECTION 2: POPULAR APPS ============ -->
     <section class="section">
       <div class="section-head">
-        <h3>⭐ Popular App & Game</h3>
-        <span class="section-line"></span>
+        <h3>Popular Apps</h3>
+        <button class="see-more" onclick="goToPage('pages/apps.html')">
+          See more
+          <span class="see-more-arrow" data-icon="arrowRight"></span>
+        </button>
       </div>
-      <div class="grid-2" id="popularGrid">
-        <!-- Populated by script.js from data.js -->
-      </div>
+      <div class="scroll-row" id="appsGrid"></div>
     </section>
 
-    <!-- SECTION 3: ONLINE TOOLS -->
+    <!-- ============ SECTION 3: POPULAR GAMES ============ -->
     <section class="section">
       <div class="section-head">
-        <h3>🌐 Online Tools</h3>
-        <span class="section-line"></span>
+        <h3>Popular Games</h3>
+        <button class="see-more" onclick="goToPage('pages/games.html')">
+          See more
+          <span class="see-more-arrow" data-icon="arrowRight"></span>
+        </button>
       </div>
-      <div class="tools-list" id="toolsList">
-        <!-- Populated by script.js -->
-      </div>
+      <div class="scroll-row" id="gamesGrid"></div>
     </section>
 
-    <!-- SECTION 4: OUR ONLINE APP & GAME -->
+    <!-- ============ SECTION 4: OUR ONLINE APP & GAME ============ -->
     <section class="section">
       <div class="section-head">
-        <h3>📱 Our Online App & Game</h3>
-        <span class="section-line"></span>
+        <h3>Our Online App & Game</h3>
+        <button class="see-more" onclick="goToPage('pages/our-apps.html')">
+          See more
+          <span class="see-more-arrow" data-icon="arrowRight"></span>
+        </button>
       </div>
-      <div class="grid-2">
-        <div class="grid-card glass-card" onclick="goToPage('pages/fortune.html')">
-          <div class="grid-icon">🔮</div>
-          <span class="grid-label">Fortune</span>
-          <span class="grid-sub">ဟောကိန်း</span>
-        </div>
-        <div class="grid-card glass-card" onclick="goToPage('pages/calculator.html')">
-          <div class="grid-icon">🧮</div>
-          <span class="grid-label">Calculator</span>
-          <span class="grid-sub">တွက်စက်</span>
-        </div>
-        <div class="grid-card glass-card" onclick="goToPage('pages/tts.html')">
-          <div class="grid-icon">🔊</div>
-          <span class="grid-label">Text to Speech</span>
-          <span class="grid-sub">အသံဖန်တီး</span>
-        </div>
-        <div class="grid-card glass-card" onclick="goToPage('pages/tools.html')">
-          <div class="grid-icon">🛠</div>
-          <span class="grid-label">All Tools</span>
-          <span class="grid-sub">အားလုံး</span>
-        </div>
-      </div>
+      <div class="scroll-row" id="ourAppsGrid"></div>
     </section>
 
-    <!-- FOOTER -->
+    <!-- ============ FOOTER ============ -->
     <footer class="app-footer">
-      <p>✨ TryIt Hub · Made with 💜</p>
+      <p>TryIt Hub · Made with 💜</p>
     </footer>
 
   </div>
 
+  <script src="icons.js"></script>
   <script src="data.js"></script>
   <script src="script.js"></script>
 </body>
-            </html>
+</html>
