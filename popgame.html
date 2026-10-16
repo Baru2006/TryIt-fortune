@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#ffffff" />
+  <title>Popular Games — TryIt Hub</title>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="light">
+
+  <div class="app">
+
+    <header class="app-header">
+      <div class="logo-wrap">
+        <img src="assets/logo.png" alt="TryIt Hub" draggable="false" />
+      </div>
+      <div class="header-info">
+        <h1>TryIt Hub</h1>
+        <p>Popular Games</p>
+      </div>
+    </header>
+
+    <div class="page-head">
+      <h2>Popular Games</h2>
+      <p>လူကြိုက်များတဲ့ Game များ</p>
+      <div class="page-head-count">စုစုပေါင်း 30</div>
+    </div>
+
+    <section class="list-cards" id="gameList"></section>
+
+    <div class="back-home-wrap">
+      <a href="index.html" class="back-home-btn">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 11l9-8 9 8M5 10v10h14V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Back Home</span>
+      </a>
+    </div>
+
+    <footer class="app-footer">
+      <p>© 2026 TryIt Hub</p>
+    </footer>
+
+  </div>
+
+  <script src="protect.js"></script>
+  <script src="data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
