@@ -1,119 +1,35 @@
 // ==================================================
-// SECTION 1: ONLINE USEFUL TOOLS
+// TOOLS (10 items)
 // ==================================================
 const TOOLS = [
-  {
-    icon: 'music',
-    label: 'YT to MP3',
-    sub: 'Audio Download',
-    url: 'https://ytmp3.cc',
-    external: true,
-  },
-  {
-    icon: 'video',
-    label: 'YT Video',
-    sub: 'MP4 Download',
-    url: 'https://y2mate.com',
-    external: true,
-  },
-  {
-    icon: 'image',
-    label: 'YT Thumbnail',
-    sub: 'Thumbnail DL',
-    url: 'https://youtube.com',
-    external: true,
-  },
-  {
-    icon: 'tiktok',
-    label: 'TikTok',
-    sub: 'No Watermark',
-    url: 'https://ssstik.io',
-    external: true,
-  },
-  {
-    icon: 'volume',
-    label: 'Text to Speech',
-    sub: 'App ထဲမှာ',
-    url: 'pages/tts.html',
-    external: false,
-  },
-  {
-    icon: 'calculator',
-    label: 'Calculator',
-    sub: 'App ထဲမှာ',
-    url: 'pages/calculator.html',
-    external: false,
-  },
+  { icon: 'assets/icons/yt-mp3.png',   title: 'YouTube MP3 Download', sub: 'Audio Download',   url: 'https://ytmp3.cc', external: true },
+  { icon: 'assets/icons/yt-thumb.png', title: 'YouTube Thumbnail',    sub: 'Thumbnail Download', url: 'https://youtube.com', external: true },
+  { icon: 'assets/icons/tiktok.png',   title: 'TikTok No Watermark',  sub: 'Video Download',    url: 'https://ssstik.io', external: true },
+  { icon: 'assets/icons/tts.png',      title: 'Text To Speech',       sub: 'AI Voice',          url: '#', external: false },
+  { icon: 'assets/icons/yt-video.png', title: 'YouTube Video',        sub: 'MP4 Download',      url: 'https://y2mate.com', external: true },
+  { icon: 'assets/icons/calculator.png', title: 'Calculator',         sub: 'Calculate',         url: '#', external: false },
+  { icon: 'assets/icons/qr.png',       title: 'QR Generator',         sub: 'Create QR',         url: 'https://qr-code-generator.com', external: true },
+  { icon: 'assets/icons/password.png', title: 'Password Generator',   sub: 'Strong Password',   url: 'https://passwordsgenerator.net', external: true },
+  { icon: 'assets/icons/image.png',    title: 'Image Compressor',     sub: 'Compress Image',    url: 'https://tinypng.com', external: true },
+  { icon: 'assets/icons/color.png',    title: 'Color Picker',         sub: 'Pick Color',        url: 'https://imagecolorpicker.com', external: true },
 ];
 
 // ==================================================
-// SECTION 2: POPULAR APPS
+// POPULAR APPS (30 items)
 // ==================================================
 const POPULAR_APPS = [
-  { icon: 'ai',         label: 'DeepSeek',  sub: 'AI Assistant',   url: '#' },
-  { icon: 'scissors',   label: 'CapCut',    sub: 'Video Editor',   url: '#' },
-  { icon: 'send',       label: 'Telegram',  sub: 'Messenger',      url: '#' },
-  { icon: 'paint',      label: 'Editor',    sub: 'Photo Editor',   url: '#' },
-  { icon: 'camera',     label: 'Picsart',   sub: 'Photo Editor',   url: '#' },
-  { icon: 'headphones', label: 'Spotify',   sub: 'Music',          url: '#' },
+  { icon: 'assets/apps/app1.png',  title: 'App 1',  tags: ['video editor'],        dev: 'Developer 1', desc: 'Description...',  size: '500MB', url: '#' },
+  { icon: 'assets/apps/app2.png',  title: 'App 2',  tags: ['social media'],        dev: 'Developer 2', desc: 'Description...',  size: '200MB', url: '#' },
+  { icon: 'assets/apps/app3.png',  title: 'App 3',  tags: ['photo editor'],        dev: 'Developer 3', desc: 'Description...',  size: '25MB',  url: '#' },
+  // ... 30 ခု ထည့်ပါ
 ];
 
 // ==================================================
-// SECTION 3: POPULAR GAMES
+// POPULAR GAMES (30 items)
 // ==================================================
 const POPULAR_GAMES = [
-  { icon: 'fire',      label: 'Free Fire',       sub: 'Action',         url: '#' },
-  { icon: 'crosshair', label: 'PUBG',            sub: 'Battle Royale',  url: '#' },
-  { icon: 'target',    label: 'Mobile Legends',  sub: 'MOBA',           url: '#' },
-  { icon: 'car',       label: 'Asphalt 9',       sub: 'Racing',         url: '#' },
-  { icon: 'cube',      label: 'Minecraft',       sub: 'Sandbox',        url: '#' },
-  { icon: 'gamepad',   label: 'GTA',             sub: 'Open World',     url: '#' },
-];
-
-// ==================================================
-// SECTION 4: OUR ONLINE APP & GAME
-// ==================================================
-const OUR_APPS = [
-  {
-    icon: 'crystal',
-    label: 'Fortune',
-    sub: 'ဟောကိန်း',
-    url: 'pages/fortune.html',
-    external: false,
-  },
-  {
-    icon: 'shield',
-    label: 'RPG Fortune',
-    sub: 'စွန့်စားခန်း',
-    url: 'pages/rpg.html',
-    external: false,
-  },
-  {
-    icon: 'calculator',
-    label: 'Calculator',
-    sub: 'တွက်စက်',
-    url: 'pages/calculator.html',
-    external: false,
-  },
-  {
-    icon: 'volume',
-    label: 'TTS',
-    sub: 'အသံဖန်တီး',
-    url: 'pages/tts.html',
-    external: false,
-  },
-  {
-    icon: 'card',
-    label: 'Daily Card',
-    sub: 'ကံစမ်းမယ်',
-    url: 'pages/daily-card.html',
-    external: false,
-  },
-  {
-    icon: 'question',
-    label: 'Yes/No',
-    sub: 'မေးခွန်း',
-    url: 'pages/yesno.html',
-    external: false,
-  },
+  { icon: 'assets/games/game1.png', title: 'Game 1', tags: ['action'],         dev: 'Developer 1', desc: 'Description...', size: '500MB', url: '#' },
+  { icon: 'assets/games/game2.png', title: 'Game 2', tags: ['battle royale'],  dev: 'Developer 2', desc: 'Description...', size: '200MB', url: '#' },
+  { icon: 'assets/games/game3.png', title: 'Game 3', tags: ['racing'],         dev: 'Developer 3', desc: 'Description...', size: '25MB',  url: '#' },
+  // ... 30 ခု ထည့်ပါ
 ];
