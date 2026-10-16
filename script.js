@@ -67,7 +67,7 @@ function renderList(containerId, items, btnLabel) {
         <div class="list-card-tags">
           ${item.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
         </div>
-        <div class="list-card-dev">${item.dev}</div>
+        <div class="list-card-dev">${item.developer}</div>
         <div class="list-card-desc">${item.desc}</div>
         <div class="list-card-footer">
           <span class="list-card-size">${item.size}</span>
