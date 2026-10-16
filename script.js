@@ -1,8 +1,6 @@
 // ==================================================
-// TRYIT HUB — MAIN SCRIPT
+// TELEGRAM WEBAPP
 // ==================================================
-
-// Telegram WebApp ready
 if (window.Telegram && window.Telegram.WebApp) {
   window.Telegram.WebApp.ready();
   window.Telegram.WebApp.expand();
@@ -12,72 +10,60 @@ if (window.Telegram && window.Telegram.WebApp) {
 // NAVIGATION
 // ==================================================
 function goToPage(url) {
+  if (url === '#') return;
   window.location.href = url;
 }
 
-function openMenu() {
-  // Menu action (optional)
-  alert('Menu — Coming Soon');
-}
-
 // ==================================================
-// OPEN TOOL — Internal or External
+// OPEN TOOL (Internal / External)
 // ==================================================
-function openTool(url, isInternal) {
-  if (isInternal) {
-    window.location.href = url;
+function openTool(url, isExternal) {
+  if (!isExternal) {
+    goToPage(url);
     return;
   }
 
-  // External — Telegram openLink
   if (window.Telegram && window.Telegram.WebApp) {
-    window.Telegram.WebApp.openLink(url, {
-      try_instant_view: false,
-    });
+    window.Telegram.WebApp.openLink(url, { try_instant_view: false });
   } else {
     window.open(url, '_blank');
   }
 }
 
 // ==================================================
-// RENDER POPULAR APPS
+// RENDER GRID — Horizontal Scroll + SVG Icons
 // ==================================================
-function renderPopular() {
-  const grid = document.getElementById('popularGrid');
-  if (!grid) return;
+function renderGrid(containerId, items) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
 
-  grid.innerHTML = POPULAR_APPS.map(app => `
-    <div class="grid-card glass-card" onclick="goToPage('${app.url}')">
-      <div class="grid-icon">${app.icon}</div>
-      <span class="grid-label">${app.label}</span>
-      <span class="grid-sub">${app.sub}</span>
-    </div>
-  `).join('');
-}
+  container.innerHTML = items.map(item => {
+    const onclick = item.external
+      ? `openTool('${item.url}', true)`
+      : `goToPage('${item.url}')`;
 
-// ==================================================
-// RENDER ONLINE TOOLS
-// ==================================================
-function renderTools() {
-  const list = document.getElementById('toolsList');
-  if (!list) return;
+    const svgIcon = getIcon(item.icon);
 
-  list.innerHTML = ONLINE_TOOLS.map(tool => `
-    <div class="tool-item" onclick="openTool('${tool.url}', ${!!tool.internal})">
-      <div class="tool-icon-wrap">${tool.icon}</div>
-      <div class="tool-info">
-        <h4>${tool.title}</h4>
-        <p>${tool.sub}</p>
+    return `
+      <div class="grid-card" onclick="${onclick}">
+        <div class="grid-icon">${svgIcon}</div>
+        <div class="grid-label">${item.label}</div>
+        <div class="grid-sub">${item.sub}</div>
       </div>
-      <span class="tool-arrow">→</span>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
 // ==================================================
 // INIT
 // ==================================================
 document.addEventListener('DOMContentLoaded', () => {
-  renderPopular();
-  renderTools();
+  // Render all sections
+  renderGrid('toolsGrid',   TOOLS);
+  renderGrid('appsGrid',    POPULAR_APPS);
+  renderGrid('gamesGrid',   POPULAR_GAMES);
+  renderGrid('ourAppsGrid', OUR_APPS);
+
+  // Auto-render [data-icon] elements (see-more arrows, hero button)
+  renderDataIcons();
 });
