@@ -5,29 +5,57 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Tarot Reading — TryIt Hub</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="tarot.css" />
 </head>
 <body class="tarot-dark">
 
-  <!-- SCREEN 1: LOADING -->
-  <section class="tarot-screen active" id="screen-loading">
-    <div class="loading-spinner"></div>
-    <h2>အိမ်ထဲကို ဝင်ရောက်နေသည်...</h2>
-    <p>ခဏစောင့်ပါ</p>
+  <!-- 🎵 AUDIO ELEMENTS -->
+  <audio id="bgMusic" loop>
+    <source src="assets/audio/bg-music.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="sfxClick"><source src="assets/audio/click.mp3" type="audio/mpeg"></audio>
+  <audio id="sfxShuffle"><source src="assets/audio/shuffle.mp3" type="audio/mpeg"></audio>
+  <audio id="sfxReveal"><source src="assets/audio/reveal.mp3" type="audio/mpeg"></audio>
+
+  <!-- SCREEN 1: START MENU (အသစ်) -->
+  <section class="tarot-screen active" id="screen-start">
+    <div class="bg-room"></div>
+    <div class="start-menu">
+      <h1 class="game-logo">TAROT</h1>
+      <p>Mystic Reading</p>
+      
+      <div class="menu-buttons">
+        <button class="tarot-btn primary-btn" onclick="startGame()">Start</button>
+        <button class="tarot-btn" onclick="openSettings()">Settings</button>
+      </div>
+    </div>
   </section>
 
-  <!-- SCREEN 2: INTRO & CHOICE -->
+  <!-- SCREEN 2: INTRO -->
   <section class="tarot-screen" id="screen-intro">
     <div class="bg-room"></div>
     <div class="character-img" id="character"></div>
     
     <div class="dialogue-box">
       <div class="dialogue-text">
-        <p id="char-speech">"ဘာအတွက် ဟောစာတမ်း လိုချင်တာလဲ...?"</p>
+        <p id="char-speech">"မင်္ဂလာပါ... ငါ့ဆီကို ရောက်လာတာ ကြိုဆိုပါတယ်။"</p>
       </div>
-      
+      <button class="tarot-btn" onclick="goToChoice()">ဆက်လုပ်မယ်</button>
+    </div>
+  </section>
+
+  <!-- SCREEN 3: CHOICE -->
+  <section class="tarot-screen" id="screen-choice">
+    <div class="bg-room"></div>
+    <div class="character-img"></div>
+    
+    <div class="dialogue-box">
+      <div class="dialogue-text">
+        <p>"ဘာအတွက် ဟောစာတမ်း လိုချင်တာလဲ...?"</p>
+      </div>
       <div class="choice-buttons">
         <button class="tarot-btn" onclick="startReading(1)">
           <span>ဒီနေ့ လိုအပ်နေတဲ့အရာ</span>
@@ -41,33 +69,26 @@
     </div>
   </section>
 
-  <!-- SCREEN 3: SHUFFLE & PICK -->
+  <!-- SCREEN 4: PICK CARDS -->
   <section class="tarot-screen" id="screen-pick">
     <div class="bg-room"></div>
-    <div class="character-img" id="character-pick"></div>
     
     <div class="pick-header">
-      <h2 id="pick-instruction">၁ ကဒ် ရွေးချယ်ပါ</h2>
+      <h2 id="pick-instruction">ကဒ်များကို ရွေးချယ်ပါ</h2>
     </div>
 
-    <!-- ကဒ် ၁၀ ကဒ် မှောက်ထားမည့်နေရာ -->
     <div class="cards-grid" id="cardsGrid">
       <!-- JS မှ ကဒ်များ ထည့်ပေးမည် -->
     </div>
   </section>
 
-  <!-- SCREEN 4: RESULT -->
+  <!-- SCREEN 5: RESULT -->
   <section class="tarot-screen" id="screen-result">
     <div class="result-container">
       <h2>ဟောစာတမ်း</h2>
       
-      <div class="revealed-cards" id="revealedCards">
-        <!-- ရွေးထားသော ကဒ်များ ပေါ်လာမည် -->
-      </div>
-
-      <div class="fortune-text" id="fortuneText">
-        <!-- ဟောစာတမ်း စာသား -->
-      </div>
+      <div class="revealed-cards" id="revealedCards"></div>
+      <div class="fortune-text" id="fortuneText"></div>
 
       <div class="action-buttons">
         <button class="icon-btn" onclick="saveReading()">💾 Save</button>
@@ -78,10 +99,10 @@
     </div>
   </section>
 
-  <!-- SCREEN 5: OUTRO -->
+  <!-- SCREEN 6: OUTRO -->
   <section class="tarot-screen" id="screen-outro">
     <div class="bg-room"></div>
-    <div class="character-img" id="character-outro"></div>
+    <div class="character-img"></div>
     
     <div class="dialogue-box">
       <div class="dialogue-text">
@@ -90,12 +111,10 @@
     </div>
   </section>
 
-  <!-- SCREEN 6: APP INFO -->
+  <!-- SCREEN 7: APP INFO -->
   <section class="tarot-screen" id="screen-info">
     <div class="info-card">
-      <img src="assets/logo.png" alt="TryIt Hub" class="info-logo" />
       <h2>TryIt Hub Tarot</h2>
-      <p>Mystic Reading Experience</p>
       <p class="version">Version 1.0.0</p>
       
       <div class="action-buttons-vertical">
@@ -104,9 +123,20 @@
       </div>
     </div>
   </section>
-  <!-- Save လုပ်ဖို့အတွက် -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <!-- SCREEN 8: SETTINGS (အသစ်) -->
+  <section class="tarot-screen" id="screen-settings">
+    <div class="info-card">
+      <h2>Settings</h2>
+      <div class="setting-row">
+        <span>🎵 နောက်ခံ တီးလုံး (Music)</span>
+        <button class="toggle-btn" id="musicToggle" onclick="toggleMusic()">ON</button>
+      </div>
+      <button class="tarot-btn" style="margin-top: 20px;" onclick="backToMenu()">Back to Menu</button>
+    </div>
+  </section>
+
   <script src="tarot-data.js"></script>
-<script src="tarot.js"></script>
+  <script src="tarot.js"></script>
 </body>
 </html>
