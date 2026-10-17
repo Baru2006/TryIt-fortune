@@ -229,16 +229,19 @@ body.tarot-dark {
   flex-wrap: wrap;
 }
 
-/* ကဒ်ပြန်လှန်ခြင်း (Flip) Animation */
 .reveal-card {
   width: 90px;
   aspect-ratio: 2/3;
-  background: #fff;
+  background: #fff; /* ပုံထည့်ရင် ဒီနေရာမှာ ပေါ်မယ် */
   border-radius: 8px;
   box-shadow: 0 0 20px rgba(139, 92, 246, 0.6);
   background-size: cover;
   background-position: center;
   animation: flipCard 0.8s ease forwards;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f3f4f6;
 }
 
 @keyframes flipCard {
@@ -314,4 +317,21 @@ body.tarot-dark {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+/* အရင်က .tarot-card နေရာမှာ ဒါနဲ့ အစားထိုးပါ */
+.tarot-card {
+  aspect-ratio: 2/3;
+  /* ပုံမရှိရင် ခဏဒီ Gradient လေးပေါ်နေမယ် */
+  background: linear-gradient(135deg, #2a1b41, #1a1a2e);
+  border-radius: 6px;
+  border: 1px solid rgba(139, 92, 246, 0.5);
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  animation: dealCard 0.5s ease backwards;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
