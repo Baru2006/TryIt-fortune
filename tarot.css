@@ -335,3 +335,72 @@ body.tarot-dark {
   align-items: center;
   justify-content: center;
 }
+
+/* ==================================================
+   START MENU & SETTINGS (အသစ်)
+   ================================================== */
+.start-menu {
+  z-index: 10;
+  text-align: center;
+  background: rgba(15, 10, 26, 0.7);
+  padding: 40px 20px;
+  border-radius: 20px;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.game-logo {
+  font-size: 48px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 5px;
+  text-shadow: 0 0 20px rgba(139, 92, 246, 0.8);
+  margin-bottom: 5px;
+}
+
+.start-menu p {
+  color: #a0aec0;
+  font-size: 14px;
+  margin-bottom: 30px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.menu-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 200px;
+  margin: 0 auto;
+}
+
+/* Settings Screen */
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.setting-row span {
+  font-family: 'Padauk', sans-serif;
+  font-size: 15px;
+}
+
+.toggle-btn {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+}
+.toggle-btn.off {
+  background: #4a5568;
+}
