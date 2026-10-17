@@ -1,36 +1,89 @@
 // ==================================================
-// TAROT GAME LOGIC (Full Version)
+// TAROT GAME LOGIC + AUDIO
 // ==================================================
 
 let requiredCards = 1;
 let selectedCards = [];
-let drawnCards = [];
 let isPicking = false;
+let isMusicOn = true;
 
-// 1. Screen ပြောင်းလဲခြင်း
+// Audio Elements
+const bgMusic = document.getElementById('bgMusic');
+const sfxClick = document.getElementById('sfxClick');
+const sfxShuffle = document.getElementById('sfxShuffle');
+const sfxReveal = document.getElementById('sfxReveal');
+
+// Utility: Play Sound
+function playSound(sfx) {
+  if (isMusicOn && sfx) {
+    sfx.currentTime = 0;
+    sfx.play().catch(e => console.log("Audio error:", e));
+  }
+}
+
+// Utility: Toggle Music
+function toggleMusic() {
+  isMusicOn = !isMusicOn;
+  const btn = document.getElementById('musicToggle');
+  
+  if (isMusicOn) {
+    bgMusic.play();
+    btn.innerText = "ON";
+    btn.classList.remove("off");
+  } else {
+    bgMusic.pause();
+    btn.innerText = "OFF";
+    btn.classList.add("off");
+  }
+}
+
+// Utility: Show Screen
 function showScreen(screenId) {
   document.querySelectorAll('.tarot-screen').forEach(s => s.classList.remove('active'));
   document.getElementById(screenId).classList.add('active');
 }
 
-// 2. App စတင်ချိန် (Loading ပြီးရင် Intro ကို သွားမယ်)
+// 1. App Start -> Play Music
 window.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => {
-    showScreen('screen-intro');
-  }, 3000); // ၃ စက္ကန့် စောင့်မယ်
+  bgMusic.volume = 0.5; // Volume 50%
+  bgMusic.play().catch(e => console.log("Need interaction to play audio"));
+  showScreen('screen-start');
 });
 
-// 3. ကဒ်ရွေးချယ်မှု စတင်ခြင်း
+// 2. Menu Navigation
+function startGame() {
+  playSound(sfxClick);
+  showScreen('screen-intro');
+}
+
+function openSettings() {
+  playSound(sfxClick);
+  showScreen('screen-settings');
+}
+
+function backToMenu() {
+  playSound(sfxClick);
+  showScreen('screen-start');
+}
+
+function goToChoice() {
+  playSound(sfxClick);
+  showScreen('screen-choice');
+}
+
+// 3. Start Reading
 function startReading(num) {
+  playSound(sfxClick);
+  playSound(sfxShuffle); // ကဒ်မွှေသံ
+  
   requiredCards = num;
   selectedCards = [];
   isPicking = false; 
   
   document.getElementById('pick-instruction').innerText = `${num} ကဒ် ရွေးချယ်ပါ`;
   
-  // Data ထဲက ကဒ် ၅၆ ကဒ်ကို မွှေမယ်
   let shuffledDeck = [...TAROT_DECK].sort(() => Math.random() - 0.5);
-  drawnCards = shuffledDeck.slice(0, 10); // ၁၀ ကဒ်ကို ရွေးထုတ်မယ်
+  let drawnCards = shuffledDeck.slice(0, 10);
 
   const grid = document.getElementById('cardsGrid');
   grid.innerHTML = '';
@@ -39,11 +92,7 @@ function startReading(num) {
     const card = document.createElement('div');
     card.className = 'tarot-card';
     card.style.animationDelay = `${index * 0.05}s`;
-    
-    // ကဒ်ကျောဘက်မှာ နံပါတ်လေး ပြထားမယ် (ပုံမရှိသေးလို့)
-    card.innerHTML = `<span style="color:rgba(255,255,255,0.2); font-size:12px;">${cardData.id}</span>`;
-    
-    // နှိပ်လိုက်ရင် ကဒ်ရဲ့ Data တစ်ခုလုံးကို ပို့မယ်
+    // နောက်ကျောပုံကို CSS မှာ ထည့်ထားပါတယ်
     card.onclick = () => pickCard(card, cardData); 
     grid.appendChild(card);
   });
@@ -51,23 +100,24 @@ function startReading(num) {
   showScreen('screen-pick');
 }
 
-// 4. ကဒ်ရွေးချယ်ခြင်း
+// 4. Pick Card
 function pickCard(cardElement, cardData) {
-  if (isPicking) return; // ရွေးနေဆဲဆိုရင် ထပ်နှိပ်လို့မရအောင် ပိတ်မယ်
+  if (isPicking) return;
 
+  playSound(sfxClick); // နှိပ်သံ
   cardElement.classList.add('selected');
   selectedCards.push(cardData);
 
-  // လိုအပ်တဲ့ အရေအတွက် ပြည့်သွားရင်
   if (selectedCards.length === requiredCards) {
     isPicking = true;
     setTimeout(() => {
+      playSound(sfxReveal); // ကဒ်လှန်သံ
       showResult();
-    }, 500); // ကဒ်ပျောက်သွားတာကို ခဏစောင့်မယ်
+    }, 500);
   }
 }
 
-// 5. ရလဒ်ပြသခြင်း
+// 5. Show Result
 function showResult() {
   const revealContainer = document.getElementById('revealedCards');
   revealContainer.innerHTML = '';
@@ -84,7 +134,6 @@ function showResult() {
     
     revealContainer.appendChild(cardDiv);
 
-    // ဟောစာတမ်း စာသား စုစည်းမယ်
     if (requiredCards === 1) {
       fortuneText += `<div style="margin-bottom:20px;">
         <h3 style="color:#8b5cf6; margin-bottom:8px; font-size:18px;">${card.name}</h3>
@@ -105,65 +154,54 @@ function showResult() {
   showScreen('screen-result');
 }
 
-// 6. သိမ်းဆည်းခြင်း (Save to Image)
+// 6. Save / Share
 function saveReading() {
+  playSound(sfxClick);
   const captureArea = document.querySelector('.result-container');
-  
-  // ခလုတ်စာသား ခဏပြောင်းမယ်
   const btn = document.querySelector('.action-buttons .icon-btn');
   const originalText = btn.innerText;
   btn.innerText = '⏳ Saving...';
 
-  // html2canvas ကို သုံးပြီး ပုံပြောင်းမယ်
-  html2canvas(captureArea, { 
-    backgroundColor: '#0f0a1a', // အနက်ရောင်နောက်ခံ
-    scale: 2 
-  }).then(canvas => {
-    // ဒေါင်းလုဒ်ဆွဲမယ်
+  html2canvas(captureArea, { backgroundColor: '#0f0a1a', scale: 2 }).then(canvas => {
     const link = document.createElement('a');
     link.download = `Tarot-Reading-${Date.now()}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
-    
     btn.innerText = originalText;
   }).catch(err => {
-    console.error("Save error:", err);
     alert("သိမ်းဆည်း၍ မရပါ။");
     btn.innerText = originalText;
   });
 }
 
-// 7. App ကို Share လုပ်ခြင်း
 function shareApp() {
-  const appUrl = "https://t.me/tryitmm_bot/app"; // သင့် Bot Link ကို ထည့်ပါ
+  playSound(sfxClick);
+  const appUrl = "https://t.me/tryitmm_bot/app"; 
   const text = "🔮 ငါ့အတွက် Tarot ကဒ်ဖတ်ကြည့်လိုက်တာ။ မင်းလည်း လုပ်ကြည့်ပါဦး!";
   
   if (window.Telegram && window.Telegram.WebApp) {
     window.Telegram.WebApp.openTelegramLink(
       `https://t.me/share/url?url=${encodeURIComponent(appUrl)}&text=${encodeURIComponent(text)}`
     );
-  } else {
-    alert("Share link: " + appUrl);
   }
 }
 
-// 8. ဇာတ်ညွှန်း ဆက်လုပ်ခြင်း (Next နှိပ်ရင်)
+// 7. Outro & Info
 function showOutro() {
+  playSound(sfxClick);
   showScreen('screen-outro');
   setTimeout(() => {
     showScreen('screen-info');
-  }, 4000); // စကားပြောပြီး ၄ စက္ကန့်နေမယ်
+  }, 4000); 
 }
 
-// 9. အိမ်ပြန်သွားခြင်း
 function leaveApp() {
+  playSound(sfxClick);
+  bgMusic.pause(); // ထွက်ခွာရင် သီချင်းပိတ်မယ်
   window.location.href = 'index.html';
 }
 
-// 10. ပြန်စခြင်း
 function restartApp() {
-  showScreen('screen-loading');
-  setTimeout(() => {
-    showScreen('screen-intro');
-  }, 2000); // Loading ပြန် ၂ စက္ကန့်ပြမယ်
+  playSound(sfxClick);
+  showScreen('screen-start');
 }
