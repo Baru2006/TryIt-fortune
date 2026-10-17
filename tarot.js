@@ -1,5 +1,5 @@
 // ==================================================
-// TAROT GAME LOGIC + AUDIO
+// TAROT GAME LOGIC
 // ==================================================
 
 let requiredCards = 1;
@@ -25,7 +25,6 @@ function playSound(sfx) {
 function toggleMusic() {
   isMusicOn = !isMusicOn;
   const btn = document.getElementById('musicToggle');
-  
   if (isMusicOn) {
     bgMusic.play();
     btn.innerText = "ON";
@@ -43,17 +42,24 @@ function showScreen(screenId) {
   document.getElementById(screenId).classList.add('active');
 }
 
-// 1. App Start -> Play Music
+// 1. Initial Load (Loading ပြီး ၃ စက္ကန့်အကြာ Start Menu ကို သွားမယ်)
 window.addEventListener('DOMContentLoaded', () => {
-  bgMusic.volume = 0.5; // Volume 50%
-  bgMusic.play().catch(e => console.log("Need interaction to play audio"));
-  showScreen('screen-start');
+  bgMusic.volume = 0.4;
+  setTimeout(() => {
+    showScreen('screen-start');
+  }, 2500); // 2.5 စက္ကန့် Loading ပြမယ်
 });
 
 // 2. Menu Navigation
 function startGame() {
   playSound(sfxClick);
+  if (isMusicOn && bgMusic.paused) bgMusic.play().catch(e => console.log(e));
   showScreen('screen-intro');
+}
+
+function goToChoice() {
+  playSound(sfxClick);
+  showScreen('screen-choice');
 }
 
 function openSettings() {
@@ -66,15 +72,10 @@ function backToMenu() {
   showScreen('screen-start');
 }
 
-function goToChoice() {
-  playSound(sfxClick);
-  showScreen('screen-choice');
-}
-
 // 3. Start Reading
 function startReading(num) {
   playSound(sfxClick);
-  playSound(sfxShuffle); // ကဒ်မွှေသံ
+  playSound(sfxShuffle);
   
   requiredCards = num;
   selectedCards = [];
@@ -92,7 +93,10 @@ function startReading(num) {
     const card = document.createElement('div');
     card.className = 'tarot-card';
     card.style.animationDelay = `${index * 0.05}s`;
-    // နောက်ကျောပုံကို CSS မှာ ထည့်ထားပါတယ်
+    
+    // JS ကနေ ပုံကို ထပ်သေချာအောင် ထည့်ပေးလိုက်တယ်
+    card.style.backgroundImage = "url('assets/cards/back.png')";
+    
     card.onclick = () => pickCard(card, cardData); 
     grid.appendChild(card);
   });
@@ -104,16 +108,16 @@ function startReading(num) {
 function pickCard(cardElement, cardData) {
   if (isPicking) return;
 
-  playSound(sfxClick); // နှိပ်သံ
+  playSound(sfxClick);
   cardElement.classList.add('selected');
   selectedCards.push(cardData);
 
   if (selectedCards.length === requiredCards) {
     isPicking = true;
     setTimeout(() => {
-      playSound(sfxReveal); // ကဒ်လှန်သံ
+      playSound(sfxReveal);
       showResult();
-    }, 500);
+    }, 400);
   }
 }
 
@@ -157,12 +161,16 @@ function showResult() {
 // 6. Save / Share
 function saveReading() {
   playSound(sfxClick);
-  const captureArea = document.querySelector('.result-container');
+  const captureArea = document.getElementById('captureArea');
   const btn = document.querySelector('.action-buttons .icon-btn');
   const originalText = btn.innerText;
   btn.innerText = '⏳ Saving...';
 
-  html2canvas(captureArea, { backgroundColor: '#0f0a1a', scale: 2 }).then(canvas => {
+  html2canvas(captureArea, { 
+    backgroundColor: '#0f0a1a', 
+    scale: 2,
+    useCORS: true
+  }).then(canvas => {
     const link = document.createElement('a');
     link.download = `Tarot-Reading-${Date.now()}.png`;
     link.href = canvas.toDataURL('image/png');
@@ -197,11 +205,12 @@ function showOutro() {
 
 function leaveApp() {
   playSound(sfxClick);
-  bgMusic.pause(); // ထွက်ခွာရင် သီချင်းပိတ်မယ်
+  if(bgMusic) bgMusic.pause();
   window.location.href = 'index.html';
 }
 
+// 👇 "Again" နှိပ်ရင် ရွေးချယ်မယ့်နေရာ (screen-choice) ကို တိုက်ရိုက် သွားမယ်
 function restartApp() {
   playSound(sfxClick);
-  showScreen('screen-start');
+  showScreen('screen-choice'); 
 }
