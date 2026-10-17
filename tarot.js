@@ -52,13 +52,13 @@ function startReading(num) {
 }
 
 // ကဒ်ရွေးချယ်ခြင်း
-function pickCard(cardElement, cardNum) {
-  if (isPicking) return; // 🔴 အရေးကြီး- ရွေးနေဆဲဆိုရင် ထပ်နှိပ်လို့မရအောင် ပိတ်မယ်
+// ကဒ်ရွေးချယ်ခြင်း
+function pickCard(cardElement, cardData) { // cardNum အစား cardData လက်ခံမယ်
+  if (isPicking) return;
 
   cardElement.classList.add('selected');
-  selectedCards.push(cardNum);
+  selectedCards.push(cardData); // ကဒ် Data တစ်ခုလုံးကို သိမ်းမယ်
 
-  // လိုအပ်တဲ့ အရေအတွက် ပြည့်သွားရင်
   if (selectedCards.length === requiredCards) {
     isPicking = true;
     setTimeout(() => {
@@ -72,28 +72,36 @@ function showResult() {
   const revealContainer = document.getElementById('revealedCards');
   revealContainer.innerHTML = '';
 
-  selectedCards.forEach(cardNum => {
-    const card = document.createElement('div');
-    card.className = 'reveal-card';
+  let fortuneText = "";
+
+  selectedCards.forEach((card, index) => {
+    const cardDiv = document.createElement('div');
+    cardDiv.className = 'reveal-card';
     
-    // ပုံထည့်ထားရင် ဒီကုဒ်က အလုပ်လုပ်မယ်
-    card.style.backgroundImage = `url('assets/cards/${cardNum}.png')`;
+    // ပုံကို ချိတ်ဆက်မယ် (သင့်ပုံတွေ assets/cards/ ထဲမှာ ရှိရမယ်)
+    cardDiv.style.backgroundImage = `url('assets/cards/${card.img}')`;
+    cardDiv.innerHTML = `<span style="color:#8b5cf6; font-size:20px; font-weight:bold; display:flex; align-items:center; justify-content:center; height:100%; background:rgba(255,255,255,0.8);">${card.name}</span>`; // ပုံမရှိရင် အမည်ပြမယ်
     
-    // ပုံမရှိသေးရင် နံပါတ်ပြထားမယ်
-    card.innerHTML = `<span style="color:#8b5cf6; font-size:24px; font-weight:bold; display:flex; align-items:center; justify-content:center; height:100%;">${cardNum}</span>`;
-    
-    revealContainer.appendChild(card);
+    revealContainer.appendChild(cardDiv);
+
+    // ဟောစာတမ်း စာသား စုစည်းမယ်
+    if (requiredCards === 1) {
+      fortuneText += `<div style="margin-bottom:20px;">
+        <h3 style="color:#8b5cf6; margin-bottom:5px;">${card.name}</h3>
+        <p>${card.general}</p>
+      </div>`;
+    } else {
+      const position = index === 0 ? "အတိတ်" : index === 1 ? "ပစ္စုပ္ပန်" : "အနာဂတ်";
+      const meaning = index === 0 ? card.past : index === 1 ? card.present : card.future;
+      
+      fortuneText += `<div style="margin-bottom:20px; text-align:left; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
+        <h3 style="color:#8b5cf6; font-size:16px;">${position} - ${card.name}</h3>
+        <p style="font-size:14px;">${meaning}</p>
+      </div>`;
+    }
   });
 
-  const textContainer = document.getElementById('fortuneText');
-  if (requiredCards === 1) {
-    textContainer.innerHTML = `သင့်ရဲ့ ဒီနေ့အတွက် လိုအပ်နေတဲ့ အရာကတော့...<br><br>ဒီကဒ်က သင့်ကို အားကောင်းတဲ့ စွမ်းအင်တွေ ပေးနေပါတယ်။ ရှေ့ဆက်ဖို့ သတ္တိရှိပါ။`;
-  } else {
-    textContainer.innerHTML = `<b>အတိတ်:</b> သင်ဖြတ်သန်းခဲ့တာတွေက ခက်ခဲပေမဲ့ အခုတော့ အတိတ်မှာ ထားခဲ့လိုက်ပါ။<br><br>
-    <b>ပစ္စုပ္ပန်:</b> လက်ရှိအချိန်မှာ သင့်ရဲ့ ကြိုးစားမှုတွေ အသီးအပွင့်စတင်နေပါပြီ။<br><br>
-    <b>အနာဂတ်:</b> မကြာခင်မှာ သင်မျှော်လင့်ထားတဲ့ ကောင်းချီးတွေ ရောက်လာပါလိမ့်မယ်။`;
-  }
-
+  document.getElementById('fortuneText').innerHTML = fortuneText;
   showScreen('screen-result');
 }
 
