@@ -77,7 +77,7 @@
       <div class="dialogue-text">
         <p>"သင့်မေးခွန်းကို ရေးထည့်ပါ။ ကဒ်တွေက အဖြေပေးပါလိမ့်မယ်။"</p>
       </div>
-      <input type="text" id="yesNoInput" class="q-date" placeholder="ဥပမာ - ဒီအလုပ် လုပ်သင့်လား?" style="width: 100%; margin-bottom: 15px; background: rgba(255,255,255,0.1); border: 1px solid rgba(139,92,246,0.5); color: white; padding: 15px; border-radius: 10px;">
+      <input type="text" id="yesNoInput" placeholder="ဥပမာ - ဒီအလုပ် လုပ်သင့်လား?" style="width: 100%; margin-bottom: 15px; background: rgba(255,255,255,0.1); border: 1px solid rgba(139,92,246,0.5); color: white; padding: 15px; border-radius: 10px; font-family: 'Padauk', sans-serif;">
       <button class="tarot-btn primary-btn" onclick="submitYesNo()">ကဒ်ရွေးမယ်</button>
     </div>
   </section>
@@ -92,17 +92,15 @@
   <!-- SCREEN 6: PICK ROW 1 (၄ ကဒ်) -->
   <section class="tarot-screen" id="screen-pick1">
     <div class="pick-bg" style="background-image: url('assets/floor.png');"></div>
-    <h2 class="pick-title">ကဒ် ၁ ကဒ် ရွေးပါ (အဆင့် ၁)</h2>
+    <h2 class="pick-title" id="title-pick1">ကဒ် ၁ ကဒ် ရွေးပါ (အဆင့် ၁)</h2>
     <div class="pick-grid-4" id="grid1"></div>
   </section>
 
-  <!-- SCREEN 7: PICK ROW 2 (၁၄ ကဒ် - ၄,၃,၄,၃) -->
+  <!-- SCREEN 7: PICK ROW 2 (၁၄ ကဒ်) -->
   <section class="tarot-screen" id="screen-pick2">
     <div class="pick-bg" style="background-image: url('assets/floor.png');"></div>
-    <h2 class="pick-title">ကဒ် ၁ ကဒ် ရွေးပါ (အဆင့် ၂)</h2>
-    <div class="pick-grid-14" id="grid2">
-      <!-- JS မှ ကဒ်များ ထည့်မည် -->
-    </div>
+    <h2 class="pick-title" id="title-pick2">ကဒ် ၁ ကဒ် ရွေးပါ (အဆင့် ၂)</h2>
+    <div class="pick-grid-14" id="grid2"></div>
   </section>
 
   <!-- SCREEN 8: RESULT -->
@@ -119,16 +117,7 @@
     </div>
   </section>
 
-  <!-- SCREEN 9: SAVED LIST MODAL -->
-  <div class="modal-overlay" id="savedModal">
-    <div class="modal-content">
-      <button class="close-btn" onclick="closeSavedList()">✕</button>
-      <h2 style="color: #fbbf24; margin-bottom: 15px;">Save ထားသည်များ</h2>
-      <div id="savedListContainer" style="display: flex; flex-direction: column; gap: 10px;"></div>
-    </div>
-  </div>
-
-  <!-- SCREEN 10: SETTINGS & ABOUT -->
+  <!-- SCREEN 9: SETTINGS & ABOUT -->
   <section class="tarot-screen" id="screen-settings">
     <div class="info-card">
       <h2>စက်တင်များ</h2>
@@ -143,13 +132,26 @@
   <section class="tarot-screen" id="screen-about">
     <div class="info-card">
       <h2>TryIt Hub Tarot</h2>
-      <p class="version">Version 1.1.0</p>
+      <p class="version">Version 1.2.0</p>
       <p style="margin-bottom: 20px;">သင့်အတွက် ဟောစာတမ်းဖတ်ပေးမယ့် ဂိမ်းလေးပါ။</p>
       <button class="tarot-btn" onclick="backToMenu()">ပင်မစာမျက်နှာသို့</button>
     </div>
   </section>
 
-  <!-- DETAIL POPUP (ကဒ်အသေးစိတ်) -->
+  <!-- ================================================== -->
+  <!-- MODALS (အားလုံးကို အောက်ဆုံးမှာ သီးသန့်ထားပါတယ်) -->
+  <!-- ================================================== -->
+
+  <!-- Save List Modal -->
+  <div class="modal-overlay" id="savedModal">
+    <div class="modal-content">
+      <button class="close-btn" onclick="closeSavedList()">✕</button>
+      <h2 style="color: #fbbf24; margin-bottom: 15px;">Save ထားသည်များ</h2>
+      <div id="savedListContainer" style="display: flex; flex-direction: column; gap: 10px;"></div>
+    </div>
+  </div>
+
+  <!-- Card Detail Modal -->
   <div class="modal-overlay" id="cardModal">
     <div class="modal-content">
       <button class="close-btn" onclick="closeModal()">✕</button>
@@ -179,4 +181,4 @@
   <script src="tarot-data.js"></script>
   <script src="tarot.js"></script>
 </body>
-      </html>
+</html>
