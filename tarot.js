@@ -1,5 +1,5 @@
 // ==================================================
-// TAROT GAME LOGIC (V6 - Final Polish)
+// TAROT GAME LOGIC (V7 - With Read More Button)
 // ==================================================
 
 let currentMode = 'daily'; 
@@ -65,7 +65,7 @@ function startReading(mode, num) {
   playSound(sfxClick);
   currentMode = mode;
   requiredCards = num;
-  selectedCards = []; // Reset 
+  selectedCards = []; // State ကို ရှင်းမယ်
   
   if (mode === 'yesno') {
     showScreen('screen-yesno');
@@ -154,7 +154,6 @@ function pickCard(cardElement, cardData) {
   cardData.isReversed = Math.random() < 0.5;
   selectedCards.push(cardData);
   
-  // လိုအပ်တဲ့ အရေအတွက် ပြည့်မပြည့် စစ်မယ်
   if (selectedCards.length === requiredCards) {
     setTimeout(() => {
       playSound(sfxReveal);
@@ -166,7 +165,7 @@ function pickCard(cardElement, cardData) {
   }
 }
 
-// 8. Show Result
+// 8. Show Result (ခလုတ်အသစ်ပါဝင်သည်)
 function showResult() {
   const revealContainer = document.getElementById('revealedCards');
   revealContainer.innerHTML = '';
@@ -183,11 +182,10 @@ function showResult() {
     cardDiv.className = 'reveal-card';
     if (card.isReversed) cardDiv.classList.add('reversed');
     
-    // ပုံလမ်းကြောင်း (assets/cards/1.png စသဖြင့်)
     cardDiv.style.backgroundImage = `url('assets/cards/${card.img}')`;
     cardDiv.onclick = () => openModal(card);
     
-    cardDiv.innerHTML = `<span style="color:#8b5cf6; font-size:12px; font-weight:bold; text-align:center; background:rgba(255,255,255,0.9); width:100%; padding:4px 0;">${card.name}</span>`; 
+    cardDiv.innerHTML = `<span style="color:#8b5cf6; font-size:12px; font-weight:bold; text-align:center; background:rgba(255,255,255,0.9); width:100%; padding:4px 0; border-radius:4px;">${card.name}</span>`; 
     revealContainer.appendChild(cardDiv);
 
     let meaning = card.isReversed ? card.reversed : card.upright;
@@ -198,23 +196,37 @@ function showResult() {
       else if (card.isReversed) answer = yesNoAnswers.no;
       else answer = yesNoAnswers.maybe;
 
-      fortuneText += `<div style="margin-bottom:15px;">
+      fortuneText += `<div style="margin-bottom:20px; text-align:center;">
         <p style="font-size:14px; color:#a0aec0; font-style:italic; margin-bottom:10px;">"${userQuestion}"</p>
         <h3 style="color:#fbbf24; margin-bottom:5px;">ကဒ်ရဲ့ အဖြေ:</h3>
-        <p style="font-size:16px; font-weight:bold; color:#10b981;">${answer}</p>
-        <p style="font-size:13px; color:#a0aec0; margin-top:10px;">(${card.name})</p>
+        <p style="font-size:16px; font-weight:bold; color:#10b981; margin-bottom: 15px;">${answer}</p>
+        
+        <!-- 🔍 အသေးစိတ်ဖတ်ရန် ခလုတ် -->
+        <button class="read-more-btn" onclick="openModalByIndex(${index})">
+          🔍 အသေးစိတ် ဖတ်ရန် (${card.name})
+        </button>
       </div>`;
     } else {
       const position = index === 0 ? "အတိတ်" : index === 1 ? "ပစ္စုပ္ပန်" : "အနာဂတ်";
-      fortuneText += `<div style="margin-bottom:10px; text-align:left; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:5px;">
-        <h3 style="color:#fbbf24; font-size:14px;">${position} - ${card.name}</h3>
-        <p style="font-size:13px;">${meaning}</p>
+      fortuneText += `<div style="margin-bottom:20px; text-align:left; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:15px;">
+        <h3 style="color:#fbbf24; font-size:16px; margin-bottom:8px;">${position} - ${card.name}</h3>
+        <p style="font-size:14px; line-height:1.6; margin-bottom: 12px;">${meaning}</p>
+        
+        <!-- 🔍 အသေးစိတ်ဖတ်ရန် ခလုတ် -->
+        <button class="read-more-btn" onclick="openModalByIndex(${index})">
+          🔍 အသေးစိတ် ဖတ်ရန်
+        </button>
       </div>`;
     }
   });
 
   document.getElementById('fortuneText').innerHTML = fortuneText;
   showScreen('screen-result');
+}
+
+// 🔍 ခလုတ်နှိပ်ရင် သက်ဆိုင်ရာ ကဒ် Data ကို ယူပြီး Modal ဖွင့်ပေးမယ့် Function
+function openModalByIndex(index) {
+  openModal(selectedCards[index]);
 }
 
 // 9. Save Logic (၅ ခုအထိ)
