@@ -3,158 +3,155 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Tarot Reading — TryIt Hub</title>
+  <title>Tarot Reading</title>
   
+  <!-- Telegram & html2canvas -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   
   <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="tarot.css" />
 </head>
 <body class="tarot-dark">
 
-  <!-- 🎵 AUDIO ELEMENTS -->
+  <!-- 🎵 AUDIO -->
   <audio id="bgMusic" loop><source src="assets/audio/bg-music.mp3" type="audio/mpeg"></audio>
   <audio id="sfxClick"><source src="assets/audio/click.mp3" type="audio/mpeg"></audio>
   <audio id="sfxShuffle"><source src="assets/audio/shuffle.mp3" type="audio/mpeg"></audio>
-  <audio id="sfxReveal"><source src="assets/audio/reveal.mp3" type="audio/mpeg"></audio>
 
   <!-- SCREEN 0: INITIAL LOADING (5 စက္ကန့်) -->
   <section class="tarot-screen active" id="screen-loading">
-    <div class="loading-spinner"></div>
-    <h2>အိမ်ထဲကို ဝင်ရောက်နေသည်...</h2>
-    <p>ခဏစောင့်ပါ (၅ စက္ကန့်)</p>
-  </section>
-
-  <!-- SCREEN 1: START MENU (Home) -->
-  <section class="tarot-screen" id="screen-start">
     <div class="bg-room"></div>
-    <div class="start-menu">
-      <h1 class="game-logo">TAROT</h1>
-      <p>Mystic Reading</p>
-      <div class="menu-buttons">
-        <button class="tarot-btn primary-btn" onclick="startGame()">တာရော့ကြည့်မယ်</button>
-        <button class="tarot-btn" onclick="openSettings()">Settings</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- SCREEN 1.5: SHUFFLE LOADING (၃ စက္ကန့်) -->
-  <section class="tarot-screen" id="screen-shuffle">
-    <div class="loading-content" style="text-align:center;">
+    <div class="loading-content">
       <div class="loading-spinner"></div>
-      <h2 style="font-family:'Padauk'; margin-top:20px;">ကဒ်များကိုရောနှောနေသည်...</h2>
+      <h2>ကြိုဆိုပါတယ်...</h2>
+      <p>ခဏစောင့်ပါ (၅ စက္ကန့်)</p>
     </div>
   </section>
 
-  <!-- SCREEN 2: INTRO -->
-  <section class="tarot-screen" id="screen-intro">
+  <!-- SCREEN 1: HOME (ပုံစံအတိုင်း ကော်ဇော၊ ကြမ်းခင်း၊ ခလုတ် ၃ ခု) -->
+  <section class="tarot-screen" id="screen-home">
+    <div class="bg-room" style="background-image: url('assets/floor.png'); filter: none;"></div>
+    
+    <img src="assets/tarot-head.title.png" alt="TAROT" class="title-img" onerror="this.src='https://via.placeholder.com/300x100/transparent/ffffff?text=TAROT'">
+    
+    <!-- အနီရောင်ကော်ဇော -->
+    <div class="red-mat">
+      <button class="tarot-btn primary-btn" onclick="goToWelcome()">တာရော့ကြည့်မယ်</button>
+      <button class="tarot-btn" onclick="openSettings()">စက်တင်များ</button>
+      <button class="tarot-btn" onclick="showScreen('screen-info')">အက်ပ်အကြောင်း / ထွက်မယ်</button>
+    </div>
+
+    <!-- အောက်မှာ Auto သွားနေမယ့် ကဒ်များ -->
+    <div class="scrolling-cards">
+      <div class="card-anim"></div><div class="card-anim"></div>
+      <div class="card-anim"></div><div class="card-anim"></div>
+      <div class="card-anim"></div><div class="card-anim"></div>
+    </div>
+  </section>
+
+  <!-- SCREEN 2: WELCOME (ကြိုဆိုပါတယ်) -->
+  <section class="tarot-screen" id="screen-welcome">
     <div class="bg-room"></div>
-    <div class="character-img"></div>
     <div class="dialogue-box">
       <div class="dialogue-text">
-        <p>"မင်္ဂလာပါ... ငါ့ဆီကို ရောက်လာတာ ကြိုဆိုပါတယ်။"</p>
+        <p>"မင်္ဂလာပါ... ကြိုဆိုပါတယ်။"</p>
       </div>
-      <button class="tarot-btn" onclick="goToChoice()">ဆက်လုပ်မယ်</button>
+      <button class="tarot-btn primary-btn" onclick="showScreen('screen-choice')">ဆက်လုပ်မယ်</button>
     </div>
   </section>
 
-  <!-- SCREEN 3: CHOICE -->
+  <!-- SCREEN 3: CHOICE (ဘာအတွက် ကြည့်မှာလဲ) -->
   <section class="tarot-screen" id="screen-choice">
     <div class="bg-room"></div>
-    <div class="character-img"></div>
     <div class="dialogue-box">
       <div class="dialogue-text">
-        <p>"ဘာအတွက် ဟောစာတမ်း လိုချင်တာလဲ...?"</p>
+        <p>"ဘာအတွက် ကြည့်မှာလဲ...?"</p>
       </div>
       <div class="choice-buttons">
-        <button class="tarot-btn" onclick="preparePiles(1)">
-          <span>ဒီနေ့ လိုအပ်နေတဲ့အရာ</span>
-          <small>(၁ ကဒ်)</small>
-        </button>
-        <button class="tarot-btn" onclick="preparePiles(3)">
-          <span>အတိတ်၊ ပစ္စုပ္ပန်၊ အနာဂတ်</span>
-          <small>(၃ ကဒ်)</small>
-        </button>
+        <button class="tarot-btn" onclick="startShuffle(1)">၁ ကဒ် (ယေဘုယျ)</button>
+        <button class="tarot-btn" onclick="startShuffle(3)">၃ ကဒ် (အတိတ်၊ ပစ္စုပ္ပန်၊ အနာဂတ်)</button>
       </div>
     </div>
   </section>
 
-  <!-- SCREEN 4: PILE SELECTION (အစု ၄ စု ရွေးချယ်ခြင်း) -->
+  <!-- SCREEN 4: SHUFFLE LOADING (၃ စက္ကန့်) -->
+  <section class="tarot-screen" id="screen-shuffle">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <h2 style="font-family:'Padauk';">ကဒ်များကိုရောနှောနေသည်...</h2>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+  </section>
+
+  <!-- SCREEN 5: PILE SELECTION (၄ ပုံ ရွေးချယ်ခြင်း) -->
   <section class="tarot-screen" id="screen-piles">
-    <div class="bg-room"></div>
-    <div class="pick-header">
-      <h2 style="color:#c4b5fd; font-family:'Padauk';">ကဒ်အစု တစ်စုကို ရွေးချယ်ပါ</h2>
-    </div>
-    <div class="piles-container">
-      <div class="pile" onclick="selectPile(0)"><div class="pile-stack"></div></div>
-      <div class="pile" onclick="selectPile(1)"><div class="pile-stack"></div></div>
-      <div class="pile" onclick="selectPile(2)"><div class="pile-stack"></div></div>
-      <div class="pile" onclick="selectPile(3)"><div class="pile-stack"></div></div>
+    <div class="bg-room" style="background-image: url('assets/floor.png'); filter: none;"></div>
+    
+    <div class="piles-wrapper">
+      <h2 style="color:#fff; text-shadow: 1px 1px 3px #000; font-family:'Padauk';">ကဒ်အစု တစ်စုကို ရွေးပါ</h2>
+      <div class="piles-container">
+        <div class="pile" onclick="selectPile(0)"><div class="pile-stack"></div></div>
+        <div class="pile" onclick="selectPile(1)"><div class="pile-stack"></div></div>
+        <div class="pile" onclick="selectPile(2)"><div class="pile-stack"></div></div>
+        <div class="pile" onclick="selectPile(3)"><div class="pile-stack"></div></div>
+      </div>
+      <!-- လက်ပုံ (hands.png) -->
+      <img src="assets/hands.png" class="hands-img" onerror="this.style.display='none'">
     </div>
   </section>
 
-  <!-- SCREEN 5: PICK CARDS (၁၄ ကဒ် ခင်းပြီး ရွေးချယ်ခြင်း) -->
-  <section class="tarot-screen" id="screen-pick">
-    <div class="bg-room"></div>
-    <div class="pick-header">
-      <h2 id="pick-instruction">ကဒ်များကို ရွေးချယ်ပါ</h2>
+  <!-- SCREEN 6: CARD SPREAD (၁၄ ကဒ် ခင်းခြင်း ၄-၃-၄-၃) -->
+  <section class="tarot-screen" id="screen-spread">
+    <div class="bg-room" style="background-image: url('assets/floor.png'); filter: none;"></div>
+    <div class="spread-wrapper">
+      <h3 id="pick-instruction" style="color:#fff; margin-bottom: 20px; font-family:'Padauk';">ကဒ် ၁ ကဒ် ရွေးပါ</h3>
+      
+      <!-- ၁၄ ကဒ် ခင်းမယ့်နေရာ -->
+      <div class="spread-container" id="spreadContainer"></div>
+      
+      <!-- သေချာပြီ ခလုတ် (ကဒ်ရွေးပြီးမှ ပေါ်လာမယ်) -->
+      <button class="tarot-btn primary-btn" id="confirm-btn" onclick="showResult()" style="display: none; margin-top: 30px; width: 200px;">သေချာပြီ</button>
     </div>
-    <div class="cards-grid" id="cardsGrid"></div>
   </section>
 
-  <!-- SCREEN 6: RESULT -->
+  <!-- SCREEN 7: RESULT -->
   <section class="tarot-screen" id="screen-result">
     <div class="result-container" id="captureArea">
-      <h2 style="font-family:'Padauk';">ဟောစာတမ်း</h2>
+      <h2 style="font-family:'Padauk'; color:#e94560;">သင့်ရဲ့ ရလဒ်</h2>
       <div class="revealed-cards" id="revealedCards"></div>
       <div class="fortune-text" id="fortuneText"></div>
     </div>
     
-    <div class="action-buttons">
-      <button class="icon-btn" onclick="saveReading()">💾 Save (ပုံရိုက်)</button>
-      <button class="icon-btn" onclick="shareApp()">📤 Share</button>
-    </div>
-    <button class="tarot-btn primary-btn" onclick="showOutro()" style="max-width: 300px; margin: 0 auto;">Next ➔</button>
-  </section>
-
-  <!-- SCREEN 7: OUTRO -->
-  <section class="tarot-screen" id="screen-outro">
-    <div class="bg-room"></div>
-    <div class="character-img"></div>
-    <div class="dialogue-box">
-      <div class="dialogue-text">
-        <p>"ကံကောင်းပါစေ... နှုတ်ဆက်ပါတယ်။"</p>
-      </div>
+    <div class="action-buttons" id="action-buttons">
+      <button class="icon-btn" onclick="saveReading()">💾 Save</button>
+      <button class="icon-btn" onclick="againReading()">🔄 Again</button>
+      <button class="icon-btn" onclick="leaveToHome()">🚪 Leave</button>
     </div>
   </section>
 
-  <!-- SCREEN 8: APP INFO -->
+  <!-- SCREEN 8: INFO & SETTINGS -->
   <section class="tarot-screen" id="screen-info">
     <div class="info-card">
-      <h2>TryIt Hub Tarot</h2>
+      <h2>အက်ပ်အကြောင်း</h2>
       <p class="version">Version 1.0.0</p>
       <div class="action-buttons-vertical">
-        <button class="tarot-btn" onclick="leaveApp()">Leave (Home)</button>
-        <button class="tarot-btn primary-btn" onclick="restartApp()">Again (ပြန်စမယ်)</button>
+        <button class="tarot-btn" onclick="leaveToHome()">Home ကို ပြန်မယ်</button>
       </div>
     </div>
   </section>
 
-  <!-- SCREEN 9: SETTINGS -->
   <section class="tarot-screen" id="screen-settings">
     <div class="info-card">
-      <h2>Settings</h2>
+      <h2>စက်တင်များ</h2>
       <div class="setting-row">
         <span>🎵 နောက်ခံ တီးလုံး</span>
         <button class="toggle-btn" id="musicToggle" onclick="toggleMusic()">ON</button>
       </div>
-      <button class="tarot-btn" style="margin-top: 20px;" onclick="backToMenu()">Back to Menu</button>
+      <button class="tarot-btn" style="margin-top: 20px;" onclick="leaveToHome()">Back to Menu</button>
     </div>
   </section>
 
-  <script src="tarot-data.js"></script>
   <script src="tarot.js"></script>
 </body>
 </html>
