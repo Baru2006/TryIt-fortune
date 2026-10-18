@@ -18,16 +18,10 @@ body.tarot-dark {
   z-index: 10;
 }
 
-.tarot-screen.active {
-  display: flex;
-  animation: fadeIn 0.5s ease;
-}
-
+.tarot-screen.active { display: flex; animation: fadeIn 0.5s ease; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* ==================================================
-   BACKGROUND & CHARACTER
-   ================================================== */
+/* BACKGROUND & CHARACTER */
 .bg-room {
   position: absolute;
   inset: 0;
@@ -52,14 +46,10 @@ body.tarot-dark {
   50% { transform: translateY(-10px); }
 }
 
-/* ==================================================
-   DIALOGUE BOX & BUTTONS
-   ================================================== */
+/* DIALOGUE BOX & BUTTONS */
 .dialogue-box {
   position: absolute;
-  bottom: 20px;
-  left: 20px;
-  right: 20px;
+  bottom: 20px; left: 20px; right: 20px;
   background: rgba(10, 10, 20, 0.85);
   backdrop-filter: blur(15px);
   border: 1px solid rgba(139, 92, 246, 0.4);
@@ -79,20 +69,13 @@ body.tarot-dark {
 }
 
 .tarot-btn {
-  width: 100%;
-  padding: 14px;
+  width: 100%; padding: 14px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(139, 92, 246, 0.4);
-  border-radius: 12px;
-  color: #fff;
-  font-family: 'Padauk', sans-serif;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  border-radius: 12px; color: #fff;
+  font-family: 'Padauk', sans-serif; font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: all 0.3s;
+  display: flex; flex-direction: column; align-items: center;
 }
 
 .tarot-btn small { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 4px; }
@@ -101,14 +84,12 @@ body.tarot-dark {
 
 .choice-buttons { display: flex; flex-direction: column; gap: 12px; }
 
-/* ==================================================
-   LOADING & START MENU
-   ================================================== */
-#screen-loading { background: #0f0a1a; text-align: center; z-index: 999; }
+/* LOADING & START MENU */
+#screen-loading, #screen-shuffle { background: #0f0a1a; text-align: center; z-index: 999; }
 .loading-spinner {
   width: 50px; height: 50px; border: 4px solid rgba(139, 92, 246, 0.3);
   border-top-color: #8b5cf6; border-radius: 50%;
-  animation: spin 1s linear infinite; margin-bottom: 20px;
+  animation: spin 1s linear infinite; margin: 0 auto 20px auto;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -124,29 +105,38 @@ body.tarot-dark {
 .start-menu p { color: #a0aec0; font-size: 14px; margin-bottom: 30px; letter-spacing: 2px; text-transform: uppercase; }
 .menu-buttons { display: flex; flex-direction: column; gap: 15px; width: 200px; margin: 0 auto; }
 
-/* ==================================================
-   PICK CARDS SCREEN (FIXED BACK.PNG)
-   ================================================== */
+/* PILE SELECTION SCREEN (အစု ၄ စု) */
+#screen-piles { justify-content: flex-start; padding-top: 80px; }
+.piles-container {
+  display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-top: 30px;
+}
+.pile {
+  width: 70px; height: 110px; cursor: pointer; position: relative; transition: transform 0.2s;
+}
+.pile:active { transform: scale(0.9); }
+.pile-stack {
+  width: 100%; height: 100%; border-radius: 8px;
+  background-image: url('assets/cards/back.png');
+  background-size: cover; border: 2px solid rgba(139, 92, 246, 0.6);
+  box-shadow: 4px 4px 0 #2d1b4e, 8px 8px 0 #1a1a2e;
+}
+
+/* PICK CARDS SCREEN */
 #screen-pick { justify-content: flex-start; padding-top: 40px; }
 .pick-header h2 { font-family: 'Padauk', sans-serif; font-size: 20px; text-align: center; margin-bottom: 20px; color: #c4b5fd; }
 
 .cards-grid {
-  display: grid; grid-template-columns: repeat(5, 1fr);
+  display: grid; grid-template-columns: repeat(4, 1fr);
   gap: 10px; width: 100%; max-width: 400px; perspective: 1000px;
 }
 
 .tarot-card {
   aspect-ratio: 2/3;
-  /* 👇 ပုံကို ဒီနေရာမှာ သေချာထည့်ထားပါတယ် */
   background-image: url('assets/cards/back.png');
-  background-size: cover;
-  background-position: center;
-  background-color: #1a1a2e;
-  border-radius: 6px;
+  background-size: cover; background-position: center;
+  background-color: #1a1a2e; border-radius: 6px;
   border: 1px solid rgba(139, 92, 246, 0.5);
-  cursor: pointer;
-  transition: all 0.3s;
-  position: relative;
+  cursor: pointer; transition: all 0.3s; position: relative;
   box-shadow: 0 4px 10px rgba(0,0,0,0.5);
   animation: dealCard 0.5s ease backwards;
 }
@@ -155,9 +145,7 @@ body.tarot-dark {
 .tarot-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(139, 92, 246, 0.6); }
 .tarot-card.selected { opacity: 0; pointer-events: none; transform: scale(0.8); transition: all 0.5s; }
 
-/* ==================================================
-   RESULT SCREEN
-   ================================================== */
+/* RESULT SCREEN */
 #screen-result { background: #0f0a1a; justify-content: flex-start; overflow-y: auto; padding: 30px 20px; }
 .result-container { width: 100%; max-width: 500px; display: flex; flex-direction: column; align-items: center; }
 .revealed-cards { display: flex; gap: 15px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
@@ -184,15 +172,12 @@ body.tarot-dark {
   color: #fff; font-family: 'Padauk', sans-serif; font-size: 14px; cursor: pointer;
 }
 
-/* ==================================================
-   INFO & SETTINGS
-   ================================================== */
+/* INFO & SETTINGS */
 #screen-info, #screen-settings { background: #0f0a1a; }
 .info-card {
   background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px;
   padding: 30px 20px; width: 100%; max-width: 350px; text-align: center;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
 }
 .info-card h2 { font-size: 22px; margin-bottom: 5px; }
 .info-card p { color: #a0aec0; font-size: 14px; margin-bottom: 20px; }
@@ -204,6 +189,5 @@ body.tarot-dark {
   background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 12px;
   margin-bottom: 15px; border: 1px solid rgba(255, 255, 255, 0.1);
 }
-.setting-row span { font-family: 'Padauk', sans-serif; font-size: 15px; }
-.toggle-btn { background: #10b981; color: white; border: none; padding: 6px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; font-family: 'Poppins', sans-serif; }
+.toggle-btn { background: #10b981; color: white; border: none; padding: 6px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; }
 .toggle-btn.off { background: #4a5568; }
