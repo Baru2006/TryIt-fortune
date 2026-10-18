@@ -17,9 +17,9 @@ body.tarot-dark {
 
 /* --- GLASSMORPHISM UTILITY --- */
 .glass-panel {
-  background: rgba(25, 15, 45, 0.65);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(25, 15, 45, 0.7);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
   border: 1px solid rgba(139, 92, 246, 0.3);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
@@ -372,6 +372,32 @@ body.tarot-dark {
   width: 100%;
 }
 
+/* 🔍 အသေးစိတ် ဖတ်ရန် ခလုတ် */
+.read-more-btn {
+  background: rgba(139, 92, 246, 0.15);
+  color: #c4b5fd;
+  border: 1px solid rgba(139, 92, 246, 0.5);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-family: 'Padauk', sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.read-more-btn:active {
+  background: rgba(139, 92, 246, 0.4);
+  color: #fff;
+  transform: scale(0.98);
+}
+
 .result-actions {
   display: flex;
   gap: 10px;
@@ -414,7 +440,7 @@ body.tarot-dark {
 .toggle-btn.off { background: #4a5568; }
 
 /* ==================================================
-   MODAL OVERLAY (အရေးကြီးဆုံး ပြင်ဆင်ချက်)
+   MODAL OVERLAY
    ================================================== */
 .modal-overlay {
   position: fixed;
