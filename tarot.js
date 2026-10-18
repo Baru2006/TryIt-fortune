@@ -1,5 +1,5 @@
 // Adsgram Init
-const ADSGRAM_BLOCK_ID = "54672"; 
+const ADSGRAM_BLOCK_ID = "54726"; 
 let adController = null;
 
 if (window.Adsgram) {
