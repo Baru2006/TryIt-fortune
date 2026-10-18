@@ -1,69 +1,117 @@
-// ==================================================
-// TAROT DECK DATA (56 Cards - Minor Arcana)
-// ==================================================
-
 const TAROT_DECK = [
-  // --- WANDS (1-14) ---
-  { id: 1, name: "Ace of Wands", img: "1.png", general: "စွမ်းအင်အသစ်နဲ့ စတင်ခြင်း", past: "စိတ်အားတက်ကြွမှုတွေ ရှိခဲ့တယ်", present: "အခွင့်အရေးသစ်တွေ စတင်နေပြီ", future: "အောင်မြင်မှု အလားအလာကောင်းတွေ ရှိတယ်" },
-  { id: 2, name: "Two of Wands", img: "2.png", general: "ရွေးချယ်မှုနဲ့ စီစဉ်ခြင်း", past: "ဆုံးဖြတ်ချက်တွေ ချခဲ့တယ်", present: "လမ်းကြောင်းသစ်အတွက် ပြင်ဆင်နေတယ်", future: "အောင်မြင်မှုကို ရင်ဆိုင်ရမယ်" },
-  { id: 3, name: "Three of Wands", img: "3.png", general: "တိုးတက်မှုနဲ့ ရှုခင်းကျယ်ခြင်း", past: "အစီအစဉ်တွေ အကောင်အထည်ဖော်ခဲ့တယ်", present: "ရလဒ်ကောင်းတွေ စတင်မြင်နေရပြီ", future: "အောင်မြင်မှု ပိုမိုကျယ်ပြန့်လာမယ်" },
-  { id: 4, name: "Four of Wands", img: "4.png", general: "ပျော်ရွှင်မှုနဲ့ အိမ်တည်ငြိမ်ခြင်း", past: "ပျော်ရွှင်စရာတွေ ကြုံခဲ့ရတယ်", present: "ငြိမ်းချမ်းပျော်ရွှင်မှု ရှိနေတယ်", future: "မိသားစုနဲ့ ပျော်ရွှင်စရာတွေ ရှိမယ်" },
-  { id: 5, name: "Five of Wands", img: "5.png", general: "ပြိုင်ဆိုင်မှုနဲ့ ပဋိပက္ခ", past: "အခက်အခဲတွေ ရှိခဲ့တယ်", present: "ပြိုင်ဆိုင်မှုတွေ ရှိနေတယ်", future: "အခက်အခဲကို ကျော်ဖြတ်နိုင်မယ်" },
-  { id: 6, name: "Six of Wands", img: "6.png", general: "အောင်ပွဲနဲ့ အသိအမှတ်ပြုခံရခြင်း", past: "အောင်မြင်မှု ရခဲ့တယ်", present: "လူတွေက သင့်ကို လေးစားနေကြတယ်", future: "အောင်ပွဲတွေ ဆက်ရှိမယ်" },
-  { id: 7, name: "Seven of Wands", img: "7.png", general: "ခုခံကာကွယ်ခြင်း", past: "ကိုယ့်ရပ်တည်မှုကို ကာကွယ်ခဲ့တယ်", present: "စိန်ခေါ်မှုတွေကို ရင်ဆိုင်နေရတယ်", future: "အနိုင်ရမှာ သေချာတယ်" },
-  { id: 8, name: "Eight of Wands", img: "8.png", general: "အရှိန်အဟုန်နဲ့ တိုးတက်ခြင်း", past: "အလုပ်တွေ အမြန်ဖြစ်ခဲ့တယ်", present: "အရာရာ အမြန်တိုးတက်နေတယ်", future: "ကောင်းတဲ့သတင်းတွေ အမြန်ရောက်လာမယ်" },
-  { id: 9, name: "Nine of Wands", img: "9.png", general: "ဇွဲလုံ့လနဲ့ ခံနိုင်ရည်", past: "အခက်အခဲတွေ ကျော်ဖြတ်ခဲ့တယ်", present: "ပင်ပန်းပေမဲ့ ဆက်လုပ်နေတယ်", future: "အောင်မြင်မှုက နီးနေပြီ" },
-  { id: 10, name: "Ten of Wands", img: "10.png", general: "ဝန်ထုပ်ဝန်ပိုးနဲ့ ပင်ပန်းမှု", past: "တာဝန်တွေ များခဲ့တယ်", present: "ဝန်ထုပ်တွေ များနေတယ်", future: "ဝန်တွေ လျော့သွားမယ်" },
-  { id: 11, name: "Page of Wands", img: "11.png", general: "စူးစမ်းလိုစိတ်နဲ့ စွန့်စားမှု", past: "အသစ်တွေ စမ်းခဲ့တယ်", present: "စိတ်လှုပ်ရှားစရာ အခွင့်အရေးတွေ ရှိတယ်", future: "ခရီးစဉ်သစ်တွေ ရှိမယ်" },
-  { id: 12, name: "Knight of Wands", img: "12.png", general: "စွန့်စားမှုနဲ့ စိတ်အားထက်သန်မှု", past: "အလျင်အမြန် လုပ်ဆောင်ခဲ့တယ်", present: "စိတ်အားထက်သန်မှုတွေ ရှိနေတယ်", future: "အပြောင်းအလဲ ကြီးကြီးမားမား ရှိမယ်" },
-  { id: 13, name: "Queen of Wands", img: "13.png", general: "ယုံကြည်မှုနဲ့ ဆွဲဆောင်မှု", past: "ကိုယ့်ကိုယ်ကိုယ် ယုံကြည်ခဲ့တယ်", present: "လူတွေက သင့်ကို သဘောကျနေတယ်", future: "ခေါင်းဆောင်မှု ရာထူး ရမယ်" },
-  { id: 14, name: "King of Wands", img: "14.png", general: "ခေါင်းဆောင်မှုနဲ့ စီမံခန့်ခွဲမှု", past: "ခေါင်းဆောင်အဖြစ် ဆောင်ရွက်ခဲ့တယ်", present: "ဦးဆောင်မှု ယူနေရတယ်", future: "အောင်မြင်တဲ့ ခေါင်းဆောင် ဖြစ်လာမယ်" },
+  // ==========================================
+  // WANDS (1-14)
+  // ==========================================
+  {
+    id: 1, name: "Ace of Wands", img: "1.png", 
+    keywords: "စွမ်းအင်သစ်၊ ဖန်တီးနိုင်စွမ်း၊ အခွင့်အလမ်း",
+    general: "Ace of Wands ဟာ စွမ်းအင်သစ်တွေ၊ စိတ်လှုပ်ရှားစရာ အခွင့်အလမ်းတွေနဲ့ လုပ်ငန်းသစ်တစ်ခုကို အစပျိုးရမယ့် ကာလကို ကိုယ်စားပြုပါတယ်။",
+    upright: "အလုပ်သစ်စဖို့၊ စီးပွားရေးအသစ် စတင်ဖို့ အချိန်အခါကောင်း ဖြစ်ပါတယ်။ စွမ်းအင်နဲ့ ယုံကြည်ချက်အပြည့်ရှိနေပါမယ်။",
+    reversed: "စွမ်းအင်ကျဆင်းနေခြင်း၊ စိတ်အားထက်သန်မှု ကုန်ခမ်းနေခြင်းတို့ကို ညွှန်ပြပါတယ်။ အရေးကြီးဆုံးဖြတ်ချက်တွေ ချတာမျိုး ခေတ္တရှောင်သင့်ပါတယ်။",
+    love: "ချစ်သူရှိသူများ: ရိုမန်းတစ်ဆန်တဲ့ စွမ်းအင်တွေ ပြန်လည်ဝင်ရောက်လာပါမယ်။",
+    career: "လုပ်ငန်းခွင်မှာ တာဝန်အသစ်တွေ ရရှိတာ၊ Project အသစ် စတင်ခွင့်ရတာမျိုး ဖြစ်လာပါမယ်။",
+    health: "ခန္ဓာကိုယ်မှာ စွမ်းအင်အပြည့်အဝ ရှိနေပြီး လေ့ကျင့်ခန်းအသစ်တွေ စတင်ဖို့ အကောင်းဆုံးအချိန် ဖြစ်ပါတယ်။",
+    advice: "အခွင့်အလမ်းသစ်တစ်ခု တံခါးခေါက်လာရင် ရဲရဲဝံ့ဝံ့ ခြေလှမ်းလှမ်းလိုက်ပါ။",
+    past: "စိတ်အားတက်ကြွမှုတွေ ရှိခဲ့တယ်", present: "အခွင့်အရေးသစ်တွေ စတင်နေပြီ", future: "အောင်မြင်မှု အလားအလာကောင်းတွေ ရှိတယ်" 
+  },
+  { id: 2, name: "Two of Wands", img: "2.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 3, name: "Three of Wands", img: "3.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 4, name: "Four of Wands", img: "4.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 5, name: "Five of Wands", img: "5.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 6, name: "Six of Wands", img: "6.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 7, name: "Seven of Wands", img: "7.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 8, name: "Eight of Wands", img: "8.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 9, name: "Nine of Wands", img: "9.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 10, name: "Ten of Wands", img: "10.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 11, name: "Page of Wands", img: "11.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 12, name: "Knight of Wands", img: "12.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 13, name: "Queen of Wands", img: "13.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 14, name: "King of Wands", img: "14.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
 
-  // --- CUPS (15-28) ---
-  { id: 15, name: "Ace of Cups", img: "15.png", general: "အချစ်နဲ့ ခံစားချက်အသစ်", past: "ချစ်ခြင်းတရား ခံစားခဲ့ရတယ်", present: "အချစ်အသစ် ဒါမှမဟုတ် ပျော်ရွှင်မှု ရောက်လာမယ်", future: "နှလုံးသားကို ဖွင့်ပြနိုင်မယ့် အခွင့်အရေး" },
-  { id: 16, name: "Two of Cups", img: "16.png", general: "ချိတ်ဆက်မှုနဲ့ ဟန်ချက်ညီခြင်း", past: "ဆက်ဆံရေးကောင်းတွေ ရှိခဲ့တယ်", present: "စိတ်ချစွာ ချိတ်ဆက်နိုင်တဲ့သူ ရှိတယ်", future: "ချစ်သူ ဒါမှမဟုတ် အဖော်ကောင်း ရလာမယ်" },
-  { id: 17, name: "Three of Cups", img: "17.png", general: "ပျော်ပွဲရွှင်ပွဲနဲ့ မိတ်ဆွေများ", past: "သူငယ်ချင်းတွေနဲ့ ပျော်ခဲ့တယ်", present: "ပျော်ပွဲရွှင်ပွဲတွေ ရှိနေတယ်", future: "မိတ်ဆွေသစ်တွေ ရလာမယ်" },
-  { id: 18, name: "Four of Cups", img: "18.png", general: "ငြီးငွေ့ခြင်းနဲ့ စဉ်းစားခြင်း", past: "ဘာမှ မလုပ်ချင်စိတ် ဖြစ်ခဲ့တယ်", present: "အခွင့်အရေးတွေကို လျစ်လျူရှုမိနေတယ်", future: "စိတ်သစ်လောင်းပြီး ဆက်လုပ်ဖို့ လိုတယ်" },
-  { id: 19, name: "Five of Cups", img: "19.png", general: "နောင်တနဲ့ ဆုံးရှုံးမှု", past: "ဆုံးရှုံးမှုတွေ ကြုံခဲ့ရတယ်", present: "အတိတ်ကို တွေးပြီး ဝမ်းနည်းနေတယ်", future: "ကျန်နေတဲ့ အရာတွေကို တန်ဖိုးထားဖို့ လိုတယ်" },
-  { id: 20, name: "Six of Cups", img: "20.png", general: "အမှတ်တရနဲ့ ကလေးဆန်မှု", past: "ကောင်းမွန်တဲ့ အမှတ်တရတွေ ရှိခဲ့တယ်", present: "အတိတ်က သူငယ်ချင်းတွေနဲ့ ပြန်ဆုံတွေ့နိုင်တယ်", future: "ပျော်ရွှင်မှု ပြန်လည်ရောက်လာမယ်" },
-  { id: 21, name: "Seven of Cups", img: "21.png", general: "ရွေးချယ်စရာများခြင်း", past: "ရွေးချယ်မှုတွေ များခဲ့တယ်", present: "အိပ်မက်တွေ များနေပေမဲ့ လက်တွေ့မဖြစ်သေးဘူး", future: "အရှိန်အဝါပြယ်ပြီး ဘာကိုရွေးမလဲ ဆုံးဖြတ်ရမယ်" },
-  { id: 22, name: "Eight of Cups", img: "22.png", general: "စွန့်လွှတ်ခြင်းနဲ့ ရှေ့ဆက်ခြင်း", past: "မကောင်းတဲ့အရာတွေကို စွန့်လွှတ်ခဲ့တယ်", present: "ပိုကောင်းတဲ့ဘဝအတွက် ထွက်ခွာနေတယ်", future: "စိတ်ရင်းအမှန်နဲ့ လုပ်ရင် ကောင်းမယ်" },
-  { id: 23, name: "Nine of Cups", img: "23.png", general: "ဆန္ဒပြည့်ဝခြင်း", past: "ဆန္ဒတွေ ပြည့်ခဲ့တယ်", present: "ကျေနပ်မှု အပြည့်အဝ ရှိနေတယ်", future: "သင့်ရဲ့ အိပ်မက်တွေ အကောင်အထည်ဖော်နိုင်မယ်" },
-  { id: 24, name: "Ten of Cups", img: "24.png", general: "မိသားစုပျော်ရွှင်မှု", past: "မိသားစုနဲ့ ပျော်ခဲ့တယ်", present: "အိမ်မှာ ငြိမ်းချမ်းမှု ရှိတယ်", future: "ပြည့်စုံတဲ့ မိသားစုဘဝ ရမယ်" },
-  { id: 25, name: "Page of Cups", img: "25.png", general: "ခံစားချက်အသစ်နဲ့ ဖန်တီးမှု", past: "စိတ်ကူးသစ်တွေ ရခဲ့တယ်", present: "ခံစားချက်အသစ်တွေ ပေါ်ပေါက်နေတယ်", future: "အနုပညာနဲ့ ဖန်တီးမှုတွေ အောင်မြင်မယ်" },
-  { id: 26, name: "Knight of Cups", img: "26.png", general: "ရိုမန်းတစ်နဲ့ လိုက်လျောညီထွေ", past: "ချိုမြိန်တဲ့ ဆက်ဆံရေးတွေ ရှိခဲ့တယ်", present: "နှလုံးသားနဲ့ လုပ်ဆောင်နေတယ်", future: "ချစ်သူဆီက ကတိစကားတွေ ကြားရမယ်" },
-  { id: 27, name: "Queen of Cups", img: "27.png", general: "ကြင်နာမှုနဲ့ နားလည်မှု", past: "ကြင်နာမှုတွေ ပေးခဲ့တယ်", present: "စိတ်ခံစားချက်ကို ထိန်းညှိနိုင်တယ်", future: "စိတ်ရောကိုယ်ပါ ငြိမ်းချမ်းမယ်" },
-  { id: 28, name: "King of Cups", img: "28.png", general: "ခံစားချက်ထိန်းချုပ်မှုနဲ့ ရင့်ကျက်မှု", past: "စိတ်ကို ထိန်းချုပ်ခဲ့တယ်", present: "ခံစားချက်တွေကို ထိန်းညှိနိုင်နေတယ်", future: "ရင့်ကျက်တဲ့ ဆုံးဖြတ်ချက်တွေ ချနိုင်မယ်" },
+  // ==========================================
+  // CUPS (15-28)
+  // ==========================================
+  {
+    id: 15, name: "Ace of Cups", img: "15.png", 
+    keywords: "အချစ်အသစ်၊ ခံစားချက်ပြည့်ဝမှု၊ ကရုဏာ",
+    general: "Ace of Cups ဟာ နှလုံးသားထဲမှာ ခံစားချက်အသစ်တွေ စတင်ပေါ်ပေါက်လာခြင်းကို ကိုယ်စားပြုပါတယ်။ ချစ်ခြင်းတရား၊ ကြင်နာမှုနဲ့ ပျော်ရွှင်မှုတွေ ပြည့်နှက်နေတဲ့ အချိန်ဖြစ်ပါတယ်။",
+    upright: "အချစ်အသစ်တစ်ခု စတင်ခြင်း၊ ဒါမှမဟုတ် လက်ရှိဆက်ဆံရေးမှာ ပိုပြီးနက်ရှိုင်းလာခြင်းတွေ ဖြစ်နိုင်ပါတယ်။ ဖန်တီးမှုနဲ့ အနုပညာအလုပ်တွေအတွက်လည်း စိတ်ကူးကောင်းတွေ ရလာပါလိမ့်မယ်။",
+    reversed: "ခံစားချက်တွေကို ဖိနှိပ်ထားခြင်း၊ စိတ်ဓာတ်ကျဆင်းနေခြင်း သို့မဟုတ် အချစ်ရေးမှာ စိတ်ပျက်စရာတွေ ကြုံရနိုင်ပါတယ်။ ကိုယ့်ကိုယ်ကိုယ် ပြန်ပြီး ဂရုစိုက်ဖို့ လိုအပ်နေပါတယ်။",
+    love: "အချစ်ရေးမှာ အလွန်ကောင်းမွန်တဲ့ အချိန်ပါ။ နှလုံးသားနဲ့ ဆက်ဆံရေးတွေ ပိုခိုင်မာလာပါမယ်။",
+    career: "အလုပ်မှာ စိတ်ပါဝင်စားမှုနဲ့ ဖန်တီးမှုတွေ မြင့်မားနေပါမယ်။ ကိုယ်ဝါသနာပါတဲ့ အလုပ်တွေကို လုပ်ဖို့ အခွင့်အရေးရနိုင်ပါတယ်။",
+    health: "စိတ်ရောကိုယ်ပါ ကျန်းမာသန်စွမ်းနေမယ့် အချိန်ပါ။ ရေဓာတ်ပြည့်ဝအောင် သောက်သုံးဖို့ မမေ့ပါနဲ့။",
+    advice: "သင့်ရဲ့ ခံစားချက်တွေကို ပွင့်ပွင့်လင်းလင်း ဖော်ပြပါ။ အချစ်နဲ့ ကရုဏာတရားက သင့်ကို ခွန်အားဖြစ်စေပါလိမ့်မယ်။",
+    past: "ချစ်ခြင်းတရားကို ခံစားခဲ့ရတယ်", present: "ပျော်ရွှင်မှုအသစ်တွေ ရောက်လာမယ်", future: "နှလုံးသားကို ဖွင့်ပြနိုင်မယ့် အခွင့်အရေး" 
+  },
+  { id: 16, name: "Two of Cups", img: "16.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 17, name: "Three of Cups", img: "17.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 18, name: "Four of Cups", img: "18.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 19, name: "Five of Cups", img: "19.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 20, name: "Six of Cups", img: "20.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 21, name: "Seven of Cups", img: "21.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 22, name: "Eight of Cups", img: "22.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 23, name: "Nine of Cups", img: "23.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 24, name: "Ten of Cups", img: "24.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 25, name: "Page of Cups", img: "25.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 26, name: "Knight of Cups", img: "26.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 27, name: "Queen of Cups", img: "27.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 28, name: "King of Cups", img: "28.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
 
-  // --- SWORDS (29-42) ---
-  { id: 29, name: "Ace of Swords", img: "29.png", general: "ပြတ်သားမှုနဲ့ အတွေးအခေါ်သစ်", past: "အမှန်တရားကို မြင်ခဲ့တယ်", present: "စိတ်ရှင်းရှင်းနဲ့ ဆုံးဖြတ်နိုင်တယ်", future: "အောင်မြင်မှု ရဖို့ လမ်းစ ပေါ်လာမယ်" },
-  { id: 30, name: "Two of Swords", img: "30.png", general: "မျက်စိပိတ်ထားခြင်းနဲ့ ရွေးချယ်မှု", past: "ငြင်းဆန်ခဲ့တဲ့ အရာတွေ ရှိတယ်", present: "ဆုံးဖြတ်ချက် မချနိုင်ဘဲ ဖြစ်နေတယ်", future: "အမှန်တရားကို မျက်နှာချင်းဆိုင် ရင်ဆိုင်ရမယ်" },
-  { id: 31, name: "Three of Swords", img: "31.png", general: "နာကျင်မှုနဲ့ စိတ်ပျက်စရာ", past: "နှလုံးသား ကြေကွဲခဲ့ရတယ်", present: "စိတ်နာကျင်မှုတွေ ရှိနေတယ်", future: "အနာကျက်ပြီး ရှေ့ဆက်နိုင်မယ်" },
-  { id: 32, name: "Four of Swords", img: "32.png", general: "အနားယူခြင်းနဲ့ ပြန်လည်ထူထောင်ခြင်း", past: "အနားယူဖို့ လိုအပ်ခဲ့တယ်", present: "စိတ်ကို တည်ငြိမ်အောင် လုပ်နေတယ်", future: "အင်အားပြည့်ပြီး ပြန်ထွက်လာမယ်" },
-  { id: 33, name: "Five of Swords", img: "33.png", general: "ပဋိပက္ခနဲ့ အရှုံးသမား", past: "အငြင်းပွားမှုတွေ ရှိခဲ့တယ်", present: "အချင်းချင်း ယုံကြည်မှု ပျက်နေတယ်", future: "အငြင်းပွားမှုတွေ ရှိလာမယ်" },
-  { id: 34, name: "Six of Swords", img: "34.png", general: "ကူးပြောင်းခြင်းနဲ့ ရှေ့ဆက်ခြင်း", past: "ခက်ခဲတဲ့ အခြေအနေကနေ ထွက်ခဲ့တယ်", present: "ပိုကောင်းတဲ့နေရာကို ရွှေ့ပြောင်းနေတယ်", future: "စိတ်သက်သာရာရမယ့် နေရာကို ရောက်မယ်" },
-  { id: 35, name: "Seven of Swords", img: "35.png", general: "လျှို့ဝှက်မှုနဲ့ လှည့်စားမှု", past: "လျှို့ဝှက်ချက်တွေ ရှိခဲ့တယ်", present: "သတိထားဖို့ လိုအပ်နေတယ်", future: "အမှန်တရားကို ဖုံးကွယ်ထားလို့ မရဘူး" },
-  { id: 36, name: "Eight of Swords", img: "36.png", general: "ချုပ်ချယ်ခံရခြင်းနဲ့ ကြောက်ရွံ့မှု", past: "ကိုယ့်ကိုယ်ကိုယ် ယုံကြည်မှုနည်းခဲ့တယ်", present: "ဘာမှ မလုပ်နိုင်ဘူးလို့ ခံစားနေရတယ်", future: "အခြေအနေက သင်ထင်သလောက် မဆိုးဘူး" },
-  { id: 37, name: "Nine of Swords", img: "37.png", general: "စိုးရိမ်ပူပန်မှုနဲ့ အိပ်မပျော်ခြင်း", past: "ညညအိပ်မပျော်ဘဲ တွေးခဲ့တယ်", present: "စိတ်ဖိစီးမှုတွေ များနေတယ်", future: "စိုးရိမ်မှုတွေ လျော့ပါးသွားမယ်" },
-  { id: 38, name: "Ten of Swords", img: "38.png", general: "အဆုံးသတ်ခြင်းနဲ့ ပြန်လည်စတင်ခြင်း", past: "အဆိုးဆုံးအခြေအနေကို ကျော်ဖြတ်ခဲ့တယ်", present: "အရာအားလုံး ကျဆင်းနေတယ်", future: "ဒါက အဆုံးသတ်ပြီး အသစ်ပြန်စမယ်" },
-  { id: 39, name: "Page of Swords", img: "39.png", general: "သတိရှိမှုနဲ့ စူးစမ်းလိုစိတ်", past: "အသစ်တွေ လေ့လာခဲ့တယ်", present: "သတင်းအချက်အလက်တွေ စုဆောင်းနေတယ်", future: "ဉာဏ်ပညာနဲ့ အောင်မြင်မယ်" },
-  { id: 40, name: "Knight of Swords", img: "40.png", general: "အလျင်အမြန်နဲ့ တိုက်ရိုက်ပြောဆိုမှု", past: "အလျင်အမြန် ဆုံးဖြတ်ခဲ့တယ်", present: "စကားတွေ ပြတ်ပြတ်သားသား ပြောနေတယ်", future: "အရှိန်အဟုန်နဲ့ ရှေ့ဆက်မယ်" },
-  { id: 41, name: "Queen of Swords", img: "41.png", general: "ပြတ်သားမှုနဲ့ သီးခြားရပ်တည်မှု", past: "ကိုယ့်ရပ်တည်မှုကို ပြတ်ပြတ်သားသား ပြခဲ့တယ်", present: "အမှန်တရားကို ရှင်းရှင်းလင်းလင်း မြင်နေတယ်", future: "ဉာဏ်ပညာနဲ့ ဆုံးဖြတ်နိုင်မယ်" },
-  { id: 42, name: "King of Swords", img: "42.png", general: "ဉာဏ်ပညာနဲ့ တရားမျှတမှု", past: "မှန်ကန်တဲ့ ဆုံးဖြတ်ချက်တွေ ချခဲ့တယ်", present: "အခြေအနေကို ခွဲခြမ်းစိတ်ဖြာနေတယ်", future: "ခေါင်းဆောင်ကောင်း ဖြစ်လာမယ်" },
+  // ==========================================
+  // SWORDS (29-42)
+  // ==========================================
+  {
+    id: 29, name: "Ace of Swords", img: "29.png", 
+    keywords: "ရှင်းလင်းမှု၊ အမှန်တရား၊ အတွေးအခေါ်သစ်၊ အောင်ပွဲ",
+    general: "Ace of Swords ဟာ စိတ်ရှင်းလင်းမှုနဲ့ အမှန်တရားကို မြင်တွေ့ရမယ့် အခိုက်အတန့်ကို ကိုယ်စားပြုပါတယ်။ မှုန်ဝါးနေတဲ့ အခြေအနေတွေ ပြတ်သားလာပြီး ဆုံးဖြတ်ချက်တွေ ခိုင်မာလာမယ့် အချိန်ပါ။",
+    upright: "စိတ်ရှင်းရှင်းနဲ့ ဆုံးဖြတ်ချက်ချဖို့ အကောင်းဆုံးအချိန်ပါ။ ပညာရေး၊ စာမေးပွဲ ဒါမှမဟုတ် ဉာဏ်ရည်ဉာဏ်သွေးလိုအပ်တဲ့ အလုပ်တွေမှာ အောင်မြင်မှု ရနိုင်ပါတယ်။",
+    reversed: "စိတ်ရှုပ်ထွေးနေခြင်း၊ အချက်အလက်တွေ မပြည့်စုံခြင်း သို့မဟုတ် မှားယွင်းတဲ့ ဆုံးဖြတ်ချက်တွေ ချမိနိုင်ပါတယ်။ အလျင်စလို မလုပ်ဖို့ သတိပေးနေပါတယ်။",
+    love: "ဆက်ဆံရေးမှာ ရိုးသားပွင့်လင်းမှု လိုအပ်နေပါတယ်။ စိတ်ထဲရှိတာကို ပြတ်ပြတ်သားသား ပြောပါ။",
+    career: "ခေါင်းဆောင်မှုနဲ့ ပြဿနာဖြေရှင်းနိုင်စွမ်းကို အသုံးပြုပြီး အလုပ်တွေ အောင်မြင်လာပါမယ်။",
+    health: "စိတ်ဖိစီးမှုတွေ လျော့ချဖို့ လိုပါတယ်။ ဦးခေါင်းနဲ့ ဦးနှောက်ပိုင်းဆိုင်ရာ ကျန်းမာရေးကို ဂရုစိုက်ပါ။",
+    advice: "မှန်ကန်တဲ့ အချက်အလက်တွေပေါ်မှာ အခြေခံပြီး ရဲရဲတင်းတင်း ဆုံးဖြတ်ချက်ချပါ။",
+    past: "အမှန်တရားကို မြင်ခဲ့တယ်", present: "စိတ်ရှင်းရှင်းနဲ့ ဆုံးဖြတ်နိုင်တယ်", future: "အောင်မြင်မှု ရဖို့ လမ်းစ ပေါ်လာမယ်" 
+  },
+  { id: 30, name: "Two of Swords", img: "30.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 31, name: "Three of Swords", img: "31.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 32, name: "Four of Swords", img: "32.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 33, name: "Five of Swords", img: "33.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 34, name: "Six of Swords", img: "34.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 35, name: "Seven of Swords", img: "35.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 36, name: "Eight of Swords", img: "36.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 37, name: "Nine of Swords", img: "37.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 38, name: "Ten of Swords", img: "38.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 39, name: "Page of Swords", img: "39.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 40, name: "Knight of Swords", img: "40.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 41, name: "Queen of Swords", img: "41.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 42, name: "King of Swords", img: "42.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
 
-  // --- PENTACLES (43-56) ---
-  { id: 43, name: "Ace of Pentacles", img: "43.png", general: "အခွင့်အရေးသစ်နဲ့ ကြွယ်ဝမှု", past: "ငွေကြေးအခွင့်အရေး ရခဲ့တယ်", present: "ဝင်ငွေအသစ် လမ်းစ ပေါ်နေတယ်", future: "ငွေကြေးတိုးတက်မှု ရှိမယ်" },
-  { id: 44, name: "Two of Pentacles", img: "44.png", general: "ဟန်ချက်ညီအောင် ထိန်းခြင်း", past: "အလုပ်နဲ့ ဘဝကို ဟန်ချက်ညီအောင် လုပ်ခဲ့တယ်", present: "အလုပ်တွေ များနေပေမဲ့ ထိန်းနိုင်တယ်", future: "ဘဏ္ဍာရေး အခြေအနေ တည်ငြိမ်လာမယ်" },
-  { id: 45, name: "Three of Pentacles", img: "45.png", general: "ပူးပေါင်းဆောင်ရွက်မှုနဲ့ ကျွမ်းကျင်မှု", past: "အဖွဲ့လိုက် အောင်မြင်ခဲ့တယ်", present: "ပူးပေါင်းဆောင်ရွက်မှုက အောင်မြင်နေတယ်", future: "ကျွမ်းကျင်မှုကို အသိအမှတ်ပြုခံရမယ်" },
-  { id: 46, name: "Four of Pentacles", img: "46.png", general: "ထိန်းချုပ်မှုနဲ့ လုံခြုံမှု", past: "ငွေစုခဲ့တယ်", present: "ပိုက်ဆံကို ထိန်းသိမ်းနေတယ်", future: "စီးပွားရေး တည်ငြိမ်မယ်" },
-  { id: 47, name: "Five of Pentacles", img: "47.png", general: "ချို့တဲ့မှုနဲ့ အကူအညီလိုအပ်ခြင်း", past: "ငွေကြေး အခက်အခဲ ရှိခဲ့တယ်", present: "ခက်ခဲနေပေမဲ့ အကူအညီ ရနိုင်တယ်", future: "အခြေအနေ ပြန်ကောင်းလာမယ်" },
-  { id: 48, name: "Six of Pentacles", img: "48.png", general: "ပေးကမ်းမှုနဲ့ ရရှိမှု", past: "အကူအညီ ပေးခဲ့/ရခဲ့တယ်", present: "ပေးကမ်းမှုက ကောင်းချီးဖြစ်မယ်", future: "ငွေရေးကြေးရေး ဟန်ချက်ညီမယ်" },
-  { id: 49, name: "Seven of Pentacles", img: "49.png", general: "ရင်းနှီးမြှုပ်နှံမှုနဲ့ စိတ်ရှည်မှု", past: "အချိန်ပေးပြီး လုပ်ခဲ့တယ်", present: "ရလဒ်ကို စောင့်မျှော်နေတယ်", future: "အသီးအပွင့်တွေ ရိတ်သိမ်းရမယ်" },
-  { id: 50, name: "Eight of Pentacles", img: "50.png", general: "ကြိုးစားအားထုတ်မှုနဲ့ ကျွမ်းကျင်မှု", past: "အလုပ်ကို ကြိုးကြိုးစားစား လုပ်ခဲ့တယ်", present: "ကျွမ်းကျင်မှု မြှင့်တင်နေတယ်", future: "အောင်မြင်မှု ရဖို့ နီးနေပြီ" },
-  { id: 51, name: "Nine of Pentacles", img: "51.png", general: "သပ်ရပ်မှုနဲ့ ခံစားခွင့်ရှိမှု", past: "ကိုယ်ပိုင်လွတ်လပ်မှု ရခဲ့တယ်", present: "ဘဝကို ခံစားနေတယ်", future: "ချမ်းသာမှုနဲ့ ငြိမ်းချမ်းမှု ရမယ်" },
-  { id: 52, name: "Ten of Pentacles", img: "52.png", general: "ကြွယ်ဝမှုနဲ့ အမွေအနှစ်", past: "မိသားစု အကူအညီ ရခဲ့တယ်", present: "ငွေကြေး တည်ငြိမ်နေတယ်", future: "ရေရှည်ချမ်းသာမှု ရမယ်" },
-  { id: 53, name: "Page of Pentacles", img: "53.png", general: "အခွင့်အလမ်းသစ်နဲ့ သင်ယူမှု", past: "ကျွမ်းကျင်မှုအသစ် သင်ခဲ့တယ်", present: "အခွင့်အလမ်းသစ်တွေ ရှိတယ်", future: "ငွေရေးကြေးရေး တိုးတက်မယ်" },
-  { id: 54, name: "Knight of Pentacles", img: "54.png", general: "တည်ငြိမ်မှုနဲ့ တာဝန်ယူမှု", past: "တာဝန်ကျေပွန်ခဲ့တယ်", present: "စနစ်တကျ လုပ်ဆောင်နေတယ်", future: "ယုံကြည်စိတ်ချရတဲ့ ရလဒ် ရမယ်" },
-  { id: 55, name: "Queen of Pentacles", img: "55.png", general: "ဂရုစိုက်မှုနဲ့ လက်တွေ့ကျမှု", past: "လက်တွေ့ကျကျ ဖြေရှင်းခဲ့တယ်", present: "ဂရုတစိုက် စီမံခန့်ခွဲနေတယ်", future: "ဘဝ တည်ငြိမ်ချမ်းသာမယ်" },
-  { id: 56, name: "King of Pentacles", img: "56.png", general: "အောင်မြင်မှုနဲ့ ကြွယ်ဝမှု", past: "စီးပွားရေး အောင်မြင်ခဲ့တယ်", present: "ငွေကြေးကို ကောင်းကောင်း စီမံနေတယ်", future: "ကြီးမားတဲ့ အောင်မြင်မှု ရမယ်" },
-];
+  // ==========================================
+  // PENTACLES (43-56)
+  // ==========================================
+  {
+    id: 43, name: "Ace of Pentacles", img: "43.png", 
+    keywords: "ရုပ်ပိုင်းဆိုင်ရာ အခွင့်အလမ်း၊ ငွေကြေး၊ စီးပွားရေး",
+    general: "Ace of Pentacles ဟာ ရုပ်ပိုင်းဆိုင်ရာနဲ့ ငွေကြေးပိုင်းဆိုင်ရာ အခွင့်အလမ်းသစ်တွေ ရောက်လာခြင်းကို ကိုယ်စားပြုပါတယ်။ လုပ်ငန်းအသစ်၊ ရင်းနှီးမြှုပ်နှံမှုအသစ်တွေအတွက် ကောင်းချီးတံခါး ဖွင့်ပေးလိုက်သလိုပါပဲ။",
+    upright: "ဝင်ငွေအသစ်တွေ ရလာနိုင်ပါတယ်။ အလုပ်သစ်တစ်ခု ရနိုင်ခြေ မြင့်မားပါတယ်။ ရေရှည်တည်တံ့မယ့် စီးပွားရေးအစီအစဉ်တွေ ချဖို့ အကောင်းဆုံးအချိန်ပါ။",
+    reversed: "ငွေကြေးနဲ့ ပတ်သက်ပြီး အခွင့်အရေးလွတ်သွားနိုင်ခြေ ရှိပါတယ်။ စွန့်စားရင်းနှီးမြှုပ်နှံမှုတွေကို ခေတ္တရှောင်ပြီး ပိုက်ဆံကို ဂရုတစိုက် စီမံပါ။",
+    love: "ဆက်ဆံရေးမှာ တည်ငြိမ်မှုနဲ့ လုံခြုံမှုကို ရှာဖွေနေပါတယ်။ ရုပ်ဝတ္ထုအရ ပံ့ပိုးပေးမှုတွေ ရှိလာနိုင်ပါတယ်။",
+    career: "စီးပွားရေးလုပ်ငန်း စတင်ဖို့ သို့မဟုတ် လစာတိုးဖို့ အခွင့်အရေးကောင်း ရလာပါမယ်။",
+    health: "ကျန်းမာရေးအတွက် ရင်းနှီးမြှုပ်နှံမှု (ဥပမာ - Gym သွားခြင်း၊ အစားအသောက်ကောင်းကောင်းစားခြင်း) က အကျိုးရှိမယ့်အချိန်။",
+    advice: "လက်တွေ့ကျကျ စဉ်းစားပါ။ ရလာတဲ့ အခွင့်အရေးကို အသုံးချပြီး အုတ်မြစ်ခိုင်ခိုင်တည်ဆောက်ပါ။",
+    past: "ငွေကြေးအခွင့်အရေး ရခဲ့တယ်", present: "ဝင်ငွေအသစ် လမ်းစ ပေါ်နေတယ်", future: "ငွေကြေးတိုးတက်မှု ရှိမယ်" 
+  },
+  { id: 44, name: "Two of Pentacles", img: "44.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 45, name: "Three of Pentacles", img: "45.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 46, name: "Four of Pentacles", img: "46.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 47, name: "Five of Pentacles", img: "47.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 48, name: "Six of Pentacles", img: "48.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 49, name: "Seven of Pentacles", img: "49.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 50, name: "Eight of Pentacles", img: "50.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 51, name: "Nine of Pentacles", img: "51.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 52, name: "Ten of Pentacles", img: "52.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 53, name: "Page of Pentacles", img: "53.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 54, name: "Knight of Pentacles", img: "54.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 55, name: "Queen of Pentacles", img: "55.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" },
+  { id: 56, name: "King of Pentacles", img: "56.png", keywords: "#", general: "#", upright: "#", reversed: "#", love: "#", career: "#", health: "#", advice: "#", past: "#", present: "#", future: "#" }
+];keywords
