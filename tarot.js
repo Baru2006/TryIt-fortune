@@ -1,6 +1,14 @@
-// ==================================================
-// TAROT GAME LOGIC (V7 - With Read More Button)
-// ==================================================
+// Adsgram Init
+const ADSGRAM_BLOCK_ID = "54672"; 
+let adController = null;
+
+if (window.Adsgram) {
+  try {
+    adController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
+  } catch (error) {
+    console.log("Adsgram init error:", error);
+  }
+}
 
 let currentMode = 'daily'; 
 let requiredCards = 1;
@@ -33,7 +41,6 @@ function showScreen(screenId) {
   document.getElementById(screenId).classList.add('active');
 }
 
-// 1. Loading Screen
 window.addEventListener('DOMContentLoaded', () => {
   bgMusic.volume = 0.4;
   let progress = 0;
@@ -49,7 +56,6 @@ window.addEventListener('DOMContentLoaded', () => {
   }, 150); 
 });
 
-// 2. Menu Navigation
 function startGame() {
   playSound(sfxClick);
   if (isMusicOn && bgMusic.paused) bgMusic.play().catch(e => console.log(e));
@@ -60,12 +66,11 @@ function openSettings() { playSound(sfxClick); showScreen('screen-settings'); }
 function openAbout() { playSound(sfxClick); showScreen('screen-about'); }
 function backToMenu() { playSound(sfxClick); showScreen('screen-start'); }
 
-// 3. Choice Start
 function startReading(mode, num) {
   playSound(sfxClick);
   currentMode = mode;
   requiredCards = num;
-  selectedCards = []; // State ကို ရှင်းမယ်
+  selectedCards = []; 
   
   if (mode === 'yesno') {
     showScreen('screen-yesno');
@@ -81,14 +86,12 @@ function submitYesNo() {
   startShuffle();
 }
 
-// 4. Shuffle Scene
 function startShuffle() {
   playSound(sfxShuffle);
   showScreen('screen-shuffle');
   setTimeout(() => { buildPickGrid1(); }, 2000); 
 }
 
-// 5. Pick Step 1 (၄ ကဒ်)
 function buildPickGrid1() {
   showScreen('screen-pick1');
   document.getElementById('title-pick1').innerText = `ကဒ် ${requiredCards} ကဒ် ရွေးပါ (အဆင့် ၁)`;
@@ -104,12 +107,10 @@ function buildPickGrid1() {
       card.classList.add('selected');
       
       if (currentMode === 'yesno') {
-        // Yes/No အတွက် ကဒ် ၁ ကဒ်တည်း
         selectedCards = [cardData];
         selectedCards[0].isReversed = Math.random() < 0.5;
         setTimeout(() => { playSound(sfxReveal); showResult(); }, 400);
       } else {
-        // ကျန်တဲ့ Mode တွေအတွက် ဒုတိယအဆင့် ဆက်သွားမယ်
         buildPickGrid2();
       }
     };
@@ -117,7 +118,6 @@ function buildPickGrid1() {
   });
 }
 
-// 6. Pick Step 2 (၁၄ ကဒ်)
 function buildPickGrid2() {
   showScreen('screen-pick2');
   document.getElementById('title-pick2').innerText = `ကဒ် ${requiredCards} ကဒ် ရွေးပါ (အဆင့် ၂)`;
@@ -143,7 +143,6 @@ function buildPickGrid2() {
   });
 }
 
-// 7. Pick Logic
 function pickCard(cardElement, cardData) {
   if (isPicking) return;
   isPicking = true;
@@ -165,7 +164,6 @@ function pickCard(cardElement, cardData) {
   }
 }
 
-// 8. Show Result (ခလုတ်အသစ်ပါဝင်သည်)
 function showResult() {
   const revealContainer = document.getElementById('revealedCards');
   revealContainer.innerHTML = '';
@@ -183,7 +181,7 @@ function showResult() {
     if (card.isReversed) cardDiv.classList.add('reversed');
     
     cardDiv.style.backgroundImage = `url('assets/cards/${card.img}')`;
-    cardDiv.onclick = () => openModal(card);
+    cardDiv.onclick = () => openModalByIndex(index);
     
     cardDiv.innerHTML = `<span style="color:#8b5cf6; font-size:12px; font-weight:bold; text-align:center; background:rgba(255,255,255,0.9); width:100%; padding:4px 0; border-radius:4px;">${card.name}</span>`; 
     revealContainer.appendChild(cardDiv);
@@ -200,8 +198,6 @@ function showResult() {
         <p style="font-size:14px; color:#a0aec0; font-style:italic; margin-bottom:10px;">"${userQuestion}"</p>
         <h3 style="color:#fbbf24; margin-bottom:5px;">ကဒ်ရဲ့ အဖြေ:</h3>
         <p style="font-size:16px; font-weight:bold; color:#10b981; margin-bottom: 15px;">${answer}</p>
-        
-        <!-- 🔍 အသေးစိတ်ဖတ်ရန် ခလုတ် -->
         <button class="read-more-btn" onclick="openModalByIndex(${index})">
           🔍 အသေးစိတ် ဖတ်ရန် (${card.name})
         </button>
@@ -211,8 +207,6 @@ function showResult() {
       fortuneText += `<div style="margin-bottom:20px; text-align:left; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:15px;">
         <h3 style="color:#fbbf24; font-size:16px; margin-bottom:8px;">${position} - ${card.name}</h3>
         <p style="font-size:14px; line-height:1.6; margin-bottom: 12px;">${meaning}</p>
-        
-        <!-- 🔍 အသေးစိတ်ဖတ်ရန် ခလုတ် -->
         <button class="read-more-btn" onclick="openModalByIndex(${index})">
           🔍 အသေးစိတ် ဖတ်ရန်
         </button>
@@ -224,56 +218,23 @@ function showResult() {
   showScreen('screen-result');
 }
 
-// 🔍 ခလုတ်နှိပ်ရင် သက်ဆိုင်ရာ ကဒ် Data ကို ယူပြီး Modal ဖွင့်ပေးမယ့် Function
+// ကြော်ငြာ ပြီးမှ ကဒ်အသေးစိတ် ဖွင့်ပေးမယ့် Function
 function openModalByIndex(index) {
-  openModal(selectedCards[index]);
-}
-
-// 9. Save Logic (၅ ခုအထိ)
-function saveReading() {
-  playSound(sfxClick);
-  let savedData = {
-    date: new Date().toLocaleDateString(),
-    cards: selectedCards.map(c => c.name),
-    text: document.getElementById('fortuneText').innerHTML
-  };
-
-  let savedList = JSON.parse(localStorage.getItem('tarot_saves') || '[]');
-  if (savedList.length >= 5) savedList.shift(); 
-  savedList.push(savedData);
-  localStorage.setItem('tarot_saves', JSON.stringify(savedList));
-
-  const btn = document.querySelector('.result-actions .action-btn');
-  const originalText = btn.innerText;
-  btn.innerText = "Saved!";
-  setTimeout(() => { btn.innerText = originalText; }, 1500);
-}
-
-// 10. Saved List (Modal)
-function openSavedList() {
-  playSound(sfxClick);
-  const container = document.getElementById('savedListContainer');
-  const savedList = JSON.parse(localStorage.getItem('tarot_saves') || '[]');
-  
-  if (savedList.length === 0) {
-    container.innerHTML = "<p style='color:#a0aec0; text-align:center; font-family:Padauk;'>သိမ်းထားတာ မရှိသေးပါဘူး။</p>";
+  const card = selectedCards[index];
+  if (adController) {
+    adController.show()
+      .then(() => {
+        openModal(card); // ကြော်ငြာ ကြည့်ပြီးရင် ဖွင့်မယ်
+      })
+      .catch((error) => {
+        console.log("Ad error/skipped:", error);
+        openModal(card); // ကြော်ငြာ မကြည့်ရင်လည်း ဖွင့်ပေးမယ် (Test လုပ်ရလွယ်အောင်)
+      });
   } else {
-    container.innerHTML = savedList.reverse().map((item) => `
-      <div class="saved-item">
-        <p style="font-weight:bold; color:#fbbf24; margin-bottom:5px;">${item.cards.join(', ')}</p>
-        <p style="font-size:11px; color:#a0aec0;">${item.date}</p>
-      </div>
-    `).join('');
+    openModal(card);
   }
-  document.getElementById('savedModal').classList.add('active');
 }
 
-function closeSavedList() {
-  playSound(sfxClick);
-  document.getElementById('savedModal').classList.remove('active');
-}
-
-// 11. Card Detail Modal
 function openModal(card) {
   playSound(sfxClick);
   document.getElementById('modal-img').src = `assets/cards/${card.img}`;
@@ -304,7 +265,48 @@ function closeModal() {
   document.getElementById('cardModal').classList.remove('active');
 }
 
-// 12. Navigation
+function saveReading() {
+  playSound(sfxClick);
+  let savedData = {
+    date: new Date().toLocaleDateString(),
+    cards: selectedCards.map(c => c.name),
+    text: document.getElementById('fortuneText').innerHTML
+  };
+
+  let savedList = JSON.parse(localStorage.getItem('tarot_saves') || '[]');
+  if (savedList.length >= 5) savedList.shift(); 
+  savedList.push(savedData);
+  localStorage.setItem('tarot_saves', JSON.stringify(savedList));
+
+  const btn = document.querySelector('.result-actions .action-btn');
+  const originalText = btn.innerText;
+  btn.innerText = "Saved!";
+  setTimeout(() => { btn.innerText = originalText; }, 1500);
+}
+
+function openSavedList() {
+  playSound(sfxClick);
+  const container = document.getElementById('savedListContainer');
+  const savedList = JSON.parse(localStorage.getItem('tarot_saves') || '[]');
+  
+  if (savedList.length === 0) {
+    container.innerHTML = "<p style='color:#a0aec0; text-align:center; font-family:Padauk;'>သိမ်းထားတာ မရှိသေးပါဘူး။</p>";
+  } else {
+    container.innerHTML = savedList.reverse().map((item) => `
+      <div class="saved-item">
+        <p style="font-weight:bold; color:#fbbf24; margin-bottom:5px;">${item.cards.join(', ')}</p>
+        <p style="font-size:11px; color:#a0aec0;">${item.date}</p>
+      </div>
+    `).join('');
+  }
+  document.getElementById('savedModal').classList.add('active');
+}
+
+function closeSavedList() {
+  playSound(sfxClick);
+  document.getElementById('savedModal').classList.remove('active');
+}
+
 function leaveApp() {
   playSound(sfxClick);
   if(bgMusic) bgMusic.pause();
@@ -313,8 +315,8 @@ function leaveApp() {
 
 function restartApp() {
   playSound(sfxClick);
-  selectedCards = []; // State ကို ရှင်းမယ်
+  selectedCards = [];
   userQuestion = "";
   document.getElementById('yesNoInput').value = "";
-  showScreen('screen-intro'); // ရွေးချယ်တဲ့ နေရာကို ပြန်သွားမယ်
+  showScreen('screen-intro');
 }
