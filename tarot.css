@@ -1,18 +1,22 @@
 /* ==================================================
-   TAROT GAME STYLES (V3 - Complete)
+   TAROT GAME STYLES (COMPLETE & FIXED)
    ================================================== */
+
+/* --- RESET & BASE --- */
 body.tarot-dark {
   background-color: #0f0a1a;
   color: #fff;
   overflow: hidden;
   margin: 0;
   padding: 0;
+  font-family: 'Poppins', 'Padauk', sans-serif;
 }
 
+/* --- SCREEN LAYOUT --- */
 .tarot-screen {
   position: fixed;
   inset: 0;
-  display: none;
+  display: none; /* ပုံမှန်ဆို ဖျောက်ထားမယ် */
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -20,15 +24,13 @@ body.tarot-dark {
 }
 
 .tarot-screen.active {
-  display: flex;
+  display: flex; /* active ဖြစ်မှ ပေါ်မယ် */
   animation: fadeIn 0.5s ease;
 }
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* ==================================================
-   BACKGROUNDS
-   ================================================== */
+/* --- BACKGROUNDS --- */
 .bg-home, .pick-bg {
   position: absolute;
   inset: 0;
@@ -41,7 +43,7 @@ body.tarot-dark {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.5); /* စာတွေပေါ်လွင်အောင် နည်းနည်းမှိန်မယ် */
+  background: rgba(0,0,0,0.5); /* နောက်ခံကို နည်းနည်းမှိန်မယ် */
 }
 
 .loading-bg {
@@ -52,9 +54,7 @@ body.tarot-dark {
   z-index: -1;
 }
 
-/* ==================================================
-   LOADING SCREEN
-   ================================================== */
+/* --- LOADING SCREEN --- */
 .loading-content {
   position: absolute;
   bottom: 15%;
@@ -87,9 +87,7 @@ body.tarot-dark {
   transition: width 0.1s linear;
 }
 
-/* ==================================================
-   MAIN MENU (Glassmorphism Style)
-   ================================================== */
+/* --- MAIN MENU --- */
 .menu-container {
   display: flex;
   flex-direction: column;
@@ -105,9 +103,7 @@ body.tarot-dark {
   height: auto;
   object-fit: contain;
   margin-bottom: 40px;
-  
-  /* 🌟 နောက်ခံအနက်ရောင်ကို ဖျောက်ဖို့အတွက် အရေးကြီးဆုံးအချက် 🌟 */
-  mix-blend-mode: screen;
+  mix-blend-mode: screen; /* Title ရဲ့ အနက်ရောင်နောက်ခံကို ဖျောက်မယ် */
   filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.6));
 }
 
@@ -135,7 +131,6 @@ body.tarot-dark {
   border: 1px solid rgba(139, 92, 246, 0.3);
   border-radius: 12px;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
 }
 
@@ -145,24 +140,19 @@ body.tarot-dark {
   border-color: #8b5cf6;
 }
 
-/* ==================================================
-   INTRO & DIALOGUE
-   ================================================== */
+/* --- INTRO & DIALOGUE --- */
 .character-img {
   position: absolute;
-  bottom: 25%; 
-  width: 260px; 
+  bottom: 25%;
+  width: 260px;
   height: 380px;
-  
-  /* 👇 ပုံလမ်းကြောင်းနဲ့ နေရာချထားမှုကို သီးသန့် ရေးပေးလိုက်ပါတယ် 👇 */
   background-image: url('assets/characters/myanmar-girl.png');
   background-position: center bottom;
   background-size: contain;
   background-repeat: no-repeat;
-  
   filter: drop-shadow(0 0 20px rgba(236, 72, 153, 0.4));
   animation: floatChar 4s ease-in-out infinite;
-  z-index: 1; /* နောက်ခံပုံအပေါ်မှာ ရှိမယ် */
+  z-index: 1;
 }
 
 @keyframes floatChar {
@@ -210,80 +200,108 @@ body.tarot-dark {
 .tarot-btn small { font-size: 12px; opacity: 0.7; }
 .tarot-btn:hover { background: rgba(139, 92, 246, 0.3); }
 
-/* ==================================================
-   PICK CARDS (Table & Hands)
-   ================================================== */
-.table-wrap {
+/* Yes/No Input Field */
+#yesNoInput {
+  width: 100%;
+  margin-bottom: 15px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(139,92,246,0.5);
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+  font-family: 'Padauk', sans-serif;
+  font-size: 15px;
+  outline: none;
+}
+#yesNoInput:focus { border-color: #ec4899; background: rgba(255,255,255,0.15); }
+
+/* --- SHUFFLE SCENE --- */
+.shuffle-animation {
+  width: 100px;
+  height: 150px;
+  background-image: url('assets/cards/back.png');
+  background-size: cover;
+  border-radius: 8px;
+  box-shadow: 0 0 20px #8b5cf6;
+  animation: shuffleAnim 0.5s infinite alternate;
+}
+
+@keyframes shuffleAnim {
+  0% { transform: translateY(0) rotate(-5deg); }
+  100% { transform: translateY(-20px) rotate(5deg); }
+}
+
+/* --- PICK CARDS --- */
+.pick-title {
   position: absolute;
-  top: 15%;
+  top: 10%;
+  color: #fbbf24;
+  font-family: 'Padauk', sans-serif;
+  text-shadow: 0 2px 5px #000;
+  text-align: center;
+  width: 100%;
+}
+
+/* အဆင့် ၁ (၄ ကဒ်) */
+.pick-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  width: 60%;
+  max-width: 300px;
+  margin-top: 50px;
+}
+
+/* အဆင့် ၂ (၁၄ ကဒ် - ၄,၃,၄,၃) */
+.pick-grid-14 {
+  position: relative;
   width: 90%;
   max-width: 400px;
-  height: 60%;
+  height: 60vh;
+  margin-top: 50px;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
+  gap: 10px;
 }
 
-.tarot-table {
-  position: absolute;
-  width: 110%;
-  height: 100%;
-  object-fit: contain;
-  z-index: 1;
-  pointer-events: none;
-  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
-}
-
-.pick-header {
-  position: absolute;
-  top: -40px;
-  z-index: 3;
-}
-
-.pick-header h2 {
-  font-family: 'Padauk', sans-serif;
-  font-size: 18px;
-  color: #fbbf24;
-  text-shadow: 0 2px 5px rgba(0,0,0,0.8);
-}
-
-.cards-grid {
-  position: relative;
-  z-index: 2; /* စားပွဲအပေါ်မှာ ကဒ်တွေရှိမယ် */
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
+.pick-row {
+  display: flex;
+  justify-content: center;
   gap: 8px;
-  width: 85%;
-  padding-top: 20px;
 }
 
+/* ကဒ်ပုံစံ */
 .tarot-card {
   aspect-ratio: 2/3;
   background-image: url('assets/cards/back.png');
   background-size: cover;
-  border-radius: 4px;
+  background-position: center;
+  border-radius: 6px;
   border: 1px solid rgba(255, 215, 0, 0.4);
   box-shadow: 0 4px 8px rgba(0,0,0,0.6);
   cursor: pointer;
   transition: all 0.3s;
 }
 
-.tarot-card:active { transform: scale(1.1); }
-.tarot-card.selected { opacity: 0; pointer-events: none; transform: scale(0.5); }
-
-.hands-img {
-  position: absolute;
-  bottom: -30px;
-  width: 100%;
-  max-width: 500px;
-  z-index: 3; /* ကဒ်တွေရဲ့ အောက်ဆုံးမှာ လက်က ရှိနေမယ် */
-  pointer-events: none; /* လက်က ကဒ်နှိပ်တာကို အနှောက်အယှက်မဖြစ်စေရဘူး */
+/* ကဒ်တွေ ထပ်နေစေရန် (၁၄ ကဒ်အတွက်) */
+.pick-row .tarot-card {
+  width: 60px;
+  margin: 0 -10px; /* ဘေးတိုက် ထပ်သွားမယ် */
+  z-index: 1;
 }
 
-/* ==================================================
-   RESULT SCREEN
-   ================================================== */
+.pick-row .tarot-card:hover,
+.pick-row .tarot-card:active {
+  z-index: 10;
+  transform: translateY(-10px) scale(1.1);
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.8);
+}
+
+.tarot-card:active { transform: scale(1.05); }
+.tarot-card.selected { opacity: 0; pointer-events: none; transform: scale(0.5); }
+
+/* --- RESULT SCREEN --- */
 #screen-result {
   background: #0f0a1a;
   justify-content: flex-start;
@@ -321,7 +339,12 @@ body.tarot-dark {
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
+
+/* ပြောင်းပြန်ကျတဲ့ ကဒ်အတွက် (ပုံကို ဇောက်ထိုးလှန်မယ်) */
+.reveal-card.reversed { transform: rotate(180deg); }
+.reveal-card.reversed span { transform: rotate(-180deg); } /* စာသားကို ပြန်မှန်အောင်လုပ်မယ် */
 
 .fortune-text {
   font-family: 'Padauk', sans-serif;
@@ -355,9 +378,7 @@ body.tarot-dark {
 }
 .action-btn:active { transform: scale(0.95); }
 
-/* ==================================================
-   SETTINGS & ABOUT
-   ================================================== */
+/* --- SETTINGS & ABOUT --- */
 .info-card {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -367,7 +388,7 @@ body.tarot-dark {
   max-width: 350px;
   text-align: center;
 }
-.info-card h2 { margin-bottom: 15px; color: #fbbf24; }
+.info-card h2 { margin-bottom: 15px; color: #fbbf24; font-family: 'Padauk', sans-serif;}
 .setting-row {
   display: flex; justify-content: space-between; align-items: center;
   background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 10px;
@@ -376,49 +397,143 @@ body.tarot-dark {
 .toggle-btn.off { background: #4a5568; }
 
 /* ==================================================
-   YES/NO, SHUFFLE, PICK GRIDS
+   MODAL OVERLAY (Popup တွေ အားလုံးအတွက်)
    ================================================== */
-.pick-title {
-  position: absolute; top: 10%; color: #fbbf24; font-family: 'Padauk'; text-shadow: 0 2px 5px #000;
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+  z-index: 100;
+  
+  /* 👇 အရေးကြီးဆုံး: ပုံမှန်ဆို လုံးဝ ဖျောက်ထားမယ် 👇 */
+  display: none; 
+  opacity: 0;
+  
+  align-items: flex-end; /* အောက်ကနေ တက်လာမယ် */
+  justify-content: center;
+  transition: opacity 0.3s ease;
 }
 
-/* ၄ ကဒ် (၂x၂) */
-.pick-grid-4 {
-  display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;
-  width: 60%; max-width: 300px; margin-top: 50px;
+/* active class တပ်မှ အပေါ်တက်လာမယ် */
+.modal-overlay.active {
+  display: flex;
+  opacity: 1;
 }
 
-/* ၁၄ ကဒ် (၄,၃,၄,၃) - Grid မဟုတ်ဘဲ Flex နဲ့ စီမယ် */
-.pick-grid-14 {
-  position: relative; width: 90%; max-width: 400px; height: 60vh; margin-top: 50px;
-  display: flex; flex-direction: column; justify-content: center; gap: 10px;
-}
-.pick-row {
-  display: flex; justify-content: center; gap: 8px;
-}
-/* ကဒ်တွေ ထပ်နေစေရန် (Overlap) */
-.pick-row .tarot-card {
-  width: 60px; margin: 0 -10px; z-index: 1; transition: all 0.3s;
-}
-.pick-row .tarot-card:hover, .pick-row .tarot-card:active {
-  z-index: 10; transform: translateY(-10px) scale(1.1); box-shadow: 0 0 15px rgba(251, 191, 36, 0.8);
-}
-
-/* Shuffle Animation */
-.shuffle-animation {
-  width: 100px; height: 150px; background-image: url('assets/cards/back.png');
-  background-size: cover; border-radius: 8px; box-shadow: 0 0 20px #8b5cf6;
-  animation: shuffleAnim 0.5s infinite alternate;
-}
-@keyframes shuffleAnim {
-  0% { transform: translateY(0) rotate(-5deg); }
-  100% { transform: translateY(-20px) rotate(5deg); }
+.modal-content {
+  background: #1a1025;
+  width: 100%;
+  max-width: 600px;
+  max-height: 85vh; /* Screen ရဲ့ ၈၅% အမြင့်ပဲယူမယ် */
+  border-radius: 24px 24px 0 0;
+  padding: 20px;
+  overflow-y: auto;
+  position: relative;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-bottom: none;
 }
 
-/* Save List ထဲက Item ပုံစံ */
+.modal-overlay.active .modal-content {
+  transform: translateY(0);
+}
+
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+/* --- Modal အတွင်း အသေးစိတ် --- */
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-bottom: 15px;
+}
+
+.modal-card-img {
+  width: 70px;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.modal-title-wrap h2 {
+  color: #fbbf24;
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+.modal-title-wrap p {
+  color: #a78bfa;
+  font-size: 13px;
+  font-style: italic;
+  margin-top: 5px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: bold;
+  color: #fff;
+}
+.status-badge.upright { background: #10b981; }
+.status-badge.reversed { background: #ef4444; }
+
+.detail-section {
+  margin-bottom: 20px;
+}
+
+.detail-section h3 {
+  color: #8b5cf6;
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.detail-section p {
+  font-family: 'Padauk', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #cbd5e1;
+}
+
+.category-box {
+  font-family: 'Padauk', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #cbd5e1;
+  margin-bottom: 10px;
+  background: rgba(255,255,255,0.03);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.advice-box {
+  background: rgba(139, 92, 246, 0.1);
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+/* --- Save List Item --- */
 .saved-item {
-  background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px;
-  border: 1px solid rgba(139,92,246,0.3); display: flex; justify-content: space-between; align-items: center;
+  background: rgba(255,255,255,0.05);
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(139,92,246,0.3);
 }
-.saved-item p { font-size: 13px; color: #cbd5e1; margin: 0; }
-.saved-item button { background: #3b82f6; color: white; border: none; padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer; }
