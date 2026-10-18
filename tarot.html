@@ -15,30 +15,36 @@
 <body class="tarot-dark">
 
   <!-- 🎵 AUDIO ELEMENTS -->
-  <audio id="bgMusic" loop>
-    <source src="assets/audio/bg-music.mp3" type="audio/mpeg">
-  </audio>
+  <audio id="bgMusic" loop><source src="assets/audio/bg-music.mp3" type="audio/mpeg"></audio>
   <audio id="sfxClick"><source src="assets/audio/click.mp3" type="audio/mpeg"></audio>
   <audio id="sfxShuffle"><source src="assets/audio/shuffle.mp3" type="audio/mpeg"></audio>
   <audio id="sfxReveal"><source src="assets/audio/reveal.mp3" type="audio/mpeg"></audio>
 
-  <!-- SCREEN 0: INITIAL LOADING -->
+  <!-- SCREEN 0: INITIAL LOADING (5 စက္ကန့်) -->
   <section class="tarot-screen active" id="screen-loading">
     <div class="loading-spinner"></div>
     <h2>အိမ်ထဲကို ဝင်ရောက်နေသည်...</h2>
-    <p>ခဏစောင့်ပါ</p>
+    <p>ခဏစောင့်ပါ (၅ စက္ကန့်)</p>
   </section>
 
-  <!-- SCREEN 1: START MENU -->
+  <!-- SCREEN 1: START MENU (Home) -->
   <section class="tarot-screen" id="screen-start">
     <div class="bg-room"></div>
     <div class="start-menu">
       <h1 class="game-logo">TAROT</h1>
       <p>Mystic Reading</p>
       <div class="menu-buttons">
-        <button class="tarot-btn primary-btn" onclick="startGame()">Start</button>
+        <button class="tarot-btn primary-btn" onclick="startGame()">တာရော့ကြည့်မယ်</button>
         <button class="tarot-btn" onclick="openSettings()">Settings</button>
       </div>
+    </div>
+  </section>
+
+  <!-- SCREEN 1.5: SHUFFLE LOADING (၃ စက္ကန့်) -->
+  <section class="tarot-screen" id="screen-shuffle">
+    <div class="loading-content" style="text-align:center;">
+      <div class="loading-spinner"></div>
+      <h2 style="font-family:'Padauk'; margin-top:20px;">ကဒ်များကိုရောနှောနေသည်...</h2>
     </div>
   </section>
 
@@ -63,11 +69,11 @@
         <p>"ဘာအတွက် ဟောစာတမ်း လိုချင်တာလဲ...?"</p>
       </div>
       <div class="choice-buttons">
-        <button class="tarot-btn" onclick="startReading(1)">
+        <button class="tarot-btn" onclick="preparePiles(1)">
           <span>ဒီနေ့ လိုအပ်နေတဲ့အရာ</span>
           <small>(၁ ကဒ်)</small>
         </button>
-        <button class="tarot-btn" onclick="startReading(3)">
+        <button class="tarot-btn" onclick="preparePiles(3)">
           <span>အတိတ်၊ ပစ္စုပ္ပန်၊ အနာဂတ်</span>
           <small>(၃ ကဒ်)</small>
         </button>
@@ -75,7 +81,21 @@
     </div>
   </section>
 
-  <!-- SCREEN 4: PICK CARDS -->
+  <!-- SCREEN 4: PILE SELECTION (အစု ၄ စု ရွေးချယ်ခြင်း) -->
+  <section class="tarot-screen" id="screen-piles">
+    <div class="bg-room"></div>
+    <div class="pick-header">
+      <h2 style="color:#c4b5fd; font-family:'Padauk';">ကဒ်အစု တစ်စုကို ရွေးချယ်ပါ</h2>
+    </div>
+    <div class="piles-container">
+      <div class="pile" onclick="selectPile(0)"><div class="pile-stack"></div></div>
+      <div class="pile" onclick="selectPile(1)"><div class="pile-stack"></div></div>
+      <div class="pile" onclick="selectPile(2)"><div class="pile-stack"></div></div>
+      <div class="pile" onclick="selectPile(3)"><div class="pile-stack"></div></div>
+    </div>
+  </section>
+
+  <!-- SCREEN 5: PICK CARDS (၁၄ ကဒ် ခင်းပြီး ရွေးချယ်ခြင်း) -->
   <section class="tarot-screen" id="screen-pick">
     <div class="bg-room"></div>
     <div class="pick-header">
@@ -84,22 +104,22 @@
     <div class="cards-grid" id="cardsGrid"></div>
   </section>
 
-  <!-- SCREEN 5: RESULT -->
+  <!-- SCREEN 6: RESULT -->
   <section class="tarot-screen" id="screen-result">
     <div class="result-container" id="captureArea">
-      <h2>ဟောစာတမ်း</h2>
+      <h2 style="font-family:'Padauk';">ဟောစာတမ်း</h2>
       <div class="revealed-cards" id="revealedCards"></div>
       <div class="fortune-text" id="fortuneText"></div>
     </div>
     
     <div class="action-buttons">
-      <button class="icon-btn" onclick="saveReading()">💾 Save</button>
+      <button class="icon-btn" onclick="saveReading()">💾 Save (ပုံရိုက်)</button>
       <button class="icon-btn" onclick="shareApp()">📤 Share</button>
     </div>
     <button class="tarot-btn primary-btn" onclick="showOutro()" style="max-width: 300px; margin: 0 auto;">Next ➔</button>
   </section>
 
-  <!-- SCREEN 6: OUTRO -->
+  <!-- SCREEN 7: OUTRO -->
   <section class="tarot-screen" id="screen-outro">
     <div class="bg-room"></div>
     <div class="character-img"></div>
@@ -110,7 +130,7 @@
     </div>
   </section>
 
-  <!-- SCREEN 7: APP INFO -->
+  <!-- SCREEN 8: APP INFO -->
   <section class="tarot-screen" id="screen-info">
     <div class="info-card">
       <h2>TryIt Hub Tarot</h2>
@@ -122,7 +142,7 @@
     </div>
   </section>
 
-  <!-- SCREEN 8: SETTINGS -->
+  <!-- SCREEN 9: SETTINGS -->
   <section class="tarot-screen" id="screen-settings">
     <div class="info-card">
       <h2>Settings</h2>
