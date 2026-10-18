@@ -1,507 +1,555 @@
 /* ==================================================
-TAROT GAME STYLES (GLASSMORPHISM & MOBILE FIRST)
-================================================== */
-​{
-box-sizing: border-box;
-margin: 0;
-padding: 0;
--webkit-tap-highlight-color: transparent;
+   TAROT GAME STYLES (FULLY RESPONSIVE & GLASS)
+   ================================================== */
+
+/* --- RESET & BASE --- */
+body.tarot-dark {
+  background-color: #0f0a1a;
+  color: #fff;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  font-family: 'Poppins', 'Padauk', sans-serif;
+  -webkit-tap-highlight-color: transparent;
 }
-​body.tarot-dark {
-background: radial-gradient(circle at center, #1e1035 0%, #090514 100%);
-color: #f7fafc;
-font-family: 'Poppins', 'Padauk', sans-serif;
-min-height: 100vh;
-height: 100vh;
-overflow: hidden;
-display: flex;
-flex-direction: column;
+
+* { box-sizing: border-box; }
+
+/* --- GLASSMORPHISM UTILITY --- */
+.glass-panel {
+  background: rgba(25, 15, 45, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
 }
-​/* --- HEADER --- */
-.tarot-header {
-position: absolute;
-top: 0;
-left: 0;
-right: 0;
-height: 55px;
-display: flex;
-align-items: center;
-justify-content: space-between;
-padding: 0 16px;
-background: rgba(15, 10, 26, 0.6);
-backdrop-filter: blur(12px);
--webkit-backdrop-filter: blur(12px);
-border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-z-index: 50;
-}
-​.logo-area {
-font-weight: 700;
-font-size: 16px;
-color: #d6bcfa;
-display: flex;
-align-items: center;
-gap: 6px;
-}
-​.header-controls {
-display: flex;
-gap: 8px;
-}
-​.control-btn {
-background: rgba(255, 255, 255, 0.1);
-border: 1px solid rgba(255, 255, 255, 0.2);
-color: #fff;
-padding: 6px 12px;
-border-radius: 20px;
-font-size: 12px;
-font-weight: 600;
-cursor: pointer;
-transition: all 0.2s ease;
-}
-​.control-btn.off {
-background: rgba(239, 68, 68, 0.2);
-border-color: rgba(239, 68, 68, 0.4);
-color: #fca5a5;
-}
-​/* --- SCREENS --- */
+
+/* --- SCREEN LAYOUT --- */
 .tarot-screen {
-position: fixed;
-inset: 55px 0 0 0;
-display: none;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-padding: 16px;
-overflow-y: auto;
-z-index: 10;
+  position: fixed;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
 }
-​.tarot-screen.active {
-display: flex;
-animation: fadeIn 0.35s ease forwards;
+
+.tarot-screen.active {
+  display: flex;
+  animation: fadeIn 0.4s ease;
 }
-​@keyframes fadeIn {
-from { opacity: 0; transform: scale(0.98); }
-to { opacity: 1; transform: scale(1); }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* --- BACKGROUNDS --- */
+.bg-home, .pick-bg, .loading-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: -1;
 }
-​/* --- GLASSMORPHISM CARDS --- */
-.glass-card {
-background: rgba(255, 255, 255, 0.04);
-backdrop-filter: blur(16px);
--webkit-backdrop-filter: blur(16px);
-border: 1px solid rgba(255, 255, 255, 0.1);
-border-radius: 24px;
-padding: 24px;
-width: 100%;
-max-width: 400px;
-box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-text-align: center;
+
+.bg-home::after, .pick-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 5, 20, 0.6); /* နောက်ခံကို မှိန်မယ် */
 }
-​/* Welcome Card */
-.welcome-card h1 {
-font-size: 22px;
-color: #f6e05e;
-margin-bottom: 10px;
+
+/* --- LOADING SCREEN --- */
+.loading-content {
+  position: absolute;
+  bottom: 15%;
+  width: 80%;
+  max-width: 300px;
+  text-align: center;
 }
-​.welcome-card p {
-font-size: 13px;
-color: #cbd5e0;
-margin-bottom: 20px;
-line-height: 1.5;
+
+.loading-text {
+  font-family: 'Padauk', sans-serif;
+  font-size: 18px;
+  margin-bottom: 15px;
+  text-shadow: 0 2px 5px #000;
 }
-​.character-avatar {
-width: 90px;
-height: 90px;
-margin: 0 auto 15px auto;
-border-radius: 50%;
-overflow: hidden;
-border: 2px solid #8b5cf6;
-box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+
+.progress-bar-container {
+  width: 100%;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(139, 92, 246, 0.5);
 }
-​.character-avatar img {
-width: 100%;
-height: 100%;
-object-fit: cover;
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #8b5cf6, #ec4899);
+  border-radius: 10px;
+  transition: width 0.1s linear;
 }
-​/* Buttons */
-.magical-btn {
-background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
-color: #fff;
-border: none;
-width: 100%;
-padding: 14px;
-border-radius: 14px;
-font-size: 15px;
-font-weight: 700;
-cursor: pointer;
-box-shadow: 0 8px 20px rgba(109, 40, 217, 0.4);
-transition: transform 0.1s ease;
+
+/* --- MAIN MENU --- */
+.menu-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 20px;
+  z-index: 10;
 }
-​.magical-btn:active {
-transform: scale(0.97);
+
+.main-title {
+  width: 90%;
+  max-width: 320px;
+  height: auto;
+  margin-bottom: 40px;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.6));
 }
-​.menu-sub-links {
-display: flex;
-justify-content: center;
-gap: 15px;
-margin-top: 15px;
+
+.menu-card {
+  border-radius: 24px;
+  padding: 25px 20px;
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
-​.text-btn {
-background: none;
-border: none;
-color: #a0aec0;
-font-size: 13px;
-cursor: pointer;
+
+.menu-btn {
+  background: rgba(139, 92, 246, 0.15);
+  color: #fff;
+  font-family: 'Padauk', sans-serif;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 15px;
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
-​.text-btn:hover {
-color: #fff;
+
+.menu-btn:active {
+  background: rgba(139, 92, 246, 0.4);
+  transform: scale(0.96);
 }
-​.back-btn {
-background: rgba(255, 255, 255, 0.08);
-border: 1px solid rgba(255, 255, 255, 0.15);
-color: #e2e8f0;
-padding: 10px 20px;
-border-radius: 12px;
-font-size: 13px;
-margin-top: 15px;
-cursor: pointer;
+
+/* --- INTRO & DIALOGUE --- */
+.character-img {
+  position: absolute;
+  bottom: 22%;
+  width: 260px;
+  height: 380px;
+  background-image: url('assets/characters/myanmar-girl.png');
+  background-position: center bottom;
+  background-size: contain;
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 0 20px rgba(236, 72, 153, 0.4));
+  animation: floatChar 4s ease-in-out infinite;
+  z-index: 1;
 }
-​/* Menu Mode Grid */
-.menu-card h2 {
-font-size: 18px;
-margin-bottom: 15px;
-color: #e2e8f0;
+
+@keyframes floatChar {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
-​.mode-grid {
-display: flex;
-flex-direction: column;
-gap: 10px;
+
+.dialogue-box {
+  position: absolute;
+  bottom: 20px;
+  left: 15px;
+  right: 15px;
+  border-radius: 20px;
+  padding: 20px;
+  z-index: 2;
 }
-​.mode-btn {
-background: rgba(255, 255, 255, 0.05);
-border: 1px solid rgba(255, 255, 255, 0.08);
-border-radius: 14px;
-padding: 12px;
-display: flex;
-align-items: center;
-gap: 14px;
-text-align: left;
-cursor: pointer;
-transition: background 0.2s;
+
+.dialogue-text {
+  font-family: 'Padauk', sans-serif;
+  font-size: 16px;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #fff;
 }
-​.mode-btn:hover {
-background: rgba(255, 255, 255, 0.09);
+
+.choice-buttons { display: flex; flex-direction: column; gap: 10px; }
+
+.tarot-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(139, 92, 246, 0.4);
+  border-radius: 12px;
+  color: #fff;
+  padding: 14px;
+  font-family: 'Padauk', sans-serif;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.2s;
 }
-​.mode-btn .icon {
-font-size: 24px;
-background: rgba(139, 92, 246, 0.2);
-padding: 8px;
-border-radius: 10px;
+.tarot-btn small { font-size: 12px; opacity: 0.7; margin-top: 3px; }
+.tarot-btn:active { background: rgba(139, 92, 246, 0.3); }
+.primary-btn { background: linear-gradient(135deg, #8b5cf6, #ec4899); border: none; font-weight: bold;}
+
+/* Yes/No Input Field */
+#yesNoInput {
+  width: 100%;
+  margin-bottom: 15px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(139,92,246,0.5);
+  color: white;
+  padding: 15px;
+  border-radius: 12px;
+  font-family: 'Padauk', sans-serif;
+  font-size: 15px;
+  outline: none;
 }
-​.mode-btn h3 {
-font-size: 14px;
-color: #fff;
+#yesNoInput::placeholder { color: rgba(255,255,255,0.4); }
+
+/* --- SHUFFLE SCENE --- */
+.shuffle-animation {
+  width: 100px;
+  height: 150px;
+  background-image: url('assets/cards/back.png');
+  background-size: cover;
+  border-radius: 8px;
+  box-shadow: 0 0 30px #8b5cf6;
+  animation: shuffleAnim 0.4s infinite alternate;
+  position: relative;
+  z-index: 2;
 }
-​.mode-btn p {
-font-size: 11px;
-color: #a0aec0;
-margin-top: 2px;
+
+@keyframes shuffleAnim {
+  0% { transform: translateY(0) rotate(-10deg) scale(0.9); }
+  100% { transform: translateY(-20px) rotate(10deg) scale(1.1); }
 }
-​/* Yes/No Input Card */
-.input-card textarea {
-width: 100%;
-background: rgba(0, 0, 0, 0.3);
-border: 1px solid rgba(255, 255, 255, 0.15);
-border-radius: 12px;
-padding: 12px;
-color: #fff;
-font-size: 14px;
-margin: 15px 0;
-resize: none;
-font-family: inherit;
+
+.shuffle-text {
+  position: absolute; 
+  bottom: 20%; 
+  color: #fbbf24; 
+  font-family: 'Padauk'; 
+  text-shadow: 0 2px 5px #000;
+  z-index: 2;
 }
-​/* Shuffle Scene */
-.shuffle-scene {
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-gap: 30px;
+
+/* --- PICK CARDS --- */
+.pick-title {
+  position: absolute;
+  top: 8%;
+  color: #fbbf24;
+  font-family: 'Padauk', sans-serif;
+  text-shadow: 0 2px 5px #000;
+  text-align: center;
+  width: 100%;
+  z-index: 2;
 }
-​.deck-stack {
-position: relative;
-width: 90px;
-height: 140px;
+
+/* အဆင့် ၁ (၄ ကဒ်) */
+.pick-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  width: 70%;
+  max-width: 280px;
+  margin-top: 40px;
+  z-index: 2;
 }
-​.shuffle-card {
-position: absolute;
-inset: 0;
-background: linear-gradient(135deg, #4c1d95, #2e1065);
-border: 2px solid #8b5cf6;
-border-radius: 10px;
-box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+
+/* အဆင့် ၂ (၁၄ ကဒ် - ၄,၃,၄,၃) */
+.pick-grid-14 {
+  position: relative;
+  width: 95%;
+  max-width: 400px;
+  height: 65vh;
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 15px;
+  z-index: 2;
 }
-​.shuffle-card.s1 { transform: translateY(0px) rotate(-3deg); }
-.shuffle-card.s2 { transform: translateY(-4px) rotate(2deg); }
-.shuffle-card.s3 { transform: translateY(-8px) rotate(-1deg); animation: shuffleAnim 0.8s infinite alternate; }
-​@keyframes shuffleAnim {
-0% { transform: translateY(-8px) rotate(-1deg); }
-100% { transform: translateY(-12px) rotate(4deg); }
+
+.pick-row {
+  display: flex;
+  justify-content: center;
 }
-​/* Pick Grids */
-.pick-wrapper {
-width: 100%;
-max-width: 400px;
-text-align: center;
-}
-​.pick-wrapper h2 {
-font-size: 16px;
-color: #e2e8f0;
-margin-bottom: 20px;
-}
-​.cards-grid-2x2 {
-display: grid;
-grid-template-columns: repeat(2, 1fr);
-gap: 15px;
-justify-items: center;
-}
-​.cards-grid-pyramid {
-display: flex;
-flex-direction: column;
-gap: 10px;
-align-items: center;
-}
-​.pick-row {
-display: flex;
-gap: 10px;
-justify-content: center;
-}
-​/* Card Item */
+
+/* ကဒ်ပုံစံ */
 .tarot-card {
-width: 65px;
-height: 105px;
-background: linear-gradient(135deg, #3b0764, #1e1b4b);
-border: 2px solid #8b5cf6;
-border-radius: 8px;
-box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
-cursor: pointer;
-transition: transform 0.2s, box-shadow 0.2s;
-position: relative;
+  aspect-ratio: 2/3;
+  background-image: url('assets/cards/back.png');
+  background-size: cover;
+  background-position: center;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 215, 0, 0.5);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-​.tarot-card:hover {
-transform: translateY(-4px);
-box-shadow: 0 8px 20px rgba(139, 92, 246, 0.6);
+
+/* ၁၄ ကဒ်အတွက် ထပ်နေစေရန် (Overlap) */
+.pick-row .tarot-card {
+  width: 22%;
+  min-width: 50px;
+  margin: 0 -8px;
+  z-index: 1;
 }
-​.tarot-card.selected {
-border-color: #10b981;
-box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
-transform: scale(0.95);
+
+.pick-row .tarot-card:hover,
+.pick-row .tarot-card:active {
+  z-index: 10;
+  transform: translateY(-15px) scale(1.15);
+  box-shadow: 0 10px 20px rgba(251, 191, 36, 0.6);
 }
-​/* Result Screen */
-.result-card {
-max-width: 420px;
-padding: 20px;
-display: flex;
-flex-direction: column;
-max-height: 85vh;
+
+.tarot-card.selected { opacity: 0; pointer-events: none; transform: scale(0.5); }
+
+/* --- RESULT SCREEN --- */
+#screen-result {
+  background: #0f0a1a;
+  justify-content: flex-start;
+  overflow-y: auto;
 }
-​.result-card h2 {
-font-size: 17px;
-color: #f6e05e;
-margin-bottom: 12px;
+
+.result-scroll-area {
+  width: 100%;
+  min-height: 100%;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-​.revealed-container {
-display: flex;
-gap: 10px;
-justify-content: center;
-margin-bottom: 12px;
-overflow-x: auto;
-padding-bottom: 5px;
+
+.result-container {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 20px;
+  padding: 20px;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-​.reveal-card {
-width: 75px;
-height: 120px;
-border-radius: 8px;
-border: 2px solid #fbbf24;
-background-size: cover;
-background-position: center;
-background-repeat: no-repeat;
-box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-display: flex;
-flex-direction: column;
-justify-content: flex-end;
-overflow: hidden;
-cursor: pointer;
-flex-shrink: 0;
+
+.revealed-cards {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
 }
-​.reveal-card.reversed {
-transform: rotate(180deg);
+
+.reveal-card {
+  width: 85px;
+  aspect-ratio: 2/3;
+  background-size: cover;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
 }
-​.fortune-scroll-box {
-background: rgba(0, 0, 0, 0.35);
-border: 1px solid rgba(255, 255, 255, 0.1);
-border-radius: 12px;
-padding: 12px;
-overflow-y: auto;
-max-height: 180px;
-text-align: left;
-font-size: 12px;
-line-height: 1.5;
-margin-bottom: 15px;
+
+/* ပြောင်းပြန်ကျတဲ့ ကဒ်အတွက် */
+.reveal-card.reversed { transform: rotate(180deg); }
+.reveal-card.reversed span { transform: rotate(-180deg); }
+
+.fortune-text {
+  font-family: 'Padauk', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #e2e8f0;
+  text-align: center;
+  width: 100%;
 }
-​.result-actions {
-display: flex;
-gap: 8px;
+
+.result-actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 500px;
+  margin-top: 20px;
+  padding-bottom: 30px;
 }
-​.action-btn {
-flex: 1;
-padding: 10px;
-border-radius: 10px;
-border: none;
-font-size: 12px;
-font-weight: 600;
-cursor: pointer;
+
+.action-btn {
+  flex: 1;
+  padding: 14px;
+  background: rgba(139, 92, 246, 0.2);
+  color: #fff;
+  border: 1px solid rgba(139, 92, 246, 0.5);
+  border-radius: 12px;
+  font-family: 'Padauk', sans-serif;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  backdrop-filter: blur(5px);
 }
-​.action-btn.save { background: #319795; color: #fff; }
-.action-btn.again { background: #805ad5; color: #fff; }
-.action-btn.leave { background: #e53e3e; color: #fff; }
-​/* --- MODALS (Glassmorphic & Hidden by Default) --- */
-.tarot-modal {
-position: fixed;
-inset: 0;
-background: rgba(0, 0, 0, 0.8);
-backdrop-filter: blur(8px);
--webkit-backdrop-filter: blur(8px);
-display: none;
-align-items: center;
-justify-content: center;
-z-index: 100;
-padding: 16px;
+.action-btn:active { background: rgba(139, 92, 246, 0.5); transform: scale(0.95); }
+
+/* --- SETTINGS & ABOUT --- */
+.info-card {
+  border-radius: 20px;
+  padding: 25px;
+  width: 90%;
+  max-width: 350px;
+  text-align: center;
 }
-​.tarot-modal.active {
-display: flex;
-animation: fadeIn 0.25s ease forwards;
+.info-card h2 { margin-bottom: 15px; color: #fbbf24; font-family: 'Padauk', sans-serif;}
+.setting-row {
+  display: flex; justify-content: space-between; align-items: center;
+  background: rgba(0, 0, 0, 0.2); padding: 15px; border-radius: 10px;
 }
-​.glass-modal-content {
-background: rgba(20, 14, 33, 0.85);
-backdrop-filter: blur(20px);
--webkit-backdrop-filter: blur(20px);
-border: 1px solid rgba(255, 255, 255, 0.15);
-border-radius: 20px;
-width: 100%;
-max-width: 380px;
-max-height: 85vh;
-padding: 20px;
-box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-display: flex;
-flex-direction: column;
-position: relative;
+.toggle-btn { background: #10b981; color: white; border: none; padding: 6px 18px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+.toggle-btn.off { background: #4a5568; }
+
+/* ==================================================
+   MODAL OVERLAY (အရေးကြီးဆုံး ပြင်ဆင်ချက်)
+   ================================================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  
+  /* ပုံမှန်ဆို လုံးဝမပေါ်စေရမယ် */
+  display: none; 
+  opacity: 0;
+  align-items: flex-end;
+  justify-content: center;
+  transition: opacity 0.3s ease;
 }
-​.modal-header {
-display: flex;
-justify-content: space-between;
-align-items: center;
-margin-bottom: 15px;
+
+/* Active ဖြစ်မှ ပေါ်လာမယ် */
+.modal-overlay.active {
+  display: flex;
+  opacity: 1;
 }
-​.modal-header h3 {
-font-size: 15px;
-color: #f6e05e;
+
+.modal-content {
+  width: 100%;
+  max-width: 600px;
+  max-height: 85vh;
+  border-radius: 24px 24px 0 0;
+  padding: 20px;
+  overflow-y: auto;
+  position: relative;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1);
+  border-bottom: none;
 }
-​.close-modal {
-background: rgba(255, 255, 255, 0.1);
-border: none;
-color: #fff;
-width: 30px;
-height: 30px;
-border-radius: 50%;
-font-size: 18px;
-cursor: pointer;
-display: flex;
-align-items: center;
-justify-content: center;
+
+.modal-overlay.active .modal-content {
+  transform: translateY(0);
 }
-​.close-modal.absolute {
-position: absolute;
-top: 15px;
-right: 15px;
-z-index: 10;
+
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 2;
 }
-​/* Saved List Modal Container */
+
+/* --- Modal အတွင်း အသေးစိတ် --- */
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(139, 92, 246, 0.3);
+  padding-bottom: 15px;
+}
+
+.modal-card-img {
+  width: 70px;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.modal-title-wrap h2 {
+  color: #fbbf24;
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+.modal-title-wrap p {
+  color: #a78bfa;
+  font-size: 13px;
+  font-style: italic;
+  margin-top: 5px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: bold;
+  color: #fff;
+}
+.status-badge.upright { background: #10b981; }
+.status-badge.reversed { background: #ef4444; }
+
+.detail-section { margin-bottom: 20px; }
+
+.detail-section h3 {
+  color: #8b5cf6;
+  font-size: 15px;
+  margin-bottom: 8px;
+}
+
+.detail-section p {
+  font-family: 'Padauk', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #cbd5e1;
+}
+
+.category-box {
+  font-family: 'Padauk', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #cbd5e1;
+  margin-bottom: 10px;
+  background: rgba(255,255,255,0.03);
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.advice-box {
+  background: rgba(139, 92, 246, 0.1);
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+/* --- Save List Item --- */
 .saved-list-scroll {
-overflow-y: auto;
-max-height: 60vh;
-display: flex;
-flex-direction: column;
-gap: 10px;
+  display: flex; flex-direction: column; gap: 10px; max-height: 50vh; overflow-y: auto;
 }
-​.saved-item {
-background: rgba(255, 255, 255, 0.05);
-border: 1px solid rgba(255, 255, 255, 0.08);
-border-radius: 10px;
-padding: 10px;
-text-align: left;
-}
-​/* Card Detail Modal */
-.card-detail-content {
-text-align: center;
-}
-​.modal-card-banner {
-width: 90px;
-height: 140px;
-margin: 0 auto 10px auto;
-border-radius: 10px;
-overflow: hidden;
-position: relative;
-border: 2px solid #8b5cf6;
-box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-}
-​.modal-card-banner img {
-width: 100%;
-height: 100%;
-object-fit: cover;
-}
-​.status-badge {
-position: absolute;
-bottom: 5px;
-left: 50%;
-transform: translateX(-50%);
-font-size: 9px;
-padding: 2px 8px;
-border-radius: 6px;
-font-weight: 700;
-}
-​.status-badge.upright { background: #10b981; color: #fff; }
-.status-badge.reversed { background: #ef4444; color: #fff; }
-​.card-detail-content h2 {
-font-size: 16px;
-color: #f6e05e;
-margin-bottom: 4px;
-}
-​.modal-keywords-text {
-font-size: 11px;
-color: #a0aec0;
-margin-bottom: 12px;
-}
-​.modal-info-scroll {
-overflow-y: auto;
-max-height: 45vh;
-text-align: left;
-display: flex;
-flex-direction: column;
-gap: 10px;
-padding-right: 4px;
-}
-​.info-block h4 {
-font-size: 12px;
-color: #d6bcfa;
-margin-bottom: 2px;
-}
-​.info-block p {
-font-size: 11px;
-color: #e2e8f0;
-line-height: 1.4;
-}
-​.advice-box {
-background: rgba(246, 224, 94, 0.1);
-border: 1px solid rgba(246, 224, 94, 0.2);
-padding: 8px;
-border-radius: 8px;
+.saved-item {
+  background: rgba(255,255,255,0.05);
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid rgba(139,92,246,0.3);
 }
