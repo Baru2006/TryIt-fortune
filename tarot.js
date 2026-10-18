@@ -1,13 +1,13 @@
 // ==================================================
-// TAROT GAME LOGIC (V4 - Final)
+// TAROT GAME LOGIC (V5 - Perfect Flow)
 // ==================================================
 
-let currentMode = 'daily'; // 'yesno', 'daily', '3cards'
+let currentMode = 'daily'; 
 let requiredCards = 1;
 let selectedCards = [];
 let isPicking = false;
 let isMusicOn = true;
-let currentStep = 1; // ကဒ်ရွေးတဲ့ အဆင့် (1 သို့ 2)
+let userQuestion = ""; 
 
 const bgMusic = document.getElementById('bgMusic');
 const sfxClick = document.getElementById('sfxClick');
@@ -66,27 +66,23 @@ function startReading(mode, num) {
 }
 
 function submitYesNo() {
-  const input = document.getElementById('yesNoInput').value.trim();
-  if (!input) { alert("မေးခွန်း အရင်ရေးပါ။"); return; }
+  userQuestion = document.getElementById('yesNoInput').value.trim();
+  if (!userQuestion) { alert("မေးခွန်း အရင်ရေးပါ။"); return; }
   playSound(sfxClick);
   startShuffle();
 }
 
-// 4. Shuffle Scene
+// 4. Shuffle Scene (Animation)
 function startShuffle() {
   playSound(sfxShuffle);
   showScreen('screen-shuffle');
-  
-  setTimeout(() => {
-    currentStep = 1;
-    buildPickGrid1();
-  }, 2000); // ၂ စက္ကန့် မွှေမယ်
+  setTimeout(() => { buildPickGrid1(); }, 2000); 
 }
 
-// 5. Pick Step 1 (၄ ကဒ်)
+// 5. Pick Step 1 (၄ ကဒ် - ၂x၂)
 function buildPickGrid1() {
   showScreen('screen-pick1');
-  document.querySelector('.pick-title').innerText = `ကဒ် ${requiredCards} ကဒ် ရွေးပါ (အဆင့် ၁)`;
+  document.getElementById('title-pick1').innerText = `ကဒ် ${requiredCards} ကဒ် ရွေးပါ (အဆင့် ၁)`;
   
   let shuffled = [...TAROT_DECK].sort(() => Math.random() - 0.5).slice(0, 4);
   const grid = document.getElementById('grid1');
@@ -97,9 +93,11 @@ function buildPickGrid1() {
     card.className = 'tarot-card';
     card.onclick = () => {
       card.classList.add('selected');
+      
+      // Yes/No ဆိုရင် ဒီကဒ်တည်း ရွေးပြီးသား
       if (currentMode === 'yesno') {
-        // Yes/No ဆိုရင် ၁ ကဒ်တည်း ရွေးပြီးသား
         selectedCards = [cardData];
+        selectedCards[0].isReversed = Math.random() < 0.5;
         setTimeout(() => { playSound(sfxReveal); showResult(); }, 400);
       } else {
         // ကျန်တဲ့ Mode တွေဆိုရင် ဒုတိယအဆင့် ဆက်သွားမယ်
@@ -110,24 +108,21 @@ function buildPickGrid1() {
   });
 }
 
-// 6. Pick Step 2 (၁၄ ကဒ် - ပိရမစ်ပုံစံ ၄,၃,၄,၃)
+// 6. Pick Step 2 (၁၄ ကဒ် - ၄,၃,၄,၃ ပုံစံ)
 function buildPickGrid2() {
-  currentStep = 2;
   showScreen('screen-pick2');
-  document.querySelector('#screen-pick2 .pick-title').innerText = `ကဒ် ${requiredCards} ကဒ် ရွေးပါ (အဆင့် ၂)`;
+  document.getElementById('title-pick2').innerText = `ကဒ် ${requiredCards} ကဒ် ရွေးပါ (အဆင့် ၂)`;
   
   let shuffled = [...TAROT_DECK].sort(() => Math.random() - 0.5).slice(0, 14);
   const grid = document.getElementById('grid2');
   grid.innerHTML = '';
   
-  // ၄, ၃, ၄, ၃ ပုံစံ ခွဲမယ်
   const rowConfigs = [4, 3, 4, 3];
   let cardIndex = 0;
   
   rowConfigs.forEach(count => {
     const rowDiv = document.createElement('div');
     rowDiv.className = 'pick-row';
-    
     for (let i = 0; i < count; i++) {
       const cardData = shuffled[cardIndex++];
       const card = document.createElement('div');
@@ -139,7 +134,7 @@ function buildPickGrid2() {
   });
 }
 
-// 7. Pick Logic (Step 2 အတွက်)
+// 7. Pick Logic (အဆင့် ၂ အတွက်)
 function pickCard(cardElement, cardData) {
   if (isPicking) return;
   isPicking = true;
@@ -147,9 +142,7 @@ function pickCard(cardElement, cardData) {
   playSound(sfxClick);
   cardElement.classList.add('selected');
   
-  // အတည့်/ပြောင်းပြန် ကျပ်မဲ့အခွင့်အရေး ၅၀:၅၀
   cardData.isReversed = Math.random() < 0.5;
-  
   selectedCards.push(cardData);
   
   setTimeout(() => {
@@ -165,7 +158,6 @@ function showResult() {
   revealContainer.innerHTML = '';
   let fortuneText = "";
 
-  // Yes/No အတွက် အဖြေတွေ
   const yesNoAnswers = {
     yes: "ဟုတ်ကဲ့ (Yes) - သေချာပါတယ်။ ဒီအလုပ်ကို လုပ်သင့်ပါတယ်။",
     no: "မဟုတ်ဘူး (No) - မလုပ်သင့်ပါဘူး။ နောက်တစ်ခါမှ စဉ်းစားပါ။",
@@ -183,18 +175,16 @@ function showResult() {
     cardDiv.innerHTML = `<span style="color:#8b5cf6; font-size:14px; font-weight:bold; text-align:center; background:rgba(255,255,255,0.8); width:100%; padding:5px 0;">${card.name}</span>`; 
     revealContainer.appendChild(cardDiv);
 
-    let meaning = "";
-    if (card.isReversed) meaning = card.reversed;
-    else meaning = card.upright;
+    let meaning = card.isReversed ? card.reversed : card.upright;
 
     if (currentMode === 'yesno') {
-      // Yes/No ဆိုရင် ကဒ်ရဲ့ အနေအထားပေါ်မူတည်ပြီး အဖြေပေးမယ်
       let answer = "";
       if (!card.isReversed && index === 0) answer = yesNoAnswers.yes;
       else if (card.isReversed) answer = yesNoAnswers.no;
       else answer = yesNoAnswers.maybe;
 
       fortuneText += `<div style="margin-bottom:15px;">
+        <p style="font-size:14px; color:#a0aec0; font-style:italic; margin-bottom:10px;">"${userQuestion}"</p>
         <h3 style="color:#fbbf24; margin-bottom:5px;">ကဒ်ရဲ့ အဖြေ:</h3>
         <p style="font-size:16px; font-weight:bold; color:#10b981;">${answer}</p>
         <p style="font-size:13px; color:#a0aec0; margin-top:10px;">(${card.name})</p>
@@ -215,8 +205,6 @@ function showResult() {
 // 9. Save Logic (၅ ခုအထိ)
 function saveReading() {
   playSound(sfxClick);
-  
-  // သိမ်းမယ့် Data ကို ပြင်ဆင်မယ်
   let savedData = {
     date: new Date().toLocaleDateString(),
     cards: selectedCards.map(c => c.name),
@@ -224,23 +212,17 @@ function saveReading() {
   };
 
   let savedList = JSON.parse(localStorage.getItem('tarot_saves') || '[]');
-  
-  // ၅ ခုပြည့်သွားရင် အဟောင်းဆုံးကို ဖျက်မယ်
-  if (savedList.length >= 5) {
-    savedList.shift(); 
-  }
-  
+  if (savedList.length >= 5) savedList.shift(); // ၅ ခုပြည့်ရင် အဟောင်းဆုံးဖျက်
   savedList.push(savedData);
   localStorage.setItem('tarot_saves', JSON.stringify(savedList));
 
-  // ခဏ Alert ပြမယ်
   const btn = document.querySelector('.result-actions .action-btn');
   const originalText = btn.innerText;
   btn.innerText = "Saved!";
   setTimeout(() => { btn.innerText = originalText; }, 1500);
 }
 
-// 10. Open Saved List
+// 10. Open Saved List (Modal)
 function openSavedList() {
   playSound(sfxClick);
   const container = document.getElementById('savedListContainer');
@@ -249,16 +231,13 @@ function openSavedList() {
   if (savedList.length === 0) {
     container.innerHTML = "<p style='color:#a0aec0; text-align:center;'>သိမ်းထားတာ မရှိသေးပါဘူး။</p>";
   } else {
-    container.innerHTML = savedList.reverse().map((item, index) => `
+    container.innerHTML = savedList.reverse().map((item) => `
       <div class="saved-item">
-        <div>
-          <p style="font-weight:bold; color:#fbbf24;">${item.cards.join(', ')}</p>
-          <p style="font-size:11px; margin-top:3px;">${item.date}</p>
-        </div>
+        <p style="font-weight:bold; color:#fbbf24; margin-bottom:5px;">${item.cards.join(', ')}</p>
+        <p style="font-size:11px; color:#a0aec0;">${item.date}</p>
       </div>
     `).join('');
   }
-  
   document.getElementById('savedModal').classList.add('active');
 }
 
@@ -267,7 +246,7 @@ function closeSavedList() {
   document.getElementById('savedModal').classList.remove('active');
 }
 
-// 11. Card Detail Modal
+// 11. Card Detail Modal (ကဒ်အသေးစိတ်)
 function openModal(card) {
   playSound(sfxClick);
   document.getElementById('modal-img').src = `assets/cards/${card.img}`;
@@ -282,13 +261,13 @@ function openModal(card) {
     statusBadge.innerText = "Upright"; statusBadge.className = "status-badge upright";
   }
 
-  document.getElementById('modal-general').innerText = card.general;
-  document.getElementById('modal-upright').innerText = card.upright;
-  document.getElementById('modal-reversed').innerText = card.reversed;
-  document.getElementById('modal-love').innerText = card.love;
-  document.getElementById('modal-career').innerText = card.career;
-  document.getElementById('modal-health').innerText = card.health;
-  document.getElementById('modal-advice').innerText = card.advice;
+  document.getElementById('modal-general').innerText = card.general || "";
+  document.getElementById('modal-upright').innerText = card.upright || "";
+  document.getElementById('modal-reversed').innerText = card.reversed || "";
+  document.getElementById('modal-love').innerText = card.love || "";
+  document.getElementById('modal-career').innerText = card.career || "";
+  document.getElementById('modal-health').innerText = card.health || "";
+  document.getElementById('modal-advice').innerText = card.advice || "";
 
   document.getElementById('cardModal').classList.add('active');
 }
