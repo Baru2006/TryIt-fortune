@@ -374,3 +374,51 @@ body.tarot-dark {
 }
 .toggle-btn { background: #10b981; color: white; border: none; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
 .toggle-btn.off { background: #4a5568; }
+
+/* ==================================================
+   YES/NO, SHUFFLE, PICK GRIDS
+   ================================================== */
+.pick-title {
+  position: absolute; top: 10%; color: #fbbf24; font-family: 'Padauk'; text-shadow: 0 2px 5px #000;
+}
+
+/* ၄ ကဒ် (၂x၂) */
+.pick-grid-4 {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;
+  width: 60%; max-width: 300px; margin-top: 50px;
+}
+
+/* ၁၄ ကဒ် (၄,၃,၄,၃) - Grid မဟုတ်ဘဲ Flex နဲ့ စီမယ် */
+.pick-grid-14 {
+  position: relative; width: 90%; max-width: 400px; height: 60vh; margin-top: 50px;
+  display: flex; flex-direction: column; justify-content: center; gap: 10px;
+}
+.pick-row {
+  display: flex; justify-content: center; gap: 8px;
+}
+/* ကဒ်တွေ ထပ်နေစေရန် (Overlap) */
+.pick-row .tarot-card {
+  width: 60px; margin: 0 -10px; z-index: 1; transition: all 0.3s;
+}
+.pick-row .tarot-card:hover, .pick-row .tarot-card:active {
+  z-index: 10; transform: translateY(-10px) scale(1.1); box-shadow: 0 0 15px rgba(251, 191, 36, 0.8);
+}
+
+/* Shuffle Animation */
+.shuffle-animation {
+  width: 100px; height: 150px; background-image: url('assets/cards/back.png');
+  background-size: cover; border-radius: 8px; box-shadow: 0 0 20px #8b5cf6;
+  animation: shuffleAnim 0.5s infinite alternate;
+}
+@keyframes shuffleAnim {
+  0% { transform: translateY(0) rotate(-5deg); }
+  100% { transform: translateY(-20px) rotate(5deg); }
+}
+
+/* Save List ထဲက Item ပုံစံ */
+.saved-item {
+  background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px;
+  border: 1px solid rgba(139,92,246,0.3); display: flex; justify-content: space-between; align-items: center;
+}
+.saved-item p { font-size: 13px; color: #cbd5e1; margin: 0; }
+.saved-item button { background: #3b82f6; color: white; border: none; padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer; }
