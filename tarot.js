@@ -1,238 +1,233 @@
-// ==================================================
-// TAROT GAME LOGIC
-// ==================================================
+// အစမ်းသုံး Data (tarot-data.js မထည့်ရသေးလို့ ဒါကို ခေတ္တသုံးထားပါတယ်)
+const mockDeck = Array.from({length: 56}, (_, i) => ({
+  id: i + 1,
+  name: `Card ${i + 1}`,
+  img: `${i + 1}.png`, // ပုံအမည်
+  general: "ယေဘုယျ အဓိပ္ပာယ် (အစမ်း)",
+  past: "အတိတ် အဓိပ္ပာယ် (အစမ်း)",
+  present: "ပစ္စုပ္ပန် အဓိပ္ပာယ် (အစမ်း)",
+  future: "အနာဂတ် အဓိပ္ပာယ် (အစမ်း)"
+}));
 
+// State များ
 let requiredCards = 1;
 let selectedCards = [];
-let currentPileCards = []; // ရွေးချယ်လိုက်တဲ့ အစုထဲက ကဒ် ၁၄ ကဒ်
-let isPicking = false;
+let currentPile = [];
 let isMusicOn = true;
 
-// Audio Elements
+// Audio
 const bgMusic = document.getElementById('bgMusic');
 const sfxClick = document.getElementById('sfxClick');
 const sfxShuffle = document.getElementById('sfxShuffle');
-const sfxReveal = document.getElementById('sfxReveal');
 
-// Utility: Play Sound
 function playSound(sfx) {
   if (isMusicOn && sfx) {
     sfx.currentTime = 0;
-    sfx.play().catch(e => console.log("Audio error:", e));
+    sfx.play().catch(e => console.log("Audio error"));
   }
 }
 
-// Utility: Toggle Music
 function toggleMusic() {
   isMusicOn = !isMusicOn;
   const btn = document.getElementById('musicToggle');
-  if (isMusicOn) {
-    bgMusic.play();
-    btn.innerText = "ON";
-    btn.classList.remove("off");
-  } else {
-    bgMusic.pause();
-    btn.innerText = "OFF";
-    btn.classList.add("off");
-  }
+  if (isMusicOn) { bgMusic.play(); btn.innerText = "ON"; btn.classList.remove("off"); }
+  else { bgMusic.pause(); btn.innerText = "OFF"; btn.classList.add("off"); }
 }
 
-// Utility: Show Screen
 function showScreen(screenId) {
   document.querySelectorAll('.tarot-screen').forEach(s => s.classList.remove('active'));
   document.getElementById(screenId).classList.add('active');
 }
 
-// 1. Initial Load (၅ စက္ကန့် Loading ပြီး Start Menu ကို သွားမယ်)
+// 1. App စဝင်တာနဲ့ ၅ စက္ကန့် စောင့်မယ်
 window.addEventListener('DOMContentLoaded', () => {
   bgMusic.volume = 0.4;
   setTimeout(() => {
-    showScreen('screen-start');
-  }, 5000); // 5 စက္ကန့်
+    showScreen('screen-home');
+  }, 5000); // 5 sec
 });
 
-// 2. Menu Navigation
-function startGame() {
+// 2. Home -> Welcome
+function goToWelcome() {
   playSound(sfxClick);
-  if (isMusicOn && bgMusic.paused) bgMusic.play().catch(e => console.log(e));
-  
-  // "တာရော့ကြည့်မယ်" နှိပ်ပြီး ၃ စက္ကန့် ရောနှောတဲ့ Loading ပြမယ်
-  showScreen('screen-shuffle');
+  if (isMusicOn && bgMusic.paused) bgMusic.play().catch(e=>console.log(e));
+  showScreen('screen-welcome');
+}
+
+function openSettings() { playSound(sfxClick); showScreen('screen-settings'); }
+
+// 3. Choice (၁ ကဒ်/၃ ကဒ်) -> Shuffle
+function startShuffle(num) {
+  playSound(sfxClick);
   playSound(sfxShuffle);
-  setTimeout(() => {
-    showScreen('screen-intro');
-  }, 3000); // 3 စက္ကန့်
-}
-
-function goToChoice() {
-  playSound(sfxClick);
-  showScreen('screen-choice');
-}
-
-function openSettings() {
-  playSound(sfxClick);
-  showScreen('screen-settings');
-}
-
-function backToMenu() {
-  playSound(sfxClick);
-  showScreen('screen-start');
-}
-
-// 3. Prepare Piles (ကဒ် ၅၆ ကဒ်ကို ရောပြီး ၁၄ ကဒ် ၄ စု ခွဲမယ်)
-function preparePiles(num) {
-  playSound(sfxClick);
   requiredCards = num;
-  selectedCards = [];
-  isPicking = false; 
   
-  document.getElementById('pick-instruction').innerText = `${num} ကဒ် ရွေးချယ်ပါ`;
+  showScreen('screen-shuffle');
   
-  // Deck ကို ရောမယ်
-  let shuffledDeck = [...TAROT_DECK].sort(() => Math.random() - 0.5);
-  
-  // Pile တွေကို သိမ်းမယ် (၁၄ ကဒ်စီ)
-  window.piles = [];
-  for(let i=0; i<4; i++) {
-    window.piles.push(shuffledDeck.slice(i*14, (i+1)*14));
-  }
-
-  showScreen('screen-piles'); // အစုရွေးတဲ့စာမျက်နှာကို သွားမယ်
+  // Progress Bar (၃ စက္ကန့်)
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress += 2;
+    document.getElementById('progress-fill').style.width = progress + '%';
+    
+    if (progress >= 100) {
+      clearInterval(interval);
+      preparePiles();
+    }
+  }, 60); // 60ms * 50 = 3000ms (3 sec)
 }
 
-// 4. Select Pile (အစုတစ်ခုကို ရွေးပြီး ကဒ် ၁၄ ကဒ် ခင်းမယ်)
+// 4. Pile ပြင်ဆင်ခြင်း
+function preparePiles() {
+  // ကဒ်တွေကို ရောမယ်
+  let shuffled = [...mockDeck].sort(() => Math.random() - 0.5);
+  
+  // ၁၄ ကဒ် ၄ စု ခွဲမယ်
+  window.piles = [];
+  for (let i = 0; i < 4; i++) {
+    window.piles.push(shuffled.slice(i * 14, (i + 1) * 14));
+  }
+  
+  showScreen('screen-piles');
+}
+
+// 5. အစုတစ်ခုကို ရွေးချယ်ပြီး ၁၄ ကဒ် ခင်းမယ်
 function selectPile(index) {
   playSound(sfxClick);
-  currentPileCards = window.piles[index]; // ရွေးလိုက်တဲ့အစုထဲက ၁၄ ကဒ်
+  currentPile = window.piles[index];
+  selectedCards = []; // reset
   
-  const grid = document.getElementById('cardsGrid');
-  grid.innerHTML = '';
-  
-  currentPileCards.forEach((cardData, i) => {
-    const card = document.createElement('div');
-    card.className = 'tarot-card';
-    card.style.animationDelay = `${i * 0.05}s`;
-    card.onclick = () => pickCard(card, cardData); 
-    grid.appendChild(card);
+  document.getElementById('pick-instruction').innerText = `ကဒ် ${requiredCards} ကဒ် ရွေးပါ`;
+  document.getElementById('confirm-btn').style.display = 'none';
+
+  const container = document.getElementById('spreadContainer');
+  container.innerHTML = '';
+
+  // ၄-၃-၄-၃ ပုံစံအတိုင်း Row တွေ ခွဲတည်ဆောက်မယ်
+  const rows = [4, 3, 4, 3];
+  let cardIndex = 0;
+
+  rows.forEach(count => {
+    const rowDiv = document.createElement('div');
+    rowDiv.className = 'spread-row';
+
+    for (let i = 0; i < count; i++) {
+      if (cardIndex >= currentPile.length) break;
+      const cardData = currentPile[cardIndex];
+      
+      const cardEl = document.createElement('div');
+      cardEl.className = 'spread-card';
+      cardEl.onclick = () => toggleCardSelection(cardEl, cardData);
+      
+      rowDiv.appendChild(cardEl);
+      cardIndex++;
+    }
+    container.appendChild(rowDiv);
   });
 
-  showScreen('screen-pick');
+  showScreen('screen-spread');
 }
 
-// 5. Pick Card
-function pickCard(cardElement, cardData) {
-  if (isPicking || cardElement.classList.contains('selected')) return;
+// 6. ကဒ်ရွေးချယ်ခြင်း (Highlight လုပ်မယ်)
+function toggleCardSelection(element, cardData) {
+  if (element.classList.contains('selected')) {
+    // ရွေးထားတာကို ပြန်ဖျက်မယ်
+    element.classList.remove('selected');
+    selectedCards = selectedCards.filter(c => c.id !== cardData.id);
+  } else {
+    // အသစ်ရွေးမယ် (သတ်မှတ်ထားတဲ့ အရေအတွက်ထက် မကျော်ရဘူး)
+    if (selectedCards.length < requiredCards) {
+      playSound(sfxClick);
+      element.classList.add('selected');
+      selectedCards.push(cardData);
+    }
+  }
 
-  playSound(sfxClick);
-  cardElement.classList.add('selected');
-  selectedCards.push(cardData);
-
+  // လိုအပ်တဲ့ အရေအတွက် ပြည့်သွားရင် "သေချာပြီ" ခလုတ်ပြမယ်
+  const confirmBtn = document.getElementById('confirm-btn');
   if (selectedCards.length === requiredCards) {
-    isPicking = true;
-    setTimeout(() => {
-      playSound(sfxReveal);
-      showResult();
-    }, 500);
+    confirmBtn.style.display = 'block';
+  } else {
+    confirmBtn.style.display = 'none';
   }
 }
 
-// 6. Show Result
+// 7. ရလဒ်ပြသခြင်း
 function showResult() {
+  playSound(sfxClick);
+  
   const revealContainer = document.getElementById('revealedCards');
   revealContainer.innerHTML = '';
-
-  let fortuneText = "";
+  let fortuneHtml = '';
 
   selectedCards.forEach((card, index) => {
-    const cardDiv = document.createElement('div');
-    cardDiv.className = 'reveal-card';
-    
-    // ကဒ်ပုံထည့်မယ်
-    cardDiv.style.backgroundImage = `url('assets/cards/${card.img}')`;
-    
-    // ပုံမရှိရင် အမည်ပြမယ် (Fallback)
-    cardDiv.innerHTML = `<span style="color:#8b5cf6; font-size:14px; font-weight:bold; display:flex; align-items:center; justify-content:center; height:100%; text-align:center; padding:5px; background:rgba(255,255,255,0.8);">${card.name}</span>`; 
-    
-    revealContainer.appendChild(cardDiv);
+    // ကဒ်ပုံနဲ့ အနေအထား (အတိတ်/ပစ္စုပ္ပန်/အနာဂတ်) သတ်မှတ်မယ်
+    let positionLabel = '';
+    let meaningText = '';
 
     if (requiredCards === 1) {
-      fortuneText += `<div style="margin-bottom:20px;">
-        <h3 style="color:#8b5cf6; margin-bottom:8px; font-size:18px;">${card.name}</h3>
-        <p style="font-size:15px; line-height:1.6;">${card.general}</p>
-      </div>`;
+      positionLabel = 'ရလဒ်';
+      meaningText = card.general;
     } else {
-      const position = index === 0 ? "အတိတ်" : index === 1 ? "ပစ္စုပ္ပန်" : "အနာဂတ်";
-      const meaning = index === 0 ? card.past : index === 1 ? card.present : card.future;
-      
-      fortuneText += `<div style="margin-bottom:15px; text-align:left; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
-        <h3 style="color:#8b5cf6; font-size:16px; margin-bottom:5px;">${position} - ${card.name}</h3>
-        <p style="font-size:14px; line-height:1.5;">${meaning}</p>
-      </div>`;
+      if (index === 0) { positionLabel = 'အတိတ်'; meaningText = card.past; }
+      else if (index === 1) { positionLabel = 'ပစ္စုပ္ပန်'; meaningText = card.present; }
+      else if (index === 2) { positionLabel = 'အနာဂတ်'; meaningText = card.future; }
     }
+
+    // ကဒ်ပုံပြမယ်
+    const wrapper = document.createElement('div');
+    wrapper.className = 'reveal-card-wrapper';
+    wrapper.innerHTML = `
+      <div class="reveal-card" style="background-image: url('assets/cards/${card.img}');"></div>
+      <div class="position-label">${positionLabel}</div>
+    `;
+    revealContainer.appendChild(wrapper);
+
+    // စာသားပြမယ်
+    fortuneHtml += `
+      <div style="margin-bottom: 15px;">
+        <h3>${positionLabel} - ${card.name}</h3>
+        <p>${meaningText}</p>
+      </div>
+    `;
   });
 
-  document.getElementById('fortuneText').innerHTML = fortuneText;
+  document.getElementById('fortuneText').innerHTML = fortuneHtml;
   showScreen('screen-result');
 }
 
-// 7. Save / Share
+// 8. Action ခလုတ်များ
 function saveReading() {
   playSound(sfxClick);
   const captureArea = document.getElementById('captureArea');
-  const btns = document.querySelectorAll('.action-buttons .icon-btn');
   
-  // ခလုတ်တွေကို ခဏဖျောက်မယ် (ပုံထဲ ပါမသွားအောင်)
-  document.querySelector('.action-buttons').style.display = 'none';
-  document.querySelector('.primary-btn').style.display = 'none';
+  // ခလုတ်တွေ ဖျောက်မယ်
+  document.body.classList.add('screenshot-mode');
 
-  html2canvas(captureArea, { 
-    backgroundColor: '#0f0a1a', 
-    scale: 2,
-    useCORS: true
-  }).then(canvas => {
+  html2canvas(captureArea, { backgroundColor: '#0f0a1a', scale: 2, useCORS: true }).then(canvas => {
     const link = document.createElement('a');
-    link.download = `Tarot-Reading-${Date.now()}.png`;
+    link.download = `Tarot-${Date.now()}.png`;
     link.href = canvas.toDataURL('image/png');
     link.click();
     
     // ခလုတ်တွေ ပြန်ပြမယ်
-    document.querySelector('.action-buttons').style.display = 'flex';
-    document.querySelector('.primary-btn').style.display = 'block';
+    setTimeout(() => document.body.classList.remove('screenshot-mode'), 1000);
   }).catch(err => {
     alert("သိမ်းဆည်း၍ မရပါ။");
-    document.querySelector('.action-buttons').style.display = 'flex';
-    document.querySelector('.primary-btn').style.display = 'block';
+    document.body.classList.remove('screenshot-mode');
   });
 }
 
-function shareApp() {
+function againReading() {
   playSound(sfxClick);
-  const appUrl = "https://t.me/tryitmm_bot/app"; 
-  const text = "🔮 ငါ့အတွက် Tarot ကဒ်ဖတ်ကြည့်လိုက်တာ။ မင်းလည်း လုပ်ကြည့်ပါဦး!";
-  
-  if (window.Telegram && window.Telegram.WebApp) {
-    window.Telegram.WebApp.openTelegramLink(
-      `https://t.me/share/url?url=${encodeURIComponent(appUrl)}&text=${encodeURIComponent(text)}`
-    );
-  }
+  // ကဒ်ရွေးတဲ့နေရာကို ပြန်သွားမယ်
+  selectedCards = [];
+  document.querySelectorAll('.spread-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('confirm-btn').style.display = 'none';
+  showScreen('screen-spread');
 }
 
-// 8. Outro & Info
-function showOutro() {
+function leaveToHome() {
   playSound(sfxClick);
-  showScreen('screen-outro');
-  setTimeout(() => {
-    showScreen('screen-info');
-  }, 4000); 
-}
-
-function leaveApp() {
-  playSound(sfxClick);
-  if(bgMusic) bgMusic.pause();
-  window.location.href = 'index.html'; // ဒါမှမဟုတ် Telegram ပိတ်ချင်ရင် window.Telegram.WebApp.close()
-}
-
-function restartApp() {
-  playSound(sfxClick);
-  showScreen('screen-choice'); // Choice ကနေ ပြန်စမယ်
+  showScreen('screen-home');
 }
