@@ -150,14 +150,19 @@ body.tarot-dark {
    ================================================== */
 .character-img {
   position: absolute;
-  bottom: 30%;
-  width: 240px;
-  height: 360px;
-  background: url('assets/characters/myanmar-girl.png') center/bottom no-repeat;
+  bottom: 25%; 
+  width: 260px; 
+  height: 380px;
+  
+  /* 👇 ပုံလမ်းကြောင်းနဲ့ နေရာချထားမှုကို သီးသန့် ရေးပေးလိုက်ပါတယ် 👇 */
+  background-image: url('assets/characters/myanmar-girl.png');
+  background-position: center bottom;
   background-size: contain;
+  background-repeat: no-repeat;
+  
   filter: drop-shadow(0 0 20px rgba(236, 72, 153, 0.4));
   animation: floatChar 4s ease-in-out infinite;
-  z-index: 1;
+  z-index: 1; /* နောက်ခံပုံအပေါ်မှာ ရှိမယ် */
 }
 
 @keyframes floatChar {
