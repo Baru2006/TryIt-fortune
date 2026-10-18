@@ -1,217 +1,187 @@
 <!DOCTYPE html>
 <html lang="my">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Mystic Tarot - Telegram Mini App</title>
-<!-- Google Fonts for Padauk & Poppins -->
-<link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="tarot.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Tarot Reading — TryIt Hub</title>
+  
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="tarot.css" />
 </head>
 <body class="tarot-dark">
-​<!-- Audio Elements -->
-<audio id="bgMusic" src="https://assets.mixkit.co/music/preview/mixkit-mystical-space-426.mp3" loop></audio>
-<audio id="sfxClick" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
-<audio id="sfxShuffle" src="https://assets.mixkit.co/active_storage/sfx/2034/2034-preview.mp3"></audio>
-<audio id="sfxReveal" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"></audio>
-​<!-- Top Navigation Bar -->
-<header class="tarot-header">
-<div class="logo-area">
-<span class="sparkle">✨</span> Mystic Tarot
-</div>
-<div class="header-controls">
-<button id="musicToggle" class="control-btn" onclick="toggleMusic()">ON</button>
-<button class="control-btn" onclick="openSavedList()">💾 Saved</button>
-</div>
-</header>
-​<!-- 1. LOADING SCREEN -->
-<div id="screen-loading" class="tarot-screen active">
-<div class="loading-container">
-<div class="crystal-ball"></div>
-<h2 class="loading-title">Mystic Portal Connecting...</h2>
-<div class="progress-bar-wrapper">
-<div id="progressBar" class="progress-bar"></div>
-</div>
-</div>
-</div>
-​<!-- 2. START / WELCOME SCREEN -->
-<div id="screen-start" class="tarot-screen">
-<div class="glass-card welcome-card">
-<div class="character-avatar">
-<img src="assets/characters/myanmar-girl.png" alt="Mystic Oracle">
-</div>
-<h1>မြန်မာ့ထူးဆန်း ဗေဒင်ကမ္ဘာ</h1>
-<p>သင်၏ မရေရာသော အနာဂတ်၊ မေတ္တာရေး၊ နှင့် ကံကြမ္မာများကို မာယာကဒ်များဖြင့် ရှာဖွေလိုက်ပါ။</p>
-<button class="magical-btn" onclick="startGame()">စတင်ရန် (Start)</button>
-<div class="menu-sub-links">
-<button class="text-btn" onclick="openSettings()">⚙️ Settings</button>
-<button class="text-btn" onclick="openAbout()">ℹ️ About</button>
-</div>
-</div>
-</div>
-​<!-- 3. MAIN MENU / INTRO SCREEN -->
-<div id="screen-intro" class="tarot-screen">
-<div class="glass-card menu-card">
-<h2>ဗေဒင်ပုံစံ ရွေးချယ်ပါ</h2>
-<div class="mode-grid">
-<button class="mode-btn" onclick="startReading('daily', 1)">
-<span class="icon">🔮</span>
-<div>
-<h3>နေ့စဉ် ကံစမ်းခြင်း</h3>
-<p>1 Card Reading</p>
-</div>
-</button>
-<button class="mode-btn" onclick="startReading('love', 3)">
-<span class="icon">❤️</span>
-<div>
-<h3>အချစ်ရေး ဟောကိန်း</h3>
-<p>3 Cards (Past/Present/Future)</p>
-</div>
-</button>
-<button class="mode-btn" onclick="startReading('career', 3)">
-<span class="icon">💼</span>
-<div>
-<h3>လုပ်ငန်းနှင့် စီးပွားရေး</h3>
-<p>3 Cards Reading</p>
-</div>
-</button>
-<button class="mode-btn" onclick="startReading('yesno', 1)">
-<span class="icon">⚖️</span>
-<div>
-<h3>Yes / No / Maybe</h3>
-<p>Ask a Question</p>
-</div>
-</button>
-</div>
-<button class="back-btn" onclick="backToMenu()">← နောက်သို့</button>
-</div>
-</div>
-​<!-- 4. YES / NO INPUT SCREEN -->
-<div id="screen-yesno" class="tarot-screen">
-<div class="glass-card input-card">
-<h2>မေးခွန်း မေးမြန်းပါ</h2>
-<p>စိတ်ထဲရှိ သံသယကို ရှင်းလင်းစွာ ရေးသားပြီး ကဒ်ကို ထုတ်ယူပါ။</p>
-<textarea id="yesNoInput" placeholder="ဥပမာ - ဒီအလုပ်သစ်ကို ပြောင်းသင့်ပါသလား...?" rows="3"></textarea>
-<button class="magical-btn" onclick="submitYesNo()">ကဒ်ရွေးမည်</button>
-<button class="back-btn" onclick="startReading('daily', 1)">← နောက်သို့</button>
-</div>
-</div>
-​<!-- 5. SHUFFLE ANIMATION SCREEN -->
-<div id="screen-shuffle" class="tarot-screen">
-<div class="shuffle-scene">
-<div class="deck-stack">
-<div class="shuffle-card s1"></div>
-<div class="shuffle-card s2"></div>
-<div class="shuffle-card s3"></div>
-</div>
-<h2>ကဒ်များကို ရောနှောနေပါသည်...</h2>
-</div>
-</div>
-​<!-- 6. PICK STEP 1 (2x2 Grid) -->
-<div id="screen-pick1" class="tarot-screen">
-<div class="pick-wrapper">
-<h2 id="title-pick1">ကဒ် ရွေးချယ်ပါ</h2>
-<div id="grid1" class="cards-grid-2x2"></div>
-</div>
-</div>
-​<!-- 7. PICK STEP 2 (Pyramid Layout: 4-3-4-3) -->
-<div id="screen-pick2" class="tarot-screen">
-<div class="pick-wrapper">
-<h2 id="title-pick2">ကဒ် ဆက်လက် ရွေးပါ</h2>
-<div id="grid2" class="cards-grid-pyramid"></div>
-</div>
-</div>
-​<!-- 8. RESULT SCREEN -->
-<div id="screen-result" class="tarot-screen">
-<div class="glass-card result-card">
-<h2>ဟောကိန်း ရလဒ်များ</h2>
-<div id="revealedCards" class="revealed-container"></div>
-<div id="fortuneText" class="fortune-scroll-box"></div>
-<div class="result-actions">
-<button class="action-btn save" onclick="saveReading()">💾 သိမ်းမည်</button>
-<button class="action-btn again" onclick="restartApp()">🔄 ထပ်လုပ်မည်</button>
-<button class="action-btn leave" onclick="leaveApp()">❌ ထွက်မည်</button>
-</div>
-</div>
-</div>
-​<!-- 9. SETTINGS SCREEN -->
-<div id="screen-settings" class="tarot-screen">
-<div class="glass-card settings-card">
-<h2>ဆက်တင်များ (Settings)</h2>
-<div class="setting-row">
-<span>နောက်ခံ တေးဂီတ</span>
-<button class="control-btn" onclick="toggleMusic()">Toggle Audio</button>
-</div>
-<div class="setting-row">
-<span>Padauk Font Mode</span>
-<span style="color:#10b981; font-weight:bold;">Active</span>
-</div>
-<button class="back-btn" onclick="backToMenu()">← ပင်မမီနူးသို့</button>
-</div>
-</div>
-​<!-- 10. ABOUT SCREEN -->
-<div id="screen-about" class="tarot-screen">
-<div class="glass-card about-card">
-<h2>အကြောင်းအရာ (About)</h2>
-<p>Mystic Tarot သည် Telegram Mini App အတွက် အထူးထုတ်လုပ်ထားသော ဒစ်ဂျစ်တယ် ဗေဒင်နှင့် တာရော့တ်ဖတ်ရှုခြင်း အက်ပ်တစ်ခု ဖြစ်ပါသည်။</p>
-<p style="font-size:12px; color:#a0aec0; margin-top:15px;">Version 5.0 - Glassmorphism Edition</p>
-<button class="back-btn" onclick="backToMenu()">← ပင်မမီနူးသို့</button>
-</div>
-</div>
-​<!-- MODAL 1: SAVED LIST -->
-<div id="savedModal" class="tarot-modal">
-<div class="glass-modal-content">
-<div class="modal-header">
-<h3>သိမ်းဆည်းထားသော ဟောကိန်းများ</h3>
-<button class="close-modal" onclick="closeSavedList()">×</button>
-</div>
-<div id="savedListContainer" class="saved-list-scroll"></div>
-</div>
-</div>
-​<!-- MODAL 2: CARD DETAIL (POPUP) -->
-<div id="cardModal" class="tarot-modal">
-<div class="glass-modal-content card-detail-content">
-<button class="close-modal absolute" onclick="closeModal()">×</button>
-<div class="modal-card-banner">
-<img id="modal-img" src="" alt="Tarot Card">
-<span id="modal-status" class="status-badge">Upright</span>
-</div>
-<h2 id="modal-title">Card Name</h2>
-<p id="modal-keywords" class="modal-keywords-text"></p>
-​<div class="modal-info-scroll">
-<div class="info-block">
-<h4>အထွေထွေ အနှစ်ချုပ်</h4>
-<p id="modal-general"></p>
-</div>
-<div class="info-block">
-<h4>တည့်တည့်ကျခြင်း (Upright)</h4>
-<p id="modal-upright"></p>
-</div>
-<div class="info-block">
-<h4>ပြောင်းပြန်ကျခြင်း (Reversed)</h4>
-<p id="modal-reversed"></p>
-</div>
-<div class="info-block">
-<h4>ချစ်ရေးချစ်ရာ</h4>
-<p id="modal-love"></p>
-</div>
-<div class="info-block">
-<h4>လုပ်ငန်းခွင်</h4>
-<p id="modal-career"></p>
-</div>
-<div class="info-block">
-<h4>ကျန်းမာရေး</h4>
-<p id="modal-health"></p>
-</div>
-<div class="info-block advice-box">
-<h4>အကြံပြုချက်</h4>
-<p id="modal-advice"></p>
-</div>
-</div>
-</div>
-</div>
-​<!-- External Script Integration -->
-<script src="tarot-data.js"></script>
-<script src="tarot.js"></script>
+
+  <!-- 🎵 AUDIO -->
+  <audio id="bgMusic" loop><source src="assets/audio/bg-music.mp3" type="audio/mpeg"></audio>
+  <audio id="sfxClick"><source src="assets/audio/click.mp3" type="audio/mpeg"></audio>
+  <audio id="sfxShuffle"><source src="assets/audio/shuffle.mp3" type="audio/mpeg"></audio>
+  <audio id="sfxReveal"><source src="assets/audio/reveal.mp3" type="audio/mpeg"></audio>
+
+  <!-- SCREEN 1: LOADING -->
+  <section class="tarot-screen active" id="screen-loading">
+    <div class="loading-bg" style="background-image: url('assets/bg-loading.png');"></div>
+    <div class="loading-content">
+      <div class="loading-text">လုပ်ဆောင်နေသည်...</div>
+      <div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
+    </div>
+  </section>
+
+  <!-- SCREEN 2: MAIN MENU -->
+  <section class="tarot-screen" id="screen-start">
+    <div class="bg-home" style="background-image: url('assets/bg-home.png');"></div>
+    <div class="menu-container">
+      <img src="assets/title.png" alt="Tarot" class="main-title" />
+      
+      <div class="menu-card glass-panel">
+        <button class="menu-btn" onclick="startGame()">တာရော့ ကြည့်မယ်</button>
+        <button class="menu-btn" onclick="openSettings()">စက်တင်များ</button>
+        <button class="menu-btn" onclick="openSavedList()">Save ထားသည်များ</button>
+        <button class="menu-btn" onclick="openAbout()">About App</button>
+        <button class="menu-btn" onclick="leaveApp()">ထွက်ခွာမယ်</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCREEN 3: INTRO / CHOICE -->
+  <section class="tarot-screen" id="screen-intro">
+    <div class="bg-home" style="background-image: url('assets/bg-home.png');"></div>
+    <div class="character-img"></div>
+    
+    <div class="dialogue-box glass-panel">
+      <div class="dialogue-text">
+        <p>"မင်္ဂလာပါ... ဘာအတွက် ဟောစာတမ်း လိုချင်တာလဲ...?"</p>
+      </div>
+      <div class="choice-buttons">
+        <button class="tarot-btn" onclick="startReading('yesno', 1)">
+          <span>Yes / No / Maybe မေးမယ်</span><small>(၁ ကဒ်)</small>
+        </button>
+        <button class="tarot-btn" onclick="startReading('daily', 1)">
+          <span>ဒီနေ့ လိုအပ်နေတဲ့အရာ</span><small>(၁ ကဒ်)</small>
+        </button>
+        <button class="tarot-btn" onclick="startReading('3cards', 3)">
+          <span>အတိတ်၊ ပစ္စုပ္ပန်၊ အနာဂတ်</span><small>(၃ ကဒ်)</small>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCREEN 4: YES/NO QUESTION INPUT -->
+  <section class="tarot-screen" id="screen-yesno">
+    <div class="bg-home" style="background-image: url('assets/bg-home.png');"></div>
+    <div class="character-img"></div>
+    
+    <div class="dialogue-box glass-panel">
+      <div class="dialogue-text">
+        <p>"သင့်မေးခွန်းကို ရေးထည့်ပါ။ ကဒ်တွေက အဖြေပေးပါလိမ့်မယ်။"</p>
+      </div>
+      <input type="text" id="yesNoInput" placeholder="ဥပမာ - ဒီအလုပ် လုပ်သင့်လား?">
+      <button class="tarot-btn primary-btn" onclick="submitYesNo()">ကဒ်ရွေးမယ်</button>
+    </div>
+  </section>
+
+  <!-- SCREEN 5: SHUFFLE SCENE -->
+  <section class="tarot-screen" id="screen-shuffle">
+    <div class="pick-bg" style="background-image: url('assets/floor.png');"></div>
+    <div class="shuffle-animation"></div>
+    <h2 class="shuffle-text">ကဒ်များ မွှေနေသည်...</h2>
+  </section>
+
+  <!-- SCREEN 6: PICK ROW 1 (၄ ကဒ်) -->
+  <section class="tarot-screen" id="screen-pick1">
+    <div class="pick-bg" style="background-image: url('assets/floor.png');"></div>
+    <h2 class="pick-title" id="title-pick1">ကဒ် ရွေးချယ်ပါ (အဆင့် ၁)</h2>
+    <div class="pick-grid-4" id="grid1"></div>
+  </section>
+
+  <!-- SCREEN 7: PICK ROW 2 (၁၄ ကဒ်) -->
+  <section class="tarot-screen" id="screen-pick2">
+    <div class="pick-bg" style="background-image: url('assets/floor.png');"></div>
+    <h2 class="pick-title" id="title-pick2">ကဒ် ရွေးချယ်ပါ (အဆင့် ၂)</h2>
+    <div class="pick-grid-14" id="grid2"></div>
+  </section>
+
+  <!-- SCREEN 8: RESULT -->
+  <section class="tarot-screen" id="screen-result">
+    <div class="result-scroll-area">
+      <div class="result-container glass-panel" id="captureArea">
+        <div class="revealed-cards" id="revealedCards"></div>
+        <div class="fortune-text" id="fortuneText"></div>
+      </div>
+      
+      <div class="result-actions">
+        <button class="action-btn" onclick="saveReading()">Save</button>
+        <button class="action-btn" onclick="restartApp()">Again</button>
+        <button class="action-btn" onclick="leaveApp()">Leave</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCREEN 9: SETTINGS -->
+  <section class="tarot-screen" id="screen-settings">
+    <div class="info-card glass-panel">
+      <h2>စက်တင်များ</h2>
+      <div class="setting-row">
+        <span>🎵 နောက်ခံ တီးလုံး</span>
+        <button class="toggle-btn" id="musicToggle" onclick="toggleMusic()">ON</button>
+      </div>
+      <button class="tarot-btn" style="margin-top: 20px;" onclick="backToMenu()">ပင်မစာမျက်နှာသို့</button>
+    </div>
+  </section>
+
+  <!-- SCREEN 10: ABOUT -->
+  <section class="tarot-screen" id="screen-about">
+    <div class="info-card glass-panel">
+      <h2>TryIt Hub Tarot</h2>
+      <p class="version">Version 1.3.0</p>
+      <p style="margin-bottom: 20px; font-family: 'Padauk';">သင့်အတွက် ဟောစာတမ်းဖတ်ပေးမယ့် ဂိမ်းလေးပါ။</p>
+      <button class="tarot-btn" onclick="backToMenu()">ပင်မစာမျက်နှာသို့</button>
+    </div>
+  </section>
+
+  <!-- ================================================== -->
+  <!-- MODALS (Popup များ) -->
+  <!-- ================================================== -->
+
+  <!-- Save List Modal -->
+  <div class="modal-overlay" id="savedModal">
+    <div class="modal-content glass-panel">
+      <button class="close-btn" onclick="closeSavedList()">✕</button>
+      <h2 style="color: #fbbf24; margin-bottom: 15px; text-align: center;">Save ထားသည်များ</h2>
+      <div id="savedListContainer" class="saved-list-scroll"></div>
+    </div>
+  </div>
+
+  <!-- Card Detail Modal -->
+  <div class="modal-overlay" id="cardModal">
+    <div class="modal-content glass-panel">
+      <button class="close-btn" onclick="closeModal()">✕</button>
+      <div class="modal-header">
+        <img id="modal-img" src="" alt="Card" class="modal-card-img">
+        <div class="modal-title-wrap">
+          <h2 id="modal-title">Card Name</h2>
+          <span id="modal-status" class="status-badge">Upright</span>
+          <p id="modal-keywords">Keywords</p>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="detail-section"><h3>🃏 ယေဘုယျ အဓိပ္ပာယ်</h3><p id="modal-general"></p></div>
+        <div class="detail-section"><h3>↕️ တည့်တည့်ကျခြင်း</h3><p id="modal-upright"></p></div>
+        <div class="detail-section"><h3>🔄 ပြောင်းပြန်ကျခြင်း</h3><p id="modal-reversed"></p></div>
+        <div class="detail-section">
+          <h3>🔮 နယ်ပယ်အလိုက်</h3>
+          <div class="category-box"><strong>❤️ အချစ်ရေး:</strong> <span id="modal-love"></span></div>
+          <div class="category-box"><strong>💼 အလုပ်အကိုင်:</strong> <span id="modal-career"></span></div>
+          <div class="category-box"><strong>🧘‍♂️ ကျန်းမာရေး:</strong> <span id="modal-health"></span></div>
+        </div>
+        <div class="detail-section advice-box"><h3>💡 အကြံပြုချက်</h3><p id="modal-advice"></p></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="tarot-data.js"></script>
+  <script src="tarot.js"></script>
 </body>
 </html>
