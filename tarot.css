@@ -56,7 +56,7 @@ body.tarot-dark {
 .icon-svg {
   width: 24px;
   height: 24px;
-  filter: invert(1) drop-shadow(0 0 5px rgba(255,255,255,0.3));
+  flex-shrink: 0;
 }
 
 /* Loading */
@@ -103,7 +103,10 @@ body.tarot-dark {
   border-radius: 20px;
   border-color: #fbbf24;
 }
-.ticket-display .icon-svg { filter: invert(74%) sepia(85%) saturate(1458%) hue-rotate(324deg) brightness(103%) contrast(97%); }
+.ticket-display .icon-svg {
+  stroke: #fbbf24;
+  filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.5));
+}
 .ticket-display span { font-weight: 700; font-size: 16px; color: #fbbf24; }
 
 .menu-container {
@@ -144,8 +147,10 @@ body.tarot-dark {
   transition: all 0.2s;
   text-align: left;
 }
+.menu-btn svg { color: #c4b5fd; }
 .menu-btn:active { background: rgba(139, 92, 246, 0.3); transform: scale(0.98); }
 .ad-btn { background: rgba(236, 72, 153, 0.15); border-color: #ec4899; }
+.ad-btn svg { color: #f9a8d4; }
 .ad-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .divider { height: 1px; background: rgba(255,255,255,0.1); margin: 5px 0; }
 
@@ -160,7 +165,11 @@ body.tarot-dark {
   padding: 10px;
   border-radius: 12px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+.icon-btn-small svg { color: #fff; width: 20px; height: 20px; }
 
 /* Dialogues & Buttons */
 .dialogue-box {
@@ -268,6 +277,7 @@ body.tarot-dark {
 }
 .modal-overlay.active .modal-content { transform: translateY(0); }
 .close-btn { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: none; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.close-btn svg { color: #fff; width: 20px; height: 20px; }
 .modal-header { display: flex; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid rgba(139, 92, 246, 0.3); padding-bottom: 15px; }
 .modal-card-img { width: 70px; border-radius: 6px; }
 .modal-title-wrap h2 { color: #fbbf24; font-size: 20px; }
