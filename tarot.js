@@ -1,5 +1,5 @@
 // Adsgram Init
-const ADSGRAM_BLOCK_ID = "54726"; 
+const ADSGRAM_BLOCK_ID = "int-54795"; // Block ID အသစ်
 let adController = null;
 
 if (window.Adsgram) {
@@ -86,8 +86,25 @@ function submitYesNo() {
   startShuffle();
 }
 
+// 🔴 ကဒ်မွှေတဲ့အခါ Interstitial Ad ပြမယ်
 function startShuffle() {
   playSound(sfxShuffle);
+  
+  if (adController) {
+    adController.show()
+      .then(() => {
+        executeShuffle();
+      })
+      .catch((error) => {
+        console.log("Ad skipped or error:", error);
+        executeShuffle(); // ကြော်ငြာ မကြည့်ရင်လည်း ဆက်သွားမယ်
+      });
+  } else {
+    executeShuffle();
+  }
+}
+
+function executeShuffle() {
   showScreen('screen-shuffle');
   setTimeout(() => { buildPickGrid1(); }, 2000); 
 }
@@ -181,7 +198,7 @@ function showResult() {
     if (card.isReversed) cardDiv.classList.add('reversed');
     
     cardDiv.style.backgroundImage = `url('assets/cards/${card.img}')`;
-    cardDiv.onclick = () => openModalByIndex(index);
+    cardDiv.onclick = () => openModal(card); 
     
     cardDiv.innerHTML = `<span style="color:#8b5cf6; font-size:12px; font-weight:bold; text-align:center; background:rgba(255,255,255,0.9); width:100%; padding:4px 0; border-radius:4px;">${card.name}</span>`; 
     revealContainer.appendChild(cardDiv);
@@ -218,21 +235,8 @@ function showResult() {
   showScreen('screen-result');
 }
 
-// ကြော်ငြာ ပြီးမှ ကဒ်အသေးစိတ် ဖွင့်ပေးမယ့် Function
 function openModalByIndex(index) {
-  const card = selectedCards[index];
-  if (adController) {
-    adController.show()
-      .then(() => {
-        openModal(card); // ကြော်ငြာ ကြည့်ပြီးရင် ဖွင့်မယ်
-      })
-      .catch((error) => {
-        console.log("Ad error/skipped:", error);
-        openModal(card); // ကြော်ငြာ မကြည့်ရင်လည်း ဖွင့်ပေးမယ် (Test လုပ်ရလွယ်အောင်)
-      });
-  } else {
-    openModal(card);
-  }
+  openModal(selectedCards[index]);
 }
 
 function openModal(card) {
@@ -313,8 +317,25 @@ function leaveApp() {
   window.location.href = 'index.html';
 }
 
+// 🔴 Again နှိပ်ရင်လည်း Interstitial ပြမယ်
 function restartApp() {
   playSound(sfxClick);
+  
+  if (adController) {
+    adController.show()
+      .then(() => {
+        resetAndGoIntro();
+      })
+      .catch((error) => {
+        console.log("Ad skipped:", error);
+        resetAndGoIntro();
+      });
+  } else {
+    resetAndGoIntro();
+  }
+}
+
+function resetAndGoIntro() {
   selectedCards = [];
   userQuestion = "";
   document.getElementById('yesNoInput').value = "";
