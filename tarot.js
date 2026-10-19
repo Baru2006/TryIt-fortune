@@ -8,7 +8,7 @@ let isPicking = false;
 let isMusicOn = true;
 let userQuestion = ""; 
 
-// ၁၂ လရာသီ နောက်ခံပုံများ (Assets/bg/ ထဲမှာ ထည့်ထားပါ)
+// ၁၂ လရာသီ နောက်ခံပုံများ
 const SEASON_BACKGROUNDS = {
   0: 'assets/bg/jan.webp', 1: 'assets/bg/feb.webp', 2: 'assets/bg/mar.webp',
   3: 'assets/bg/apr.webp', 4: 'assets/bg/may.webp', 5: 'assets/bg/jun.webp',
@@ -28,7 +28,7 @@ if (window.Telegram && window.Telegram.WebApp) {
 }
 
 // ==========================================
-// TICKET & TIME LOGIC (LocalStorage)
+// TICKET & TIME LOGIC
 // ==========================================
 function getTickets() { return parseInt(localStorage.getItem('tarot_tickets') || '3'); }
 function setTickets(amount) { 
@@ -41,48 +41,38 @@ function getTime() { return Math.floor(Date.now() / 1000); }
 function checkCooldown(key, durationSeconds) {
   const lastUsed = parseInt(localStorage.getItem(key) || '0');
   const now = getTime();
-  if (now - lastUsed >= durationSeconds) {
-    return true; // Ready
-  }
-  return false; // On cooldown
+  return (now - lastUsed >= durationSeconds);
 }
 
-function setCooldown(key) {
-  localStorage.setItem(key, getTime().toString());
-}
+function setCooldown(key) { localStorage.setItem(key, getTime().toString()); }
 
 function updateAdButtons() {
   const btnWatch = document.getElementById('btnWatchAd');
   const btnTask = document.getElementById('btnTaskAd');
 
-  // Watch Ad (1 Hour = 3600s)
   if (checkCooldown('last_watch_ad', 3600)) {
     btnWatch.disabled = false;
-    btnWatch.innerHTML = `<img src="assets/icons/watch-ad.svg" class="icon-svg"><span>ကြော်ငြာကြည့်မယ် (+3)</span>`;
+    btnWatch.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><polygon points="10 7 15 10 10 13 10 7"/></svg><span>ကြော်ငြာကြည့်မယ် (+3)</span>`;
   } else {
     btnWatch.disabled = true;
-    btnWatch.innerHTML = `<img src="assets/icons/watch-ad.svg" class="icon-svg"><span>နောက်ထပ် ၁ နာရီ စောင့်ပါ</span>`;
+    btnWatch.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><polygon points="10 7 15 10 10 13 10 7"/></svg><span>နောက်ထပ် ၁ နာရီ စောင့်ပါ</span>`;
   }
 
-  // Task Ad (1 Hour = 3600s)
   if (checkCooldown('last_task_ad', 3600)) {
     btnTask.disabled = false;
-    btnTask.innerHTML = `<img src="assets/icons/task-ad.svg" class="icon-svg"><span>Task လုပ်မယ် (+1)</span>`;
+    btnTask.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg><span>Task လုပ်မယ် (+1)</span>`;
   } else {
     btnTask.disabled = true;
-    btnTask.innerHTML = `<img src="assets/icons/task-ad.svg" class="icon-svg"><span>နောက်ထပ် ၁ နာရီ စောင့်ပါ</span>`;
+    btnTask.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg><span>နောက်ထပ် ၁ နာရီ စောင့်ပါ</span>`;
   }
 }
 
-// Daily Free Card Logic
 function getDailyFreeStatus() {
   const today = new Date().toLocaleDateString();
-  const lastFree = localStorage.getItem('last_free_card');
-  return lastFree !== today;
+  return localStorage.getItem('last_free_card') !== today;
 }
 function setDailyFreeUsed() {
-  const today = new Date().toLocaleDateString();
-  localStorage.setItem('last_free_card', today);
+  localStorage.setItem('last_free_card', new Date().toLocaleDateString());
 }
 
 // ==========================================
@@ -122,7 +112,6 @@ function watchAd() {
       alert("ကြော်ငြာ ကြည့်ခြင်း မအောင်မြင်ပါ။");
     });
   } else {
-    // Test အတွက်
     setCooldown('last_watch_ad');
     setTickets(getTickets() + 3);
     updateAdButtons();
@@ -156,7 +145,6 @@ function taskAd() {
 function openReading(mode) {
   playSound(sfxClick);
   
-  // 1. Daily Free Check
   if (mode === 'daily') {
     if (!getDailyFreeStatus()) {
       alert("ဒီနေ့အတွက် Free ကဒ် ကြည့်ပြီးသား ဖြစ်ပါတယ်။");
@@ -169,13 +157,11 @@ function openReading(mode) {
     return;
   }
 
-  // 2. Ticket Check for other modes
   if (getTickets() < 1) {
     alert("Ticket မလုံလောက်ပါဘူး။ ကြော်ငြာကြည့်ပြီး Ticket ယူပါ။");
     return;
   }
 
-  // Deduct Ticket
   setTickets(getTickets() - 1);
   currentMode = mode;
   selectedCards = [];
@@ -187,7 +173,6 @@ function openReading(mode) {
     requiredCards = 3;
     startShuffle();
   } else {
-    // Love, Career, Health (1 card read)
     requiredCards = 1;
     startShuffle();
   }
@@ -221,12 +206,10 @@ function buildPickGrid1() {
       card.classList.add('selected');
       
       if (requiredCards === 1 && currentMode !== 'daily') {
-        // Yes/No, Love, Career, Health အတွက် တစ်ကဒ်တည်း
         selectedCards = [cardData];
         selectedCards[0].isReversed = Math.random() < 0.5;
         setTimeout(() => { playSound(sfxReveal); showResult(); }, 400);
       } else if (currentMode === 'daily') {
-        // Daily အတွက် တစ်ကဒ် (Free ဖြစ်လို့ Ticket မကောက်ဘူး)
         selectedCards = [cardData];
         selectedCards[0].isReversed = Math.random() < 0.5;
         setDailyFreeUsed();
@@ -270,7 +253,6 @@ function pickCard(cardElement, cardData) {
   
   playSound(sfxClick);
   cardElement.classList.add('selected');
-  
   cardData.isReversed = Math.random() < 0.5;
   selectedCards.push(cardData);
   
@@ -328,7 +310,6 @@ function showResult() {
         <button class="read-more-btn" onclick="openModalByIndex(${index})">အသေးစိတ် ဖတ်ရန်</button>
       </div>`;
     } else {
-      // Daily, Love, Career, Health
       fortuneText += `<div style="margin-bottom:20px; text-align:center;">
         <h3 style="color:#fbbf24; font-size:16px; margin-bottom:8px;">${card.name}</h3>
         <p style="font-size:14px; line-height:1.6; margin-bottom: 12px;">${meaning}</p>
@@ -341,9 +322,7 @@ function showResult() {
   showScreen('screen-result');
 }
 
-function openModalByIndex(index) {
-  openModal(selectedCards[index]);
-}
+function openModalByIndex(index) { openModal(selectedCards[index]); }
 
 function openModal(card) {
   playSound(sfxClick);
@@ -371,12 +350,11 @@ function openModal(card) {
 }
 
 function closeModal() { playSound(sfxClick); document.getElementById('cardModal').classList.remove('active'); }
-function openSavedList() { playSound(sfxClick); document.getElementById('savedModal').classList.add('active'); }
-function closeSavedList() { playSound(sfxClick); document.getElementById('savedModal').classList.remove('active'); }
 function openSettings() { playSound(sfxClick); showScreen('screen-settings'); }
 function openAbout() { playSound(sfxClick); showScreen('screen-about'); }
 function backToMenu() { playSound(sfxClick); showScreen('screen-start'); }
 function leaveApp() { playSound(sfxClick); if(bgMusic) bgMusic.pause(); window.location.href = 'index.html'; }
+function restartApp() { playSound(sfxClick); selectedCards = []; showScreen('screen-start'); }
 
 function saveReading() {
   playSound(sfxClick);
@@ -395,17 +373,30 @@ function saveReading() {
   setTimeout(() => { btn.innerText = "Save"; }, 1500);
 }
 
-function restartApp() {
+function openSavedList() {
   playSound(sfxClick);
-  selectedCards = [];
-  showScreen('screen-start');
+  const container = document.getElementById('savedListContainer');
+  const savedList = JSON.parse(localStorage.getItem('tarot_saves') || '[]');
+  
+  if (savedList.length === 0) {
+    container.innerHTML = "<p style='color:#a0aec0; text-align:center; font-family:Padauk;'>သိမ်းထားတာ မရှိသေးပါဘူး။</p>";
+  } else {
+    // အသစ်ဆုံးကို အပေါ်ဆုံးမှာ ပြမယ်
+    container.innerHTML = savedList.slice().reverse().map((item) => `
+      <div class="saved-item">
+        <p style="font-weight:bold; color:#fbbf24; margin-bottom:5px;">${item.cards.join(', ')}</p>
+        <p style="font-size:11px; color:#a0aec0;">${item.date}</p>
+      </div>
+    `).join('');
+  }
+  document.getElementById('savedModal').classList.add('active');
 }
+function closeSavedList() { playSound(sfxClick); document.getElementById('savedModal').classList.remove('active'); }
 
 function agreeDisclaimer() {
   playSound(sfxClick);
   document.getElementById('disclaimerModal').style.display = 'none';
   
-  // Loading စမယ်
   bgMusic.volume = 0.4;
   let progress = 0;
   const progressBar = document.getElementById('progressBar');
@@ -424,10 +415,7 @@ function agreeDisclaimer() {
 // INIT
 // ==========================================
 window.addEventListener('DOMContentLoaded', () => {
-  // ၁၂ လ ရာသီ နောက်ခံပုံ သတ်မှတ်မယ်
-  const currentMonth = new Date().getMonth(); // 0 = Jan, 11 = Dec
+  const currentMonth = new Date().getMonth();
   document.getElementById('seasonBg').style.backgroundImage = `url('${SEASON_BACKGROUNDS[currentMonth]}')`;
-  
-  // Ticket Count ပြမယ်
   setTickets(getTickets());
 });
