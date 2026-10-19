@@ -1,15 +1,3 @@
-// Adsgram Init
-const ADSGRAM_BLOCK_ID = "int-54795"; // Block ID အသစ်
-let adController = null;
-
-if (window.Adsgram) {
-  try {
-    adController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
-  } catch (error) {
-    console.log("Adsgram init error:", error);
-  }
-}
-
 let currentMode = 'daily'; 
 let requiredCards = 1;
 let selectedCards = [];
@@ -86,21 +74,22 @@ function submitYesNo() {
   startShuffle();
 }
 
-// 🔴 ကဒ်မွှေတဲ့အခါ Interstitial Ad ပြမယ်
+// 🔴 Monetag ကြော်ငြာ ပြမယ့်နေရာ
 function startShuffle() {
   playSound(sfxShuffle);
   
-  if (adController) {
-    adController.show()
+  // Monetag Function ရှိမရှိ စစ်မယ်
+  if (typeof show_12069395 === "function") {
+    show_12069395()
       .then(() => {
-        executeShuffle();
+        executeShuffle(); // ကြော်ငြာ ကြည့်ပြီးရင် မွှေမယ်
       })
       .catch((error) => {
         console.log("Ad skipped or error:", error);
         executeShuffle(); // ကြော်ငြာ မကြည့်ရင်လည်း ဆက်သွားမယ်
       });
   } else {
-    executeShuffle();
+    executeShuffle(); // Error တက်ရင် ကြော်ငြာမပြဘဲ ဆက်သွားမယ်
   }
 }
 
@@ -317,12 +306,12 @@ function leaveApp() {
   window.location.href = 'index.html';
 }
 
-// 🔴 Again နှိပ်ရင်လည်း Interstitial ပြမယ်
+// 🔴 Again နှိပ်ရင်လည်း Monetag ကြော်ငြာ ပြမယ်
 function restartApp() {
   playSound(sfxClick);
   
-  if (adController) {
-    adController.show()
+  if (typeof show_12069395 === "function") {
+    show_12069395()
       .then(() => {
         resetAndGoIntro();
       })
