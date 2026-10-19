@@ -7,7 +7,8 @@
   
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="//libtl.com/sdk.js" data-zone="12069395" data-sdk="show_12069395"></script>
+  <!-- Monetag SDK -->
+  <script src="https://libtl.com/sdk.js" data-zone="12069395" data-sdk="show_12069395"></script>
   
   <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
@@ -48,7 +49,9 @@
   <section class="tarot-screen" id="screen-start">
     <div class="top-bar">
       <div class="ticket-display glass-panel">
-        <img src="assets/icons/ticket.svg" alt="Ticket" class="icon-svg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg">
+          <path d="M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M15 5v14"/><path d="M9 5v14"/><path d="M4 12h16"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>
+        </svg>
         <span id="ticketCount">0</span>
       </div>
     </div>
@@ -59,51 +62,59 @@
       <div class="menu-card glass-panel">
         <!-- Watch Ad -->
         <button class="menu-btn ad-btn" id="btnWatchAd" onclick="watchAd()">
-          <img src="assets/icons/watch-ad.svg" alt="Ad" class="icon-svg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><polygon points="10 7 15 10 10 13 10 7"/></svg>
           <span>ကြော်ငြာကြည့်မယ် (+3)</span>
         </button>
         <!-- Task Ad -->
         <button class="menu-btn ad-btn" id="btnTaskAd" onclick="taskAd()">
-          <img src="assets/icons/task-ad.svg" alt="Task" class="icon-svg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
           <span>Task လုပ်မယ် (+1)</span>
         </button>
         
         <div class="divider"></div>
 
         <button class="menu-btn" onclick="openReading('daily')">
-          <img src="assets/icons/daily-card.svg" alt="Daily" class="icon-svg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
           <span>ဒီနေ့ ကဒ် (Free)</span>
         </button>
         <button class="menu-btn" onclick="openReading('yesno')">
-          <img src="assets/icons/yes-no.svg" alt="Yes/No" class="icon-svg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           <span>Yes / No / Maybe (1)</span>
         </button>
         <button class="menu-btn" onclick="openReading('3cards')">
-          <img src="assets/icons/three-cards.svg" alt="3 Cards" class="icon-svg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><rect x="2" y="4" width="6" height="10" rx="1"/><rect x="16" y="4" width="6" height="10" rx="1"/><rect x="9" y="9" width="6" height="10" rx="1"/></svg>
           <span>အတိတ်၊ ပစ္စုပ္ပန်၊ အနာဂတ် (1)</span>
         </button>
         
         <div class="divider"></div>
 
         <button class="menu-btn" onclick="openReading('love')">
-          <img src="assets/icons/love.svg" alt="Love" class="icon-svg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
           <span>အချစ်ရေး (1)</span>
         </button>
         <button class="menu-btn" onclick="openReading('career')">
-          <img src="assets/icons/career.svg" alt="Career" class="icon-svg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
           <span>အလုပ်အကိုင် (1)</span>
         </button>
         <button class="menu-btn" onclick="openReading('health')">
-          <img src="assets/icons/health.svg" alt="Health" class="icon-svg">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
           <span>ကျန်းမာရေး (1)</span>
         </button>
       </div>
       
       <div class="menu-footer">
-        <button class="icon-btn-small" onclick="openSettings()"><img src="assets/icons/settings.svg" class="icon-svg"></button>
-        <button class="icon-btn-small" onclick="openSavedList()"><img src="assets/icons/save.svg" class="icon-svg"></button>
-        <button class="icon-btn-small" onclick="openAbout()"><img src="assets/icons/info.svg" class="icon-svg"></button>
-        <button class="icon-btn-small" onclick="leaveApp()"><img src="assets/icons/exit.svg" class="icon-svg"></button>
+        <button class="icon-btn-small" onclick="openSettings()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+        <button class="icon-btn-small" onclick="openSavedList()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </button>
+        <button class="icon-btn-small" onclick="openAbout()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        </button>
+        <button class="icon-btn-small" onclick="leaveApp()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
       </div>
     </div>
   </section>
@@ -176,7 +187,9 @@
   <!-- Modals -->
   <div class="modal-overlay" id="savedModal">
     <div class="modal-content glass-panel">
-      <button class="close-btn" onclick="closeSavedList()"><img src="assets/icons/close.svg" class="icon-svg"></button>
+      <button class="close-btn" onclick="closeSavedList()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
       <h2 style="color: #fbbf24; margin-bottom: 15px; text-align: center;">Save ထားသည်များ</h2>
       <div id="savedListContainer" class="saved-list-scroll"></div>
     </div>
@@ -184,7 +197,9 @@
 
   <div class="modal-overlay" id="cardModal">
     <div class="modal-content glass-panel">
-      <button class="close-btn" onclick="closeModal()"><img src="assets/icons/close.svg" class="icon-svg"></button>
+      <button class="close-btn" onclick="closeModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
       <div class="modal-header">
         <img id="modal-img" src="" alt="Card" class="modal-card-img">
         <div class="modal-title-wrap">
@@ -213,4 +228,4 @@
   <script src="tarot-data.js"></script>
   <script src="tarot.js"></script>
 </body>
-          </html>
+</html>
