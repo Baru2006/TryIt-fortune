@@ -7,9 +7,7 @@
   
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  
-  <!-- 🔴 Monetag SDK ထည့်သွင်းထားပါတယ် -->
-  <script src='//libtl.com/sdk.js' data-zone='12069395' data-sdk='show_12069395'></script>
+  <script src="//libtl.com/sdk.js" data-zone="12069395" data-sdk="show_12069395"></script>
   
   <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
@@ -22,53 +20,97 @@
   <audio id="sfxShuffle"><source src="assets/audio/shuffle.mp3" type="audio/mpeg"></audio>
   <audio id="sfxReveal"><source src="assets/audio/reveal.mp3" type="audio/mpeg"></audio>
 
-  <section class="tarot-screen active" id="screen-loading">
-    <div class="loading-bg" style="background-image: url('assets/bg-loading.png');"></div>
+  <!-- ၁၂ လ ရာသီအလိုက် ပြောင်းလဲမယ့် နောက်ခံ -->
+  <div class="season-bg" id="seasonBg"></div>
+
+  <!-- သတိပေးချက် (Disclaimer) Popup -->
+  <div class="modal-overlay active" id="disclaimerModal" style="z-index: 9999;">
+    <div class="modal-content glass-panel" style="margin: auto; border-radius: 20px; width: 90%; max-width: 350px; text-align: center;">
+      <h2 style="color: #fbbf24; margin-bottom: 15px; font-family: 'Padauk';">📢 သတိပေးချက်</h2>
+      <p style="font-family: 'Padauk', sans-serif; font-size: 14px; line-height: 1.6; margin-bottom: 20px; color: #e2e8f0;">
+        ဤ App သည် ဖျော်ဖြေရေးအတွက်သာ ဖြစ်ပါသည်။ App ၏ လုပ်ဆောင်ချက်များကို ဆက်လက်ထိန်းသိမ်းနိုင်ရန် ကြော်ငြာများ ပါဝင်မည်ဖြစ်ပါသည်။
+        <br><br>
+        <span style="font-size: 12px; color: #a0aec0;">(This app is for entertainment. Ads will be shown to support it.)</span>
+      </p>
+      <button class="tarot-btn primary-btn" onclick="agreeDisclaimer()">သဘောတူပါတယ် (Agree)</button>
+    </div>
+  </div>
+
+  <!-- Loading Screen -->
+  <section class="tarot-screen" id="screen-loading">
     <div class="loading-content">
       <div class="loading-text">လုပ်ဆောင်နေသည်...</div>
       <div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
     </div>
   </section>
 
+  <!-- Main Menu -->
   <section class="tarot-screen" id="screen-start">
-    <div class="bg-home" style="background-image: url('assets/bg-home.png');"></div>
+    <div class="top-bar">
+      <div class="ticket-display glass-panel">
+        <img src="assets/icons/ticket.svg" alt="Ticket" class="icon-svg">
+        <span id="ticketCount">0</span>
+      </div>
+    </div>
+
     <div class="menu-container">
       <img src="assets/title.png" alt="Tarot" class="main-title" />
+      
       <div class="menu-card glass-panel">
-        <button class="menu-btn" onclick="startGame()">တာရော့ ကြည့်မယ်</button>
-        <button class="menu-btn" onclick="openSettings()">စက်တင်များ</button>
-        <button class="menu-btn" onclick="openSavedList()">Save ထားသည်များ</button>
-        <button class="menu-btn" onclick="openAbout()">About App</button>
-        <button class="menu-btn" onclick="leaveApp()">ထွက်ခွာမယ်</button>
+        <!-- Watch Ad -->
+        <button class="menu-btn ad-btn" id="btnWatchAd" onclick="watchAd()">
+          <img src="assets/icons/watch-ad.svg" alt="Ad" class="icon-svg">
+          <span>ကြော်ငြာကြည့်မယ် (+3)</span>
+        </button>
+        <!-- Task Ad -->
+        <button class="menu-btn ad-btn" id="btnTaskAd" onclick="taskAd()">
+          <img src="assets/icons/task-ad.svg" alt="Task" class="icon-svg">
+          <span>Task လုပ်မယ် (+1)</span>
+        </button>
+        
+        <div class="divider"></div>
+
+        <button class="menu-btn" onclick="openReading('daily')">
+          <img src="assets/icons/daily-card.svg" alt="Daily" class="icon-svg">
+          <span>ဒီနေ့ ကဒ် (Free)</span>
+        </button>
+        <button class="menu-btn" onclick="openReading('yesno')">
+          <img src="assets/icons/yes-no.svg" alt="Yes/No" class="icon-svg">
+          <span>Yes / No / Maybe (1)</span>
+        </button>
+        <button class="menu-btn" onclick="openReading('3cards')">
+          <img src="assets/icons/three-cards.svg" alt="3 Cards" class="icon-svg">
+          <span>အတိတ်၊ ပစ္စုပ္ပန်၊ အနာဂတ် (1)</span>
+        </button>
+        
+        <div class="divider"></div>
+
+        <button class="menu-btn" onclick="openReading('love')">
+          <img src="assets/icons/love.svg" alt="Love" class="icon-svg">
+          <span>အချစ်ရေး (1)</span>
+        </button>
+        <button class="menu-btn" onclick="openReading('career')">
+          <img src="assets/icons/career.svg" alt="Career" class="icon-svg">
+          <span>အလုပ်အကိုင် (1)</span>
+        </button>
+        <button class="menu-btn" onclick="openReading('health')">
+          <img src="assets/icons/health.svg" alt="Health" class="icon-svg">
+          <span>ကျန်းမာရေး (1)</span>
+        </button>
+      </div>
+      
+      <div class="menu-footer">
+        <button class="icon-btn-small" onclick="openSettings()"><img src="assets/icons/settings.svg" class="icon-svg"></button>
+        <button class="icon-btn-small" onclick="openSavedList()"><img src="assets/icons/save.svg" class="icon-svg"></button>
+        <button class="icon-btn-small" onclick="openAbout()"><img src="assets/icons/info.svg" class="icon-svg"></button>
+        <button class="icon-btn-small" onclick="leaveApp()"><img src="assets/icons/exit.svg" class="icon-svg"></button>
       </div>
     </div>
   </section>
 
-  <section class="tarot-screen" id="screen-intro">
-    <div class="bg-home" style="background-image: url('assets/bg-home.png');"></div>
-    <div class="character-img"></div>
-    <div class="dialogue-box glass-panel">
-      <div class="dialogue-text">
-        <p>"မင်္ဂလာပါ... ဘာအတွက် ဟောစာတမ်း လိုချင်တာလဲ...?"</p>
-      </div>
-      <div class="choice-buttons">
-        <button class="tarot-btn" onclick="startReading('yesno', 1)">
-          <span>Yes / No / Maybe မေးမယ်</span><small>(၁ ကဒ်)</small>
-        </button>
-        <button class="tarot-btn" onclick="startReading('daily', 1)">
-          <span>ဒီနေ့ လိုအပ်နေတဲ့အရာ</span><small>(၁ ကဒ်)</small>
-        </button>
-        <button class="tarot-btn" onclick="startReading('3cards', 3)">
-          <span>အတိတ်၊ ပစ္စုပ္ပန်၊ အနာဂတ်</span><small>(၃ ကဒ်)</small>
-        </button>
-      </div>
-    </div>
-  </section>
-
+  <!-- Yes/No Input -->
   <section class="tarot-screen" id="screen-yesno">
-    <div class="bg-home" style="background-image: url('assets/bg-home.png');"></div>
-    <div class="character-img"></div>
-    <div class="dialogue-box glass-panel">
+    <div class="dialogue-box glass-panel" style="bottom: auto; top: 50%; transform: translateY(-50%);">
       <div class="dialogue-text">
         <p>"သင့်မေးခွန်းကို ရေးထည့်ပါ။ ကဒ်တွေက အဖြေပေးပါလိမ့်မယ်။"</p>
       </div>
@@ -77,24 +119,25 @@
     </div>
   </section>
 
+  <!-- Shuffle Scene -->
   <section class="tarot-screen" id="screen-shuffle">
-    <div class="pick-bg" style="background-image: url('assets/floor.png');"></div>
     <div class="shuffle-animation"></div>
     <h2 class="shuffle-text">ကဒ်များ မွှေနေသည်...</h2>
   </section>
 
+  <!-- Pick 1 -->
   <section class="tarot-screen" id="screen-pick1">
-    <div class="pick-bg" style="background-image: url('assets/floor.png');"></div>
     <h2 class="pick-title" id="title-pick1">ကဒ် ရွေးချယ်ပါ (အဆင့် ၁)</h2>
     <div class="pick-grid-4" id="grid1"></div>
   </section>
 
+  <!-- Pick 2 -->
   <section class="tarot-screen" id="screen-pick2">
-    <div class="pick-bg" style="background-image: url('assets/floor.png');"></div>
     <h2 class="pick-title" id="title-pick2">ကဒ် ရွေးချယ်ပါ (အဆင့် ၂)</h2>
     <div class="pick-grid-14" id="grid2"></div>
   </section>
 
+  <!-- Result -->
   <section class="tarot-screen" id="screen-result">
     <div class="result-scroll-area">
       <div class="result-container glass-panel" id="captureArea">
@@ -109,11 +152,12 @@
     </div>
   </section>
 
+  <!-- Settings & About -->
   <section class="tarot-screen" id="screen-settings">
     <div class="info-card glass-panel">
       <h2>စက်တင်များ</h2>
       <div class="setting-row">
-        <span>🎵 နောက်ခံ တီးလုံး</span>
+        <span>နောက်ခံ တီးလုံး</span>
         <button class="toggle-btn" id="musicToggle" onclick="toggleMusic()">ON</button>
       </div>
       <button class="tarot-btn" style="margin-top: 20px;" onclick="backToMenu()">ပင်မစာမျက်နှာသို့</button>
@@ -123,15 +167,16 @@
   <section class="tarot-screen" id="screen-about">
     <div class="info-card glass-panel">
       <h2>TryIt Hub Tarot</h2>
-      <p class="version">Version 1.5.0</p>
+      <p class="version">Version 2.0.0</p>
       <p style="margin-bottom: 20px; font-family: 'Padauk';">သင့်အတွက် ဟောစာတမ်းဖတ်ပေးမယ့် ဂိမ်းလေးပါ။</p>
       <button class="tarot-btn" onclick="backToMenu()">ပင်မစာမျက်နှာသို့</button>
     </div>
   </section>
 
+  <!-- Modals -->
   <div class="modal-overlay" id="savedModal">
     <div class="modal-content glass-panel">
-      <button class="close-btn" onclick="closeSavedList()">✕</button>
+      <button class="close-btn" onclick="closeSavedList()"><img src="assets/icons/close.svg" class="icon-svg"></button>
       <h2 style="color: #fbbf24; margin-bottom: 15px; text-align: center;">Save ထားသည်များ</h2>
       <div id="savedListContainer" class="saved-list-scroll"></div>
     </div>
@@ -139,26 +184,28 @@
 
   <div class="modal-overlay" id="cardModal">
     <div class="modal-content glass-panel">
-      <button class="close-btn" onclick="closeModal()">✕</button>
+      <button class="close-btn" onclick="closeModal()"><img src="assets/icons/close.svg" class="icon-svg"></button>
       <div class="modal-header">
         <img id="modal-img" src="" alt="Card" class="modal-card-img">
         <div class="modal-title-wrap">
           <h2 id="modal-title">Card Name</h2>
-          <span id="modal-status" class="status-badge">Upright</span>
+          <div id="modal-status-wrap">
+            <span id="modal-status" class="status-badge">Upright</span>
+          </div>
           <p id="modal-keywords">Keywords</p>
         </div>
       </div>
       <div class="modal-body">
-        <div class="detail-section"><h3>🃏 ယေဘုယျ အဓိပ္ပာယ်</h3><p id="modal-general"></p></div>
-        <div class="detail-section"><h3>↕️ တည့်တည့်ကျခြင်း</h3><p id="modal-upright"></p></div>
-        <div class="detail-section"><h3>🔄 ပြောင်းပြန်ကျခြင်း</h3><p id="modal-reversed"></p></div>
+        <div class="detail-section"><h3>ယေဘုယျ အဓိပ္ပာယ်</h3><p id="modal-general"></p></div>
+        <div class="detail-section"><h3>တည့်တည့်ကျခြင်း</h3><p id="modal-upright"></p></div>
+        <div class="detail-section"><h3>ပြောင်းပြန်ကျခြင်း</h3><p id="modal-reversed"></p></div>
         <div class="detail-section">
-          <h3>🔮 နယ်ပယ်အလိုက်</h3>
-          <div class="category-box"><strong>❤️ အချစ်ရေး:</strong> <span id="modal-love"></span></div>
-          <div class="category-box"><strong>💼 အလုပ်အကိုင်:</strong> <span id="modal-career"></span></div>
-          <div class="category-box"><strong>🧘‍♂️ ကျန်းမာရေး:</strong> <span id="modal-health"></span></div>
+          <h3>နယ်ပယ်အလိုက်</h3>
+          <div class="category-box"><strong>အချစ်ရေး:</strong> <span id="modal-love"></span></div>
+          <div class="category-box"><strong>အလုပ်အကိုင်:</strong> <span id="modal-career"></span></div>
+          <div class="category-box"><strong>ကျန်းမာရေး:</strong> <span id="modal-health"></span></div>
         </div>
-        <div class="detail-section advice-box"><h3>💡 အကြံပြုချက်</h3><p id="modal-advice"></p></div>
+        <div class="detail-section advice-box"><h3>အကြံပြုချက်</h3><p id="modal-advice"></p></div>
       </div>
     </div>
   </div>
@@ -166,4 +213,4 @@
   <script src="tarot-data.js"></script>
   <script src="tarot.js"></script>
 </body>
-</html>
+          </html>
