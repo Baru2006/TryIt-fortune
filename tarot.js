@@ -10,6 +10,12 @@ const sfxClick = document.getElementById('sfxClick');
 const sfxShuffle = document.getElementById('sfxShuffle');
 const sfxReveal = document.getElementById('sfxReveal');
 
+// 🔴 အရေးကြီးဆုံး - Telegram WebApp ကို အသင့်ဖြစ်အောင် လုပ်ပါ
+if (window.Telegram && window.Telegram.WebApp) {
+  window.Telegram.WebApp.ready();
+  window.Telegram.WebApp.expand();
+}
+
 function playSound(sfx) { 
   if (isMusicOn && sfx) { 
     sfx.currentTime = 0; 
@@ -27,6 +33,14 @@ function toggleMusic() {
 function showScreen(screenId) {
   document.querySelectorAll('.tarot-screen').forEach(s => s.classList.remove('active'));
   document.getElementById(screenId).classList.add('active');
+}
+
+// 🔴 ကြော်ငြာကို ကြိုတင်တင်ထားမယ် (Preload)
+let isAdReady = false;
+if (typeof show_12069395 === "function") {
+  show_12069395({ type: 'preload' })
+    .then(() => { isAdReady = true; console.log("Ad preloaded"); })
+    .catch((err) => { console.log("Preload failed:", err); });
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -74,23 +88,27 @@ function submitYesNo() {
   startShuffle();
 }
 
-// 🔴 Monetag ကြော်ငြာ ပြမယ့်နေရာ
-function startShuffle() {
-  playSound(sfxShuffle);
-  
-  // Monetag Function ရှိမရှိ စစ်မယ်
+// 🔴 ကြော်ငြာ ပြမယ့် Function (Fallback ပါဝင်သည်)
+function showAdAndThen(callback) {
   if (typeof show_12069395 === "function") {
     show_12069395()
       .then(() => {
-        executeShuffle(); // ကြော်ငြာ ကြည့်ပြီးရင် မွှေမယ်
+        console.log("Ad watched successfully!");
+        callback();
       })
       .catch((error) => {
-        console.log("Ad skipped or error:", error);
-        executeShuffle(); // ကြော်ငြာ မကြည့်ရင်လည်း ဆက်သွားမယ်
+        console.log("Ad failed or skipped:", error);
+        callback(); // ကြော်ငြာ မရရင် ဆက်သွားမယ်
       });
   } else {
-    executeShuffle(); // Error တက်ရင် ကြော်ငြာမပြဘဲ ဆက်သွားမယ်
+    console.warn("Monetag SDK not loaded. Continuing without ad.");
+    callback();
   }
+}
+
+function startShuffle() {
+  playSound(sfxShuffle);
+  showAdAndThen(executeShuffle); 
 }
 
 function executeShuffle() {
@@ -306,22 +324,9 @@ function leaveApp() {
   window.location.href = 'index.html';
 }
 
-// 🔴 Again နှိပ်ရင်လည်း Monetag ကြော်ငြာ ပြမယ်
 function restartApp() {
   playSound(sfxClick);
-  
-  if (typeof show_12069395 === "function") {
-    show_12069395()
-      .then(() => {
-        resetAndGoIntro();
-      })
-      .catch((error) => {
-        console.log("Ad skipped:", error);
-        resetAndGoIntro();
-      });
-  } else {
-    resetAndGoIntro();
-  }
+  showAdAndThen(resetAndGoIntro);
 }
 
 function resetAndGoIntro() {
