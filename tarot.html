@@ -6,34 +6,28 @@
   <title>Tarot Reading — TryIt Hub</title>
   
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <!-- Monetag SDK -->
-  <script src="https://libtl.com/sdk.js" data-zone="12069395" data-sdk="show_12069395"></script>
+  <script src="//libtl.com/sdk.js" data-zone="12069395" data-sdk="show_12069395"></script>
   
   <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="tarot.css" />
 </head>
 <body class="tarot-dark">
 
+  <!-- Audio -->
   <audio id="bgMusic" loop><source src="assets/audio/bg-music.mp3" type="audio/mpeg"></audio>
   <audio id="sfxClick"><source src="assets/audio/click.mp3" type="audio/mpeg"></audio>
   <audio id="sfxShuffle"><source src="assets/audio/shuffle.mp3" type="audio/mpeg"></audio>
   <audio id="sfxReveal"><source src="assets/audio/reveal.mp3" type="audio/mpeg"></audio>
 
-  <!-- ၁၂ လ ရာသီအလိုက် ပြောင်းလဲမယ့် နောက်ခံ -->
+  <!-- ၁၂ လ ရာသီ နောက်ခံ -->
   <div class="season-bg" id="seasonBg"></div>
 
-  <!-- သတိပေးချက် (Disclaimer) Popup -->
-  <div class="modal-overlay active" id="disclaimerModal" style="z-index: 9999;">
-    <div class="modal-content glass-panel" style="margin: auto; border-radius: 20px; width: 90%; max-width: 350px; text-align: center;">
-      <h2 style="color: #fbbf24; margin-bottom: 15px; font-family: 'Padauk';">📢 သတိပေးချက်</h2>
-      <p style="font-family: 'Padauk', sans-serif; font-size: 14px; line-height: 1.6; margin-bottom: 20px; color: #e2e8f0;">
-        ဤ App သည် ဖျော်ဖြေရေးအတွက်သာ ဖြစ်ပါသည်။ App ၏ လုပ်ဆောင်ချက်များကို ဆက်လက်ထိန်းသိမ်းနိုင်ရန် ကြော်ငြာများ ပါဝင်မည်ဖြစ်ပါသည်။
-        <br><br>
-        <span style="font-size: 12px; color: #a0aec0;">(This app is for entertainment. Ads will be shown to support it.)</span>
-      </p>
-      <button class="tarot-btn primary-btn" onclick="agreeDisclaimer()">သဘောတူပါတယ် (Agree)</button>
+  <!-- Disclaimer Popup -->
+  <div class="modal-overlay active" id="disclaimerModal">
+    <div class="modal-content glass-panel popup-bg">
+      <h2 style="color:#fbbf24; margin-bottom:15px; font-family:'Padauk';">📢 သတိပေးချက်</h2>
+      <p style="font-family:'Padauk'; line-height:1.6; margin-bottom:20px;">ဤ App သည် ဖျော်ဖြေရေးအတွက်သာ ဖြစ်ပါသည်။ ကြော်ငြာများ ပါဝင်မည်ဖြစ်ပါသည်။</p>
+      <button class="btn primary-btn" onclick="agreeDisclaimer()">သဘောတူပါတယ် (Agree)</button>
     </div>
   </div>
 
@@ -45,186 +39,188 @@
     </div>
   </section>
 
-  <!-- Main Menu -->
+  <!-- Main Menu Screen -->
   <section class="tarot-screen" id="screen-start">
+    <!-- Top Bar: Ticket -->
     <div class="top-bar">
       <div class="ticket-display glass-panel">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg">
-          <path d="M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/><path d="M15 5v14"/><path d="M9 5v14"/><path d="M4 12h16"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>
-        </svg>
+        <img src="assets/icons/ticket.webp" alt="Ticket" class="icon-img">
         <span id="ticketCount">0</span>
+        <img src="assets/icons/plus.webp" alt="Plus" class="icon-img plus-btn" onclick="openTicketMenu()">
       </div>
     </div>
 
     <div class="menu-container">
-      <img src="assets/title.png" alt="Tarot" class="main-title" />
-      
-      <div class="menu-card glass-panel">
-        <!-- Watch Ad -->
-        <button class="menu-btn ad-btn" id="btnWatchAd" onclick="watchAd()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/><polygon points="10 7 15 10 10 13 10 7"/></svg>
-          <span>ကြော်ငြာကြည့်မယ် (+3)</span>
-        </button>
-        <!-- Task Ad -->
-        <button class="menu-btn ad-btn" id="btnTaskAd" onclick="taskAd()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>
-          <span>Task လုပ်မယ် (+1)</span>
-        </button>
-        
-        <div class="divider"></div>
+      <!-- Title Logo -->
+      <img src="assets/title/title-logo.webp" alt="TAROT" class="title-logo">
 
-        <button class="menu-btn" onclick="openReading('daily')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-          <span>ဒီနေ့ ကဒ် (Free)</span>
-        </button>
-        <button class="menu-btn" onclick="openReading('yesno')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          <span>Yes / No / Maybe (1)</span>
-        </button>
-        <button class="menu-btn" onclick="openReading('3cards')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><rect x="2" y="4" width="6" height="10" rx="1"/><rect x="16" y="4" width="6" height="10" rx="1"/><rect x="9" y="9" width="6" height="10" rx="1"/></svg>
-          <span>အတိတ်၊ ပစ္စုပ္ပန်၊ အနာဂတ် (1)</span>
-        </button>
+      <!-- Main Frame -->
+      <div class="menu-card-bg" style="background-image: url('assets/ui/main-frame.webp');">
         
-        <div class="divider"></div>
+        <!-- Buttons Layout -->
+        <div class="btn-grid top-2">
+          <button class="btn-img" onclick="checkAndStart('daily')"><img src="assets/ui/btn-today.webp" alt="Today"></button>
+          <button class="btn-img" onclick="checkAndStart('weekly')"><img src="assets/ui/btn-week.webp" alt="Week"></button>
+        </div>
+        
+        <div class="btn-grid top-2">
+          <button class="btn-img" onclick="checkAndStart('monthly')"><img src="assets/ui/btn-month.webp" alt="Month"></button>
+          <button class="btn-img" onclick="checkAndStart('yearly')"><img src="assets/ui/btn-year.webp" alt="Year"></button>
+        </div>
 
-        <button class="menu-btn" onclick="openReading('love')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          <span>အချစ်ရေး (1)</span>
-        </button>
-        <button class="menu-btn" onclick="openReading('career')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-          <span>အလုပ်အကိုင် (1)</span>
-        </button>
-        <button class="menu-btn" onclick="openReading('health')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-          <span>ကျန်းမာရေး (1)</span>
-        </button>
-      </div>
-      
-      <div class="menu-footer">
-        <button class="icon-btn-small" onclick="openSettings()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        </button>
-        <button class="icon-btn-small" onclick="openSavedList()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-        </button>
-        <button class="icon-btn-small" onclick="openAbout()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-        </button>
-        <button class="icon-btn-small" onclick="leaveApp()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        </button>
+        <div class="btn-grid single">
+          <button class="btn-img large-btn" onclick="openCategoryDialogue()"><img src="assets/ui/btn-category.webp" alt="Category"></button>
+        </div>
+
+        <!-- Bottom Icons -->
+        <div class="btn-grid bottom-4">
+          <button class="icon-btn" onclick="openSettings()"><img src="assets/icons/settings.webp" alt="Settings"></button>
+          <button class="icon-btn" onclick="openSaveList()"><img src="assets/icons/save.webp" alt="Save"></button>
+          <button class="icon-btn" onclick="openAbout()"><img src="assets/icons/about.webp" alt="About"></button>
+          <button class="icon-btn" onclick="leaveApp()"><img src="assets/icons/exit.webp" alt="Exit"></button>
+        </div>
+
       </div>
     </div>
   </section>
 
-  <!-- Yes/No Input -->
-  <section class="tarot-screen" id="screen-yesno">
-    <div class="dialogue-box glass-panel" style="bottom: auto; top: 50%; transform: translateY(-50%);">
-      <div class="dialogue-text">
-        <p>"သင့်မေးခွန်းကို ရေးထည့်ပါ။ ကဒ်တွေက အဖြေပေးပါလိမ့်မယ်။"</p>
+  <!-- Ticket Popup -->
+  <div class="modal-overlay" id="ticketModal">
+    <div class="modal-content glass-panel popup-bg">
+      <h3 style="color:#fbbf24; margin-bottom:15px; font-family:'Padauk';">Ticket ရယူရန်</h3>
+      <button class="menu-btn" onclick="watchAd()">ကြော်ငြာကြည့်ပြီး ကဒ်ယူပါ (+2) <span id="adLimit">5/5</span></button>
+      <button class="menu-btn" onclick="dailyLogin()">နေ့စဉ် login ဝင်ပါ (+1)</button>
+      <button class="menu-btn" onclick="shareApp()">ဤApp ကို သင့်သူငယ်ချင်းထံ ရှယ်ပါ (+1) <span id="shareLimit">2/2</span></button>
+      <button class="btn primary-btn" onclick="closeModal('ticketModal')" style="margin-top:15px;">ပိတ်မည်</button>
+    </div>
+  </div>
+
+  <!-- Category Dialogue Screen -->
+  <section class="tarot-screen" id="screen-category">
+    <div class="dialogue-container">
+      <img src="assets/char/girl.webp" class="character-img" alt="Character">
+      <div class="dialogue-box" style="background-image: url('assets/ui/dialogue-box.webp');">
+        <div id="dialogueText" class="dialogue-text-scroll"></div>
+        <button class="btn next-btn" id="dialogueNextBtn" onclick="showCategoryOptions()">ဆက်လုပ်မယ်</button>
       </div>
-      <input type="text" id="yesNoInput" placeholder="ဥပမာ - ဒီအလုပ် လုပ်သင့်လား?">
-      <button class="tarot-btn primary-btn" onclick="submitYesNo()">ကဒ်ရွေးမယ်</button>
+    </div>
+    <div class="category-grid" id="categoryOptions" style="display: none;">
+      <button class="btn cat-btn" onclick="startCategory('love')">အချစ်ရေး</button>
+      <button class="btn cat-btn" onclick="startCategory('education')">ပညာရေး</button>
+      <button class="btn cat-btn" onclick="startCategory('business')">စီးပွားရေး</button>
+      <button class="btn cat-btn" onclick="startCategory('health')">ကျန်းမာရေး</button>
+      <button class="btn cat-btn ppf-btn" onclick="startCategory('ppf')">အတိတ်၊ ပစ္စုပ္ပန်၊ အနာဂတ်</button>
     </div>
   </section>
 
-  <!-- Shuffle Scene -->
+  <!-- Shuffle Screen -->
   <section class="tarot-screen" id="screen-shuffle">
-    <div class="shuffle-animation"></div>
+    <img id="shuffleAnim" src="assets/ui/shuffle-1.png" alt="Shuffling..." class="shuffle-img">
     <h2 class="shuffle-text">ကဒ်များ မွှေနေသည်...</h2>
   </section>
 
-  <!-- Pick 1 -->
-  <section class="tarot-screen" id="screen-pick1">
-    <h2 class="pick-title" id="title-pick1">ကဒ် ရွေးချယ်ပါ (အဆင့် ၁)</h2>
-    <div class="pick-grid-4" id="grid1"></div>
+  <!-- Pick 6 Screen -->
+  <section class="tarot-screen" id="screen-pick6">
+    <h2 class="pick-title">ကဒ် (၆) ကဒ်ထဲမှ တစ်ကဒ် ရွေးပါ</h2>
+    <div class="pick-grid-6" id="pickGrid6"></div>
   </section>
 
-  <!-- Pick 2 -->
-  <section class="tarot-screen" id="screen-pick2">
-    <h2 class="pick-title" id="title-pick2">ကဒ် ရွေးချယ်ပါ (အဆင့် ၂)</h2>
-    <div class="pick-grid-14" id="grid2"></div>
+  <!-- Pick 13 Screen (3-2-3-2-3) -->
+  <section class="tarot-screen" id="screen-pick13">
+    <h2 class="pick-title" id="pick13Title">ကဒ်များ ရွေးပါ</h2>
+    <div class="pick-grid-13" id="pickGrid13">
+      <div class="pick-row" id="row-1"></div>
+      <div class="pick-row" id="row-2"></div>
+      <div class="pick-row" id="row-3"></div>
+      <div class="pick-row" id="row-4"></div>
+      <div class="pick-row" id="row-5"></div>
+    </div>
   </section>
 
-  <!-- Result -->
+  <!-- Result Screens (Dynamic by JS) -->
   <section class="tarot-screen" id="screen-result">
     <div class="result-scroll-area">
-      <div class="result-container glass-panel" id="captureArea">
-        <div class="revealed-cards" id="revealedCards"></div>
-        <div class="fortune-text" id="fortuneText"></div>
+      
+      <!-- Time / Single Card Layout -->
+      <div id="layout-single" style="display:none; width:100%; align-items:center; flex-direction:column;">
+        <div class="card-reveal-area">
+          <img id="resImg1" src="" class="drawn-card">
+          <img src="assets/ui/card-frame.webp" class="card-frame">
+        </div>
+        <h2 id="resName1" class="result-card-name">Card Name</h2>
+        <span id="resBadge1" class="status-badge">Upright</span>
       </div>
+
+      <!-- Problem Layout -->
+      <div id="layout-problem" style="display:none; width:100%; align-items:center; flex-direction:column;">
+        <div class="card-reveal-area">
+          <img id="probImg" src="" class="drawn-card">
+          <img src="assets/ui/card-frame.webp" class="card-frame">
+        </div>
+        <h2 id="probName" class="result-card-name">Card Name</h2>
+        <span id="probBadge" class="status-badge">Upright</span>
+      </div>
+
+      <!-- Solution Layout (2 Cards) -->
+      <div id="layout-solution" style="display:none; width:100%; justify-content:center; gap:15px; margin-bottom:20px;">
+        <div class="mini-card">
+          <img id="solImg1" src="" class="drawn-card">
+          <span id="solName1" class="mini-card-name"></span>
+        </div>
+        <div class="mini-card">
+          <img id="solImg2" src="" class="drawn-card">
+          <span id="solName2" class="mini-card-name"></span>
+        </div>
+      </div>
+
+      <!-- PPF Layout (3 Cards) -->
+      <div id="layout-ppf" style="display:none; width:100%; justify-content:center; gap:10px; margin-bottom:20px;">
+        <div class="mini-card"><img id="ppfImg1" src="" class="drawn-card"><span class="mini-card-name">အတိတ်</span></div>
+        <div class="mini-card"><img id="ppfImg2" src="" class="drawn-card"><span class="mini-card-name">ပစ္စုပ္ပန်</span></div>
+        <div class="mini-card"><img id="ppfImg3" src="" class="drawn-card"><span class="mini-card-name">အနာဂတ်</span></div>
+      </div>
+
+      <!-- Text Content Box -->
+      <div class="result-content glass-panel popup-bg" id="resultTextArea">
+        <!-- JS က စာတွေ ထည့်ပါမယ် -->
+      </div>
+
+      <!-- Action Buttons -->
       <div class="result-actions">
-        <button class="action-btn" onclick="saveReading()">Save</button>
-        <button class="action-btn" onclick="restartApp()">Again</button>
-        <button class="action-btn" onclick="leaveApp()">Leave</button>
+        <button class="btn action-btn" onclick="saveCurrentReading()">Save</button>
+        <button class="btn action-btn" onclick="promptAgain()">Again</button>
+        <button class="btn action-btn" onclick="goHome()">Home</button>
       </div>
     </div>
   </section>
 
-  <!-- Settings & About -->
-  <section class="tarot-screen" id="screen-settings">
-    <div class="info-card glass-panel">
-      <h2>စက်တင်များ</h2>
-      <div class="setting-row">
-        <span>နောက်ခံ တီးလုံး</span>
-        <button class="toggle-btn" id="musicToggle" onclick="toggleMusic()">ON</button>
-      </div>
-      <button class="tarot-btn" style="margin-top: 20px;" onclick="backToMenu()">ပင်မစာမျက်နှာသို့</button>
-    </div>
-  </section>
-
-  <section class="tarot-screen" id="screen-about">
-    <div class="info-card glass-panel">
-      <h2>TryIt Hub Tarot</h2>
-      <p class="version">Version 2.0.0</p>
-      <p style="margin-bottom: 20px; font-family: 'Padauk';">သင့်အတွက် ဟောစာတမ်းဖတ်ပေးမယ့် ဂိမ်းလေးပါ။</p>
-      <button class="tarot-btn" onclick="backToMenu()">ပင်မစာမျက်နှာသို့</button>
-    </div>
-  </section>
-
-  <!-- Modals -->
-  <div class="modal-overlay" id="savedModal">
-    <div class="modal-content glass-panel">
-      <button class="close-btn" onclick="closeSavedList()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-      <h2 style="color: #fbbf24; margin-bottom: 15px; text-align: center;">Save ထားသည်များ</h2>
-      <div id="savedListContainer" class="saved-list-scroll"></div>
+  <!-- Save List Modal -->
+  <div class="modal-overlay" id="saveModal">
+    <div class="modal-content glass-panel popup-bg" style="max-height: 80vh; overflow-y: auto;">
+      <h2 style="color:#fbbf24; margin-bottom:15px; font-family:'Padauk';">Save ထားသည်များ</h2>
+      <div id="saveListContainer" style="display:flex; flex-direction:column; gap:10px;"></div>
+      <button class="btn primary-btn" onclick="closeModal('saveModal')" style="margin-top:20px;">ပိတ်မည်</button>
     </div>
   </div>
 
-  <div class="modal-overlay" id="cardModal">
-    <div class="modal-content glass-panel">
-      <button class="close-btn" onclick="closeModal()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-svg"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-      <div class="modal-header">
-        <img id="modal-img" src="" alt="Card" class="modal-card-img">
-        <div class="modal-title-wrap">
-          <h2 id="modal-title">Card Name</h2>
-          <div id="modal-status-wrap">
-            <span id="modal-status" class="status-badge">Upright</span>
-          </div>
-          <p id="modal-keywords">Keywords</p>
-        </div>
+  <!-- Again Prompt Modal -->
+  <div class="modal-overlay" id="againModal">
+    <div class="modal-content glass-panel popup-bg">
+      <img src="assets/char/girl.webp" style="width:100px; margin:-70px auto 10px; display:block;">
+      <p style="font-family:'Padauk'; font-size:16px; margin-bottom:20px; text-align:center;">မင်္ဂလာပါ။ တာရော့ကဒ်ကို ဘာအတွက်ဟောဖို့သုံးမှာလဲရှင့်။<br><span style="color:#ef4444; font-size:14px;">(Ticket ၁ ခု ကုန်ပါမည်)</span></p>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <button class="btn cat-btn" onclick="confirmAgain('daily')">ဒီနေ့အတွက်</button>
+        <button class="btn cat-btn" onclick="confirmAgain('weekly')">တစ်ပတ်လုံးအတွက်</button>
+        <button class="btn cat-btn" onclick="confirmAgain('monthly')">တစ်လလုံးအတွက်</button>
+        <button class="btn cat-btn" onclick="confirmAgain('yearly')">တစ်နှစ်လုံးအတွက်</button>
+        <button class="btn cat-btn ppf-btn" onclick="confirmAgain('category_menu')">နယ်ပယ်အလိုက် / PPF</button>
       </div>
-      <div class="modal-body">
-        <div class="detail-section"><h3>ယေဘုယျ အဓိပ္ပာယ်</h3><p id="modal-general"></p></div>
-        <div class="detail-section"><h3>တည့်တည့်ကျခြင်း</h3><p id="modal-upright"></p></div>
-        <div class="detail-section"><h3>ပြောင်းပြန်ကျခြင်း</h3><p id="modal-reversed"></p></div>
-        <div class="detail-section">
-          <h3>နယ်ပယ်အလိုက်</h3>
-          <div class="category-box"><strong>အချစ်ရေး:</strong> <span id="modal-love"></span></div>
-          <div class="category-box"><strong>အလုပ်အကိုင်:</strong> <span id="modal-career"></span></div>
-          <div class="category-box"><strong>ကျန်းမာရေး:</strong> <span id="modal-health"></span></div>
-        </div>
-        <div class="detail-section advice-box"><h3>အကြံပြုချက်</h3><p id="modal-advice"></p></div>
-      </div>
+      <button class="btn" onclick="closeModal('againModal')" style="margin-top:15px; background:#4a5568;">မလုပ်တော့ပါ</button>
     </div>
   </div>
 
+  <!-- Hidden Element for Shuffle Interval -->
+  <img id="shuffleAnim" src="" style="display:none;">
   <script src="tarot-data.js"></script>
   <script src="tarot.js"></script>
 </body>
