@@ -54,10 +54,10 @@
       <!-- Title Logo -->
       <img src="assets/title/title-logo.webp" alt="TAROT" class="title-logo">
 
-      <!-- Main Frame -->
+      <!-- Main Frame & Buttons Container -->
       <div class="menu-card-bg" style="background-image: url('assets/ui/main-frame.webp');">
         
-        <!-- Buttons Layout -->
+        <!-- ခလုတ်များ နေရာချထားမှု (Absolute Position နဲ့ ပုံပေါ်မှာ ကွက်တိချထားတယ်) -->
         <div class="btn-grid top-2">
           <button class="btn-img" onclick="checkAndStart('daily')"><img src="assets/ui/btn-today.webp" alt="Today"></button>
           <button class="btn-img" onclick="checkAndStart('weekly')"><img src="assets/ui/btn-week.webp" alt="Week"></button>
@@ -84,19 +84,11 @@
     </div>
   </section>
 
-  <!-- Ticket Popup -->
-  <div class="modal-overlay" id="ticketModal">
-    <div class="modal-content glass-panel popup-bg">
-      <h3 style="color:#fbbf24; margin-bottom:15px; font-family:'Padauk';">Ticket ရယူရန်</h3>
-      <button class="menu-btn" onclick="watchAd()">ကြော်ငြာကြည့်ပြီး ကဒ်ယူပါ (+2) <span id="adLimit">5/5</span></button>
-      <button class="menu-btn" onclick="dailyLogin()">နေ့စဉ် login ဝင်ပါ (+1)</button>
-      <button class="menu-btn" onclick="shareApp()">ဤApp ကို သင့်သူငယ်ချင်းထံ ရှယ်ပါ (+1) <span id="shareLimit">2/2</span></button>
-      <button class="btn primary-btn" onclick="closeModal('ticketModal')" style="margin-top:15px;">ပိတ်မည်</button>
-    </div>
-  </div>
-
   <!-- Category Dialogue Screen -->
   <section class="tarot-screen" id="screen-category">
+    <!-- Back Button -->
+    <button class="back-btn" onclick="goBack('screen-start')">❮ Back</button>
+
     <div class="dialogue-container">
       <img src="assets/char/girl.webp" class="character-img" alt="Character">
       <div class="dialogue-box" style="background-image: url('assets/ui/dialogue-box.webp');">
@@ -121,12 +113,14 @@
 
   <!-- Pick 6 Screen -->
   <section class="tarot-screen" id="screen-pick6">
+    <button class="back-btn" onclick="goBack('screen-start')">❮ Back</button>
     <h2 class="pick-title">ကဒ် (၆) ကဒ်ထဲမှ တစ်ကဒ် ရွေးပါ</h2>
     <div class="pick-grid-6" id="pickGrid6"></div>
   </section>
 
   <!-- Pick 13 Screen (3-2-3-2-3) -->
   <section class="tarot-screen" id="screen-pick13">
+    <button class="back-btn" onclick="goBack('screen-start')">❮ Back</button>
     <h2 class="pick-title" id="pick13Title">ကဒ်များ ရွေးပါ</h2>
     <div class="pick-grid-13" id="pickGrid13">
       <div class="pick-row" id="row-1"></div>
@@ -137,8 +131,10 @@
     </div>
   </section>
 
-  <!-- Result Screens (Dynamic by JS) -->
+  <!-- Result Screen -->
   <section class="tarot-screen" id="screen-result">
+    <button class="back-btn" onclick="goBack('screen-start')">❮ Back</button>
+    
     <div class="result-scroll-area">
       
       <!-- Time / Single Card Layout -->
@@ -180,13 +176,13 @@
         <div class="mini-card"><img id="ppfImg3" src="" class="drawn-card"><span class="mini-card-name">အနာဂတ်</span></div>
       </div>
 
-      <!-- Text Content Box -->
-      <div class="result-content glass-panel popup-bg" id="resultTextArea">
+      <!-- Text Content Box (စာသားပေါ်လာအောင် နေရာချထားတယ်) -->
+      <div class="result-content glass-panel" id="resultTextArea" style="background-image: url('assets/ui/dialogue-box.webp');">
         <!-- JS က စာတွေ ထည့်ပါမယ် -->
       </div>
 
       <!-- Action Buttons -->
-      <div class="result-actions">
+      <div class="result-actions" id="resultActionButtons">
         <button class="btn action-btn" onclick="saveCurrentReading()">Save</button>
         <button class="btn action-btn" onclick="promptAgain()">Again</button>
         <button class="btn action-btn" onclick="goHome()">Home</button>
@@ -215,12 +211,21 @@
         <button class="btn cat-btn" onclick="confirmAgain('yearly')">တစ်နှစ်လုံးအတွက်</button>
         <button class="btn cat-btn ppf-btn" onclick="confirmAgain('category_menu')">နယ်ပယ်အလိုက် / PPF</button>
       </div>
-      <button class="btn" onclick="closeModal('againModal')" style="margin-top:15px; background:#4a5568;">မလုပ်တော့ပါ</button>
+      <button class="btn" onclick="closeModal('againModal')" style="margin-top:15px; background:#4a5568; width:100%; color:white; border-radius:10px; padding:12px;">မလုပ်တော့ပါ</button>
     </div>
   </div>
 
-  <!-- Hidden Element for Shuffle Interval -->
-  <img id="shuffleAnim" src="" style="display:none;">
+  <!-- Ticket Popup -->
+  <div class="modal-overlay" id="ticketModal">
+    <div class="modal-content glass-panel popup-bg">
+      <h3 style="color:#fbbf24; margin-bottom:15px; font-family:'Padauk';">Ticket ရယူရန်</h3>
+      <button class="menu-btn" onclick="watchAd()">ကြော်ငြာကြည့်ပြီး ကဒ်ယူပါ (+2) <span id="adLimit">5/5</span></button>
+      <button class="menu-btn" onclick="dailyLogin()">နေ့စဉ် login ဝင်ပါ (+1)</button>
+      <button class="menu-btn" onclick="shareApp()">ဤApp ကို သင့်သူငယ်ချင်းထံ ရှယ်ပါ (+1) <span id="shareLimit">2/2</span></button>
+      <button class="btn primary-btn" onclick="closeModal('ticketModal')" style="margin-top:15px;">ပိတ်မည်</button>
+    </div>
+  </div>
+
   <script src="tarot-data.js"></script>
   <script src="tarot.js"></script>
 </body>
