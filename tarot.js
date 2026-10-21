@@ -28,7 +28,7 @@ const sfxReveal = document.getElementById('sfxReveal');
 // ==========================================
 // ADSGRAM INTEGRATION (ကြော်ငြာ Block ID ကို ဒီနေရာမှာ ထည့်ပါ)
 // ==========================================
-const ADSGRAM_BLOCK_ID = "YOUR_BLOCK_ID_HERE"; // မင်းရဲ့ Adsgram Block ID ကို ဒီမှာ ထည့်ပါ
+const ADSGRAM_BLOCK_ID = "55313"; // မင်းရဲ့ Adsgram Block ID ကို ဒီမှာ ထည့်ပါ
 
 // Initialize Adsgram
 let AdController = null;
