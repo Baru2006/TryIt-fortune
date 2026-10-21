@@ -1,20 +1,16 @@
 // ==========================================
 // GLOBAL STATE & VARIABLES
 // ==========================================
-let currentMode = ''; // daily, weekly, monthly, yearly, love, education, business, health, ppf
-let readingPhase = ''; // 'time', 'problem', 'solution', 'ppf'
+let currentMode = ''; 
+let readingPhase = ''; 
 let requiredPicks = 1;
 let currentPicks = 0;
 let pickedCards = [];
 let shuffledDeck = [];
 let isPicking = false;
+let currentResultData = { mode: '', date: '', cards: [], textHTML: '' };
+let previousScreen = 'screen-start'; // Back အတွက် သိမ်းထားမယ်
 
-// Current Reading Data (for Saving)
-let currentResultData = {
-    mode: '', date: '', cards: [], textHTML: ''
-};
-
-// Constants
 const SEASON_BACKGROUNDS = {
   0: 'assets/bg/jan.webp', 1: 'assets/bg/feb.webp', 2: 'assets/bg/mar.webp',
   3: 'assets/bg/apr.webp', 4: 'assets/bg/may.webp', 5: 'assets/bg/jun.webp',
@@ -24,21 +20,18 @@ const SEASON_BACKGROUNDS = {
 
 const LONG_DIALOGUE = "မင်္ဂလာပါ။ ကျွန်မက ဒီနေ့အတွက် သင့်ကို ဟောစာတမ်း ဖတ်ပေးမယ့် နက္ခတ်ဆရာမလေးပါ။ ကဒ်တွေက သင့်အတွက် အရေးကြီးတဲ့ အချက်အလက်တွေကို ဖော်ပြပေးပါလိမ့်မယ်။ စိတ်ကို အေးအေးထားပြီး သင့်မေးခွန်းကို အာရုံပြုလိုက်ပါ။ ဘယ်အကြောင်းအရာကို ဟောကြည့်ချင်ပါသလဲ?";
 
-// DOM Elements
 const bgMusic = document.getElementById('bgMusic');
 const sfxClick = document.getElementById('sfxClick');
 const sfxShuffle = document.getElementById('sfxShuffle');
 const sfxReveal = document.getElementById('sfxReveal');
 
 // ==========================================
-// INITIALIZATION & LOCAL STORAGE (PERSISTENCE)
+// INIT & UTILS
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-    // Set Background
     const month = new Date().getMonth();
     document.getElementById('seasonBg').style.backgroundImage = `url('${SEASON_BACKGROUNDS[month]}')`;
     
-    // Update UI
     updateTicketUI();
     checkDailyResets();
     
@@ -49,50 +42,61 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function getTodayStr() { return new Date().toDateString(); }
-
-// Ticket Logic
-function getTickets() { return parseInt(localStorage.getItem('tarot_tickets') || '3'); }
-function setTickets(amount) { localStorage.setItem('tarot_tickets', amount); updateTicketUI(); }
-function updateTicketUI() { document.getElementById('ticketCount').innerText = getTickets(); }
-
-// Daily/Weekly/Monthly/Yearly Persistence Check
-function getReadData(mode) {
-    const data = localStorage.getItem(`read_${mode}`);
-    if (!data) return null;
-    const parsed = JSON.parse(data);
-    const today = new Date();
-    
-    if (mode === 'daily') {
-        return parsed.date === today.toDateString() ? parsed : null;
-    } else if (mode === 'weekly') {
-        const diffTime = Math.abs(today - new Date(parsed.date));
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-        return diffDays <= 7 ? parsed : null;
-    } else if (mode === 'monthly') {
-        return (new Date(parsed.date).getMonth() === today.getMonth() && new Date(parsed.date).getFullYear() === today.getFullYear()) ? parsed : null;
-    } else if (mode === 'yearly') {
-        return (new Date(parsed.date).getFullYear() === today.getFullYear()) ? parsed : null;
-    }
-    return null;
+function playSound(sfx) { if (sfx) { sfx.currentTime = 0; sfx.play().catch(e => console.log(e)); } }
+function showScreen(screenId) {
+    document.querySelectorAll('.tarot-screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
 }
 
-function saveReadData(mode, data) {
-    localStorage.setItem(`read_${mode}`, JSON.stringify(data));
+function goBack(screenId) {
+    playSound(sfxClick);
+    // Animation တွေ ရပ်မယ်
+    if(window.shuffleInterval) clearInterval(window.shuffleInterval);
+    showScreen(screenId);
+}
+
+// ==========================================
+// TICKET & PERSISTENCE LOGIC
+// ==========================================
+function getTickets() { return parseInt(localStorage.getItem('tarot_tickets') || '3'); }
+function setTickets(amount) { localStorage.setItem('tarot_tickets', amount); updateTicketUI(); }
+function updateTicketUI() { 
+    document.getElementById('ticketCount').innerText = getTickets(); 
+    document.getElementById('adLimit').innerText = `${localStorage.getItem('ad_count') || 0}/5`;
+    document.getElementById('shareLimit').innerText = `${localStorage.getItem('share_count') || 0}/2`;
 }
 
 function checkDailyResets() {
-    // Ticket Limits Reset (Daily)
     const today = getTodayStr();
     if(localStorage.getItem('last_ad_date') !== today) {
         localStorage.setItem('ad_count', '0');
         localStorage.setItem('share_count', '0');
         localStorage.setItem('last_login_date', '');
         localStorage.setItem('last_ad_date', today);
+        // နေ့စဉ် ဟောထားတာတွေ ပြန်ရှင်းမယ် (Optional - မင်းအဆင်ပြေသလို ထားလို့ရတယ်)
+        // localStorage.removeItem('read_daily'); 
     }
 }
 
+function getReadData(mode) {
+    const data = localStorage.getItem(`read_${mode}`);
+    if (!data) return null;
+    const parsed = JSON.parse(data);
+    const today = new Date();
+    
+    if (mode === 'daily') return parsed.date === today.toDateString() ? parsed : null;
+    if (mode === 'weekly') {
+        const diffDays = Math.ceil(Math.abs(today - new Date(parsed.date)) / (1000 * 60 * 60 * 24)); 
+        return diffDays <= 7 ? parsed : null;
+    }
+    if (mode === 'monthly') return (new Date(parsed.date).getMonth() === today.getMonth()) ? parsed : null;
+    if (mode === 'yearly') return (new Date(parsed.date).getFullYear() === today.getFullYear()) ? parsed : null;
+    return null;
+}
+function saveReadData(mode, data) { localStorage.setItem(`read_${mode}`, JSON.stringify(data)); }
+
 // ==========================================
-// APP FLOW
+// FLOW CONTROL
 // ==========================================
 function agreeDisclaimer() {
     playSound(sfxClick);
@@ -113,29 +117,20 @@ function agreeDisclaimer() {
     }, 100);
 }
 
-function showScreen(screenId) {
-    document.querySelectorAll('.tarot-screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(screenId).classList.add('active');
-}
-
-// Mode 1: Time Reading (Free)
 function checkAndStart(mode) {
     playSound(sfxClick);
     const savedData = getReadData(mode);
     
     if (savedData) {
-        // ဒီကာလအတွင်း ဟောပြီးသားရှိရင် အဲ့ဒါပဲ ပြ
         reconstructResultFromSave(savedData);
     } else {
-        // အသစ် စဆွဲ
-        if (getTickets() < 0) { openTicketMenu(); return; } // Free ဖြစ်လို့ Ticket မကောက်
         currentMode = mode;
         readingPhase = 'time';
+        pickedCards = [];
         startShuffle();
     }
 }
 
-// Mode 2 & 3: Category & PPF (Costs 1 Ticket)
 function openCategoryDialogue() {
     playSound(sfxClick);
     showScreen('screen-category');
@@ -154,67 +149,54 @@ function openCategoryDialogue() {
 
 function showCategoryOptions() {
     playSound(sfxClick);
-    document.getElementById('dialogueText').innerHTML = "<p style='color:#fbbf24'>ဘယ်အကြောင်းအရာကို ရွေးမလဲ?</p>";
+    document.getElementById('dialogueText').innerHTML = "<p style='color:#fbbf24; font-weight:bold; font-size:18px;'>ဘယ်အကြောင်းအရာကို ရွေးမလဲ?</p>";
     document.getElementById('categoryOptions').style.display = 'grid';
     document.getElementById('dialogueNextBtn').style.display = 'none';
 }
 
 function startCategory(category) {
     playSound(sfxClick);
-    
-    // Ticket စစ်ဆေးခြင်း
-    if (getTickets() < 1) {
-        alert("Ticket မလုံလောက်ပါ။ ကြော်ငြာကြည့်ပြီး ယူပါ။");
-        openTicketMenu();
-        return;
+    if (getTickets() < 1) { 
+        alert("Ticket မလုံလောက်ပါ။ ကြော်ငြာကြည့်ပြီး ယူပါ။"); 
+        openTicketMenu(); 
+        return; 
     }
     
-    // Persistence Check (Category/PPF က တစ်ရက်တည်း ပြန်ကြည့်လို့ရမယ်)
     const savedData = getReadData(category);
-    if (savedData) {
-        reconstructResultFromSave(savedData);
-        return;
-    }
+    if (savedData) { reconstructResultFromSave(savedData); return; }
 
     setTickets(getTickets() - 1);
     currentMode = category;
-    if (category === 'ppf') {
-        requiredPicks = 3;
-        readingPhase = 'ppf';
-    } else {
-        requiredPicks = 1;
-        readingPhase = 'problem';
-    }
+    pickedCards = [];
+    
+    if (category === 'ppf') { requiredPicks = 3; readingPhase = 'ppf'; } 
+    else { requiredPicks = 1; readingPhase = 'problem'; }
+    
     startShuffle();
 }
 
 // ==========================================
-// SHUFFLE & PICK LOGIC
+// SHUFFLE & PICK LOGIC (ပုံ ၉ ပုံ သုံးထားတယ်)
 // ==========================================
 function startShuffle() {
     playSound(sfxShuffle);
     showScreen('screen-shuffle');
     
-    // 9 PNG Animation
     let currentFrame = 1;
-    const totalFrames = 9;
     const shuffleImg = document.getElementById('shuffleAnim');
     
-    const frameInterval = setInterval(() => {
+    // 1 second = 9 frames (111ms/frame)
+    window.shuffleInterval = setInterval(() => {
         currentFrame++;
-        if (currentFrame > totalFrames) currentFrame = 1;
-        shuffleImg.src = `assets/ui/shuffle-${currentFrame}.png`; // PNG ပြောင်းထားတယ်
-    }, 111); // 9 fps
+        if (currentFrame > 9) currentFrame = 1;
+        shuffleImg.src = `assets/ui/shuffle-${currentFrame}.png`;
+    }, 111); 
 
     setTimeout(() => {
-        clearInterval(frameInterval);
-        
+        clearInterval(window.shuffleInterval);
         if (currentMode === 'daily' || currentMode === 'weekly' || currentMode === 'monthly' || currentMode === 'yearly') {
-            if (readingPhase === 'time' && pickedCards.length === 0) {
-                buildPick6();
-            } else {
-                buildPick13();
-            }
+            if (pickedCards.length === 0 && readingPhase === 'time') buildPick6();
+            else buildPick13();
         } else {
             buildPick13();
         }
@@ -241,13 +223,11 @@ function buildPick13() {
     showScreen('screen-pick13');
     currentPicks = 0;
     isPicking = false;
-    // ကဒ်တွေ ရောမယ်
     if(pickedCards.length === 0) shuffledDeck = [...TAROT_DECK].sort(() => Math.random() - 0.5);
 
-    // Title ပြင်
     if (readingPhase === 'problem') document.getElementById('pick13Title').innerText = "ပြဿနာ (၁) ကဒ် ရွေးပါ";
     else if (readingPhase === 'solution') document.getElementById('pick13Title').innerText = "ဖြေရှင်းနည်း (၁) ကဒ် ရွေးပါ";
-    else if (readingPhase === 'ppf') document.getElementById('pick13Title').innerText = "အတိတ်၊ ပစ္စုပ္ပန်၊ အနာဂတ် (၃ ကဒ် အစဉ်လိုက်)";
+    else if (readingPhase === 'ppf') document.getElementById('pick13Title').innerText = "အတိတ်၊ ပစ္စုပ္ပန်၊ အနာဂတ် (၃ ကဒ်)";
     else document.getElementById('pick13Title').innerText = "ကဒ်တစ်ကဒ် ရွေးပါ";
 
     document.querySelectorAll('.pick-row').forEach(row => row.innerHTML = '');
@@ -273,30 +253,27 @@ function pickCard13(cardElement, cardData) {
     playSound(sfxClick);
     
     cardElement.classList.add('selected');
-    const newCard = JSON.parse(JSON.stringify(cardData)); // Deep copy
+    const newCard = JSON.parse(JSON.stringify(cardData));
     newCard.isReversed = Math.random() < 0.5;
     pickedCards.push(newCard);
     currentPicks++;
 
     if (currentPicks === requiredPicks) {
-        setTimeout(() => {
-            playSound(sfxReveal);
-            routeToResult();
-            isPicking = false;
-        }, 600);
+        setTimeout(() => { playSound(sfxReveal); routeToResult(); isPicking = false; }, 600);
     } else {
         document.querySelectorAll('.tarot-card:not(.selected)').forEach(c => c.classList.add('dimmed'));
-        setTimeout(() => {
-            document.querySelectorAll('.tarot-card').forEach(c => c.classList.remove('dimmed'));
-            isPicking = false;
-        }, 1000);
+        setTimeout(() => { document.querySelectorAll('.tarot-card').forEach(c => c.classList.remove('dimmed')); isPicking = false; }, 1000);
     }
 }
 
 // ==========================================
-// ROUTING TO RESULTS & RENDERING
+// RESULT RENDERING (စာသားများ ပြန်ပြင်ထားသည်)
 // ==========================================
 function routeToResult() {
+    showScreen('screen-result');
+    document.getElementById('resultActionButtons').style.display = 'flex'; // Buttons ပြန်ပြ
+    document.querySelectorAll('#screen-result > div > div').forEach(d => { if(d.id.startsWith('layout')) d.style.display = 'none'; }); // Layout အကုန်ဖျောက်
+
     if (readingPhase === 'time') renderTimeResult();
     else if (readingPhase === 'problem') renderProblemResult();
     else if (readingPhase === 'solution') renderSolutionResult();
@@ -304,75 +281,59 @@ function routeToResult() {
 }
 
 function renderTimeResult() {
-    showScreen('screen-result');
-    document.querySelectorAll('#screen-result > div > div').forEach(d => d.style.display = 'none'); // Hide all layouts
-    document.getElementById('layout-single').style.display = 'flex'; // Show single
-
-    const card = pickedCards[0];
-    const state = card.isReversed ? 'reversed' : 'upright';
+    document.getElementById('layout-single').style.display = 'flex';
+    const card = pickedCards[0]; const state = card.isReversed ? 'reversed' : 'upright';
     
     document.getElementById('resImg1').src = `assets/cards/${card.img}`;
     document.getElementById('resImg1').style.transform = card.isReversed ? 'rotate(180deg)' : 'none';
     document.getElementById('resName1').innerText = card.name;
+    
     const badge = document.getElementById('resBadge1');
     badge.innerText = state === 'reversed' ? "Reversed" : "Upright";
     badge.className = `status-badge ${state}`;
 
-    let html = `<h3>ဟောစာတမ်း</h3><p>${card[state].general}</p>`;
+    let html = `<h3 style="color:#fbbf24;">ဟောစာတမ်း</h3><p>${card[state].general}</p>`;
     document.getElementById('resultTextArea').innerHTML = html;
 
-    // Data သိမ်းမယ်
-    currentResultData = {
-        mode: currentMode, date: getTodayStr(), cards: [card], textHTML: html
-    };
+    currentResultData = { mode: currentMode, date: getTodayStr(), cards: [card], textHTML: html };
     saveReadData(currentMode, currentResultData);
 }
 
 function renderProblemResult() {
-    showScreen('screen-result');
-    document.querySelectorAll('#screen-result > div > div').forEach(d => d.style.display = 'none');
     document.getElementById('layout-problem').style.display = 'flex';
-
-    const card = pickedCards[0];
-    const state = card.isReversed ? 'reversed' : 'upright';
+    const card = pickedCards[0]; const state = card.isReversed ? 'reversed' : 'upright';
     
     document.getElementById('probImg').src = `assets/cards/${card.img}`;
     document.getElementById('probImg').style.transform = card.isReversed ? 'rotate(180deg)' : 'none';
     document.getElementById('probName').innerText = card.name;
+    
     const badge = document.getElementById('probBadge');
     badge.innerText = state === 'reversed' ? "Reversed" : "Upright";
     badge.className = `status-badge ${state}`;
 
-    let html = `<h3>ပြဿနာ / လက်ရှိအခြေအနေ</h3><p>${card[state][currentMode]}</p>`;
+    let html = `<h3 style="color:#ef4444;">ပြဿနာ / လက်ရှိအခြေအနေ</h3><p>${card[state][currentMode]}</p>`;
     document.getElementById('resultTextArea').innerHTML = html;
 
-    // Action ခလုတ်တွေကို ဖျောက်ပြီး "ဖြေရှင်းနည်း" ခလုတ်ပဲပြမယ်
-    document.querySelector('.result-actions').innerHTML = `<button class="btn primary-btn" onclick="startSolutionPhase()">ဖြေရှင်းနည်း ကြည့်မယ်</button>`;
+    // ဒီအဆင့်မှာ ခလုတ်တွေဖျောက်ပြီး ဖြေရှင်းနည်းခလုတ်ပဲပြမယ်
+    document.getElementById('resultActionButtons').style.display = 'none';
+    document.getElementById('resultTextArea').innerHTML += `
+        <button class="btn primary-btn" style="margin-top:20px;" onclick="startSolutionPhase()">ဖြေရှင်းနည်း ကြည့်မယ်</button>
+    `;
 }
 
 function startSolutionPhase() {
     playSound(sfxClick);
     readingPhase = 'solution';
     requiredPicks = 1;
-    // Action ခလုတ်တွေ ပြန်ထည့်
-    document.querySelector('.result-actions').innerHTML = `
-        <button class="btn action-btn" onclick="saveCurrentReading()">Save</button>
-        <button class="btn action-btn" onclick="promptAgain()">Again</button>
-        <button class="btn action-btn" onclick="goHome()">Home</button>`;
+    document.getElementById('resultActionButtons').style.display = 'flex'; // Buttons ပြန်ပြ
     startShuffle();
 }
 
 function renderSolutionResult() {
-    showScreen('screen-result');
-    document.querySelectorAll('#screen-result > div > div').forEach(d => d.style.display = 'none');
     document.getElementById('layout-solution').style.display = 'flex';
+    const probCard = pickedCards[0]; const solCard = pickedCards[1];
+    const pState = probCard.isReversed ? 'reversed' : 'upright'; const sState = solCard.isReversed ? 'reversed' : 'upright';
 
-    const probCard = pickedCards[0];
-    const solCard = pickedCards[1];
-    const pState = probCard.isReversed ? 'reversed' : 'upright';
-    const sState = solCard.isReversed ? 'reversed' : 'upright';
-
-    // ပုံများ
     document.getElementById('solImg1').src = `assets/cards/${probCard.img}`;
     document.getElementById('solImg1').style.transform = probCard.isReversed ? 'rotate(180deg)' : 'none';
     document.getElementById('solName1').innerText = probCard.name;
@@ -381,24 +342,17 @@ function renderSolutionResult() {
     document.getElementById('solImg2').style.transform = solCard.isReversed ? 'rotate(180deg)' : 'none';
     document.getElementById('solName2').innerText = solCard.name;
 
-    // စာသား
     let html = `
-        <h3 style="color:#ef4444;">ပြဿနာ</h3><p>${probCard[pState][currentMode]}</p>
-        <h3 style="color:#10b981; margin-top:15px;">ဖြေရှင်းနည်း</h3><p>${solCard[sState][currentMode]}</p>
+        <h3 style="color:#ef4444;">ပြဿနာ (${probCard.name})</h3><p>${probCard[pState][currentMode]}</p>
+        <h3 style="color:#10b981; margin-top:15px;">ဖြေရှင်းနည်း (${solCard.name})</h3><p>${solCard[sState][currentMode]}</p>
     `;
     document.getElementById('resultTextArea').innerHTML = html;
-
-    currentResultData = {
-        mode: currentMode, date: getTodayStr(), cards: [probCard, solCard], textHTML: html
-    };
+    currentResultData = { mode: currentMode, date: getTodayStr(), cards: [probCard, solCard], textHTML: html };
     saveReadData(currentMode, currentResultData);
 }
 
 function renderPPFResult() {
-    showScreen('screen-result');
-    document.querySelectorAll('#screen-result > div > div').forEach(d => d.style.display = 'none');
     document.getElementById('layout-ppf').style.display = 'flex';
-
     const c1 = pickedCards[0]; const s1 = c1.isReversed ? 'reversed' : 'upright';
     const c2 = pickedCards[1]; const s2 = c2.isReversed ? 'reversed' : 'upright';
     const c3 = pickedCards[2]; const s3 = c3.isReversed ? 'reversed' : 'upright';
@@ -411,28 +365,22 @@ function renderPPFResult() {
     document.getElementById('ppfImg3').style.transform = c3.isReversed ? 'rotate(180deg)' : 'none';
 
     let html = `
-        <h3>အတိတ် (${c1.name})</h3><p>${c1[s1].past}</p>
-        <h3 style="margin-top:15px;">ပစ္စုပ္ပန် (${c2.name})</h3><p>${c2[s2].present}</p>
-        <h3 style="margin-top:15px;">အနာဂတ် (${c3.name})</h3><p>${c3[s3].future}</p>
+        <h3 style="color:#fbbf24;">အတိတ် (${c1.name})</h3><p>${c1[s1].past}</p>
+        <h3 style="color:#fbbf24; margin-top:15px;">ပစ္စုပ္ပန် (${c2.name})</h3><p>${c2[s2].present}</p>
+        <h3 style="color:#fbbf24; margin-top:15px;">အနာဂတ် (${c3.name})</h3><p>${c3[s3].future}</p>
     `;
     document.getElementById('resultTextArea').innerHTML = html;
-
-    currentResultData = {
-        mode: 'ppf', date: getTodayStr(), cards: [c1, c2, c3], textHTML: html
-    };
-    saveReadData('ppf', currentResultData); // PPF ကို တစ်ရက်တည်း သိမ်းမယ်
+    currentResultData = { mode: 'ppf', date: getTodayStr(), cards: [c1, c2, c3], textHTML: html };
+    saveReadData('ppf', currentResultData);
 }
 
 // ==========================================
-// ACTION BUTTONS (Save, Again, Home)
+// ACTION BUTTONS
 // ==========================================
 function saveCurrentReading() {
     playSound(sfxClick);
     let saves = JSON.parse(localStorage.getItem('tarot_saves') || '[]');
-    
-    // ၅ ခုထက် ကျော်ရင် အဟောင်းဆုံးဖျက်
     if (saves.length >= 5) saves.shift();
-    
     saves.push(currentResultData);
     localStorage.setItem('tarot_saves', JSON.stringify(saves));
     alert("သိမ်းဆည်းပြီးပါပြီ။");
@@ -447,11 +395,10 @@ function openSaveList() {
     if (saves.length === 0) {
         container.innerHTML = "<p style='text-align:center; font-family:Padauk;'>သိမ်းထားတာ မရှိသေးပါဘူး။</p>";
     } else {
-        saves.forEach((save, index) => {
+        saves.forEach((save) => {
             const div = document.createElement('div');
-            div.style = "background: rgba(0,0,0,0.4); padding: 10px; border-radius: 10px; border: 1px solid #8b5cf6; display: flex; gap: 10px; align-items: center; cursor: pointer;";
+            div.style = "background: rgba(0,0,0,0.6); padding: 10px; border-radius: 10px; border: 1px solid #8b5cf6; display: flex; gap: 10px; align-items: center; cursor: pointer;";
             div.onclick = () => { closeModal('saveModal'); reconstructResultFromSave(save); };
-            
             div.innerHTML = `
                 <img src="assets/cards/${save.cards[0].img}" style="width: 40px; border-radius: 4px;">
                 <div style="text-align:left; flex:1;">
@@ -467,7 +414,8 @@ function openSaveList() {
 
 function reconstructResultFromSave(data) {
     showScreen('screen-result');
-    document.querySelectorAll('#screen-result > div > div').forEach(d => d.style.display = 'none');
+    document.querySelectorAll('#screen-result > div > div').forEach(d => { if(d.id.startsWith('layout')) d.style.display = 'none'; });
+    document.getElementById('resultActionButtons').style.display = 'flex';
     document.getElementById('resultTextArea').innerHTML = data.textHTML;
 
     if (data.mode === 'daily' || data.mode === 'weekly' || data.mode === 'monthly' || data.mode === 'yearly') {
@@ -489,7 +437,6 @@ function reconstructResultFromSave(data) {
         }
     }
     else {
-        // Category (Love, Edu, etc.)
         if (data.cards.length === 2) {
             document.getElementById('layout-solution').style.display = 'flex';
             document.getElementById('solImg1').src = `assets/cards/${data.cards[0].img}`;
@@ -502,17 +449,9 @@ function reconstructResultFromSave(data) {
             document.getElementById('probName').innerText = data.cards[0].name;
         }
     }
-
-    // Action Buttons (Save/Again/Home) ကို ပုံမှန်အတိုင်း ပြန်ထားမယ်
-    document.querySelector('.result-actions').innerHTML = `
-        <button class="btn action-btn" onclick="saveCurrentReading()">Save</button>
-        <button class="btn action-btn" onclick="promptAgain()">Again</button>
-        <button class="btn action-btn" onclick="goHome()">Home</button>`;
-    
     currentResultData = data;
 }
 
-// Again Logic
 function promptAgain() {
     playSound(sfxClick);
     document.getElementById('againModal').classList.add('active');
@@ -520,35 +459,22 @@ function promptAgain() {
 
 function confirmAgain(mode) {
     closeModal('againModal');
-    if (getTickets() < 1) {
-        alert("Ticket မလုံလောက်ပါ။");
-        openTicketMenu();
-        return;
-    }
+    if (getTickets() < 1) { alert("Ticket မလုံလောက်ပါ။"); openTicketMenu(); return; }
     setTickets(getTickets() - 1);
     
     pickedCards = [];
-    if (mode === 'category_menu') {
-        openCategoryDialogue();
-    } else {
-        currentMode = mode;
-        readingPhase = 'time';
-        startShuffle();
-    }
+    if (mode === 'category_menu') { openCategoryDialogue(); } 
+    else { currentMode = mode; readingPhase = 'time'; startShuffle(); }
 }
 
 function goHome() {
     playSound(sfxClick);
     pickedCards = [];
-    document.querySelector('.result-actions').innerHTML = `
-        <button class="btn action-btn" onclick="saveCurrentReading()">Save</button>
-        <button class="btn action-btn" onclick="promptAgain()">Again</button>
-        <button class="btn action-btn" onclick="goHome()">Home</button>`; // reset buttons
     showScreen('screen-start');
 }
 
 // ==========================================
-// TICKET SYSTEM & UTILS
+// TICKET UTILS & MISC
 // ==========================================
 function openTicketMenu() { document.getElementById('ticketModal').classList.add('active'); }
 function closeModal(id) { document.getElementById(id).classList.remove('active'); }
@@ -557,29 +483,20 @@ function watchAd() {
     let adCount = parseInt(localStorage.getItem('ad_count') || '0');
     if (adCount >= 5) { alert("ဒီနေ့အတွက် ကြော်ငြာကြည့်ခွင့် ကုန်ပါပြီ။"); return; }
     
-    // Monetag SDK ကို ခေါ်မယ်
     if (typeof show_12069395 === "function") {
         show_12069395().then(() => {
-            setTickets(getTickets() + 2);
-            localStorage.setItem('ad_count', adCount + 1);
-            document.getElementById('adLimit').innerText = `${adCount + 1}/5`;
+            setTickets(getTickets() + 2); localStorage.setItem('ad_count', adCount + 1); updateTicketUI();
             alert("Ticket ၂ ခု ရပါပြီ။");
         }).catch(e => alert("ကြော်ငြာ မအောင်မြင်ပါ။"));
     } else {
-        // Test Mode
-        setTickets(getTickets() + 2);
-        localStorage.setItem('ad_count', adCount + 1);
-        document.getElementById('adLimit').innerText = `${adCount + 1}/5`;
+        setTickets(getTickets() + 2); localStorage.setItem('ad_count', adCount + 1); updateTicketUI();
         alert("(Test) Ticket ၂ ခု ရပါပြီ။");
     }
 }
 
 function dailyLogin() {
-    let lastLogin = localStorage.getItem('last_login_date');
-    if (lastLogin === getTodayStr()) { alert("ဒီနေ့ ရရှိပြီးသား ဖြစ်ပါတယ်။"); return; }
-    
-    setTickets(getTickets() + 1);
-    localStorage.setItem('last_login_date', getTodayStr());
+    if (localStorage.getItem('last_login_date') === getTodayStr()) { alert("ဒီနေ့ ရရှိပြီးသား ဖြစ်ပါတယ်။"); return; }
+    setTickets(getTickets() + 1); localStorage.setItem('last_login_date', getTodayStr());
     alert("နေ့စဉ် Login အတွက် Ticket ၁ ခု ရပါပြီ။");
 }
 
@@ -587,20 +504,14 @@ function shareApp() {
     let shareCount = parseInt(localStorage.getItem('share_count') || '0');
     if (shareCount >= 2) { alert("ဒီနေ့အတွက် ရှယ်ခွင့် ကုန်ပါပြီ။"); return; }
     
-    // Telegram Share Logic
     if (window.Telegram && window.Telegram.WebApp) {
         const url = "https://t.me/share/url?url=" + encodeURIComponent("https://t.me/YourBotName") + "&text=" + encodeURIComponent("Tarot App လေး စမ်းကြည့်ပါဦး");
         window.Telegram.WebApp.openTelegramLink(url);
     }
-    
-    setTickets(getTickets() + 1);
-    localStorage.setItem('share_count', shareCount + 1);
-    document.getElementById('shareLimit').innerText = `${shareCount + 1}/2`;
+    setTickets(getTickets() + 1); localStorage.setItem('share_count', shareCount + 1); updateTicketUI();
     alert("ရှယ်လုပ်ပြီးပါပြီ။ Ticket ၁ ခု ရပါပြီ။");
 }
 
-// Misc Utils
-function playSound(sfx) { if (sfx) { sfx.currentTime = 0; sfx.play().catch(e => console.log(e)); } }
 function openSettings() { alert("Settings (Coming Soon)"); }
 function openAbout() { alert("About App (Coming Soon)"); }
 function leaveApp() { window.location.href = 'index.html'; }
