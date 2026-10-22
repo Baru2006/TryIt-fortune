@@ -1,3 +1,4 @@
+/* Global Reset & Image Protection */
 * {
     -webkit-touch-callout: none !important;
     -webkit-user-select: none !important;
@@ -7,6 +8,12 @@
     user-select: none !important;
     -webkit-tap-highlight-color: transparent;
     box-sizing: border-box;
+}
+
+/* ပုံတွေကို ဖိနှိပ်ရင် ကော်ပီမကျအောင်၊ Link မပေါ်အောင် ပိတ်မယ် */
+img {
+    pointer-events: none; 
+    -webkit-user-drag: none;
 }
 
 body {
