@@ -40,13 +40,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="tarot.css">
 </head>
-<body class="min-h-screen flex flex-col items-center justify-start bg-mystic-900 text-gray-100 overflow-x-hidden relative select-none">
+<body class="min-h-screen flex flex-col items-center justify-start bg-mystic-900 text-gray-100 overflow-x-hidden relative select-none" oncontextmenu="return false;">
 
     <!-- App Container -->
     <div class="w-full max-w-md min-h-screen flex flex-col relative shadow-2xl overflow-hidden bg-mystic-900/90 border-x border-mystic-700/50">
         
         <!-- Season Background -->
-        <div id="season-bg" class="absolute inset-0 z-0 bg-cover bg-center opacity-30 transition-all duration-1000"></div>
+        <div id="season-bg" class="absolute inset-0 z-0 bg-cover bg-center opacity-40 transition-all duration-1000"></div>
         <div class="absolute inset-0 z-0 bg-gradient-to-b from-mystic-900/80 via-mystic-900/90 to-mystic-900"></div>
 
         <!-- ================= 1. DISCLAIMER SCREEN ================= -->
@@ -85,7 +85,7 @@
                 
                 <div class="flex items-center space-x-2 glass-panel px-3 py-1.5 rounded-full border border-mystic-accent/40">
                     <img src="assets/icons/ticket.webp" onerror="this.src='https://placehold.co/24x24/d4af37/000?text=T'" alt="Ticket" class="w-5 h-5 object-contain">
-                    <span id="ticket-count" class="font-bold text-yellow-400 text-sm">3</span>
+                    <span id="ticket-count" class="font-bold text-yellow-400 text-sm">1</span>
                     <button onclick="switchScreen('screen-ticket')" class="w-6 h-6 rounded-full bg-yellow-500 text-mystic-900 flex items-center justify-center hover:bg-yellow-400 active:scale-95 shadow-md">
                         <i class="fa-solid fa-plus text-xs"></i>
                     </button>
@@ -316,7 +316,7 @@
                 <span class="font-cinzel text-sm text-yellow-400 tracking-wider">Ticket ဖြည့်ရန်</span>
                 <div class="flex items-center space-x-1 glass-panel px-3 py-1 rounded-full border border-yellow-500/40">
                     <img src="assets/icons/ticket.webp" onerror="this.src='https://placehold.co/20x20/d4af37/000?text=T'" class="w-4 h-4 object-contain">
-                    <span id="ticket-screen-count" class="font-bold text-yellow-400 text-xs">3</span>
+                    <span id="ticket-screen-count" class="font-bold text-yellow-400 text-xs">1</span>
                 </div>
             </div>
 
@@ -341,7 +341,7 @@
                         </div>
                         <div>
                             <h4 class="font-bold text-xs text-yellow-300">ကြော်ငြာကြည့်ရှုခြင်း</h4>
-                            <p id="ad-status-text" class="text-[10px] text-gray-400">ကျန်ရှိမှု - 7/7 ကြိမ် (+2 Tickets)</p>
+                            <p id="ad-status-text" class="text-[10px] text-gray-400">ကျန်ရှိမှု - 7/7 ကြိမ် (+1 Ticket)</p>
                         </div>
                     </div>
                     <button onclick="watchAd()" class="px-4 py-2 rounded-xl text-xs font-bold text-mystic-900 bg-yellow-500 hover:bg-yellow-400 transition-all shadow-md">ကြည့်မည်</button>
@@ -361,7 +361,7 @@
                 </div>
             </div>
             <div class="text-center pb-2 z-10">
-                <p class="text-[10px] text-gray-500">Adsgram Block ID: 52425</p>
+                <p class="text-[10px] text-gray-500">Adsgram Block ID: 55409</p>
             </div>
         </div>
 
@@ -381,7 +381,7 @@
                         <span class="text-sm font-bold text-gray-200">အသံနှင့် တေးဂီတ</span>
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="setting-sound" checked class="sr-only peer">
+                        <input type="checkbox" id="setting-sound" onchange="toggleSound()" checked class="sr-only peer">
                         <div class="w-11 h-6 bg-mystic-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-500"></div>
                     </label>
                 </div>
@@ -399,10 +399,16 @@
             </div>
             <div class="flex-1 flex flex-col items-center my-6 space-y-4 text-center">
                 <img src="assets/title/title-logo.webp" onerror="this.src='https://placehold.co/150x50/15132d/d4af37?text=Tarot'" class="h-14 object-contain animate-float mb-2">
-                <div class="glass-panel p-5 rounded-2xl border border-yellow-500/30 text-sm leading-relaxed text-gray-200">
-                    <p class="mb-2">ဤအက်ပ်ကို TryIt Hub မှ ဖန်တီးထားပါသည်။</p>
-                    <p class="text-xs text-gray-400 mb-2">ကျွန်ုပ်တို့၏ တာရော့ဗေဒင် ဟောစာတမ်းများသည် ပရော်ဖက်ရှင်နယ် အကြံဉာဏ်များ မဟုတ်ပါ။</p>
-                    <p class="text-yellow-400 font-bold">မီမီ (Mimi) ၏ မှော်ပညာ စကြဝဠာ</p>
+                <div class="glass-panel p-5 rounded-2xl border border-yellow-500/30 text-sm leading-relaxed text-gray-200 text-left">
+                    <p class="mb-2 text-center text-yellow-400 font-bold">မီမီ (Mimi) ၏ မှော်ပညာ စကြဝဠာ</p>
+                    <p class="text-xs text-gray-400 mb-3 text-center">ဤအက်ပ်ကို TryIt Hub မှ ဖန်တီးထားပါသည်။ ကျွန်ုပ်တို့၏ တာရော့ဗေဒင် ဟောစာတမ်းများသည် ပရော်ဖက်ရှင်နယ် အကြံဉာဏ်များ မဟုတ်ပါ။</p>
+                    
+                    <p class="text-xs text-yellow-300 font-bold mb-1">မှီငြမ်းထားသော ဝက်ဘ်ဆိုဒ်များ -</p>
+                    <ul class="text-xs text-gray-300 list-disc pl-4 space-y-1">
+                        <li><a href="https://www.biddytarot.com" target="_blank" class="text-blue-400 underline">Biddy Tarot</a></li>
+                        <li><a href="https://labyrinthos.co" target="_blank" class="text-blue-400 underline">Labyrinthos</a></li>
+                        <li><a href="https://www.trustedtarot.com" target="_blank" class="text-blue-400 underline">Trusted Tarot</a></li>
+                    </ul>
                 </div>
             </div>
             <div class="text-center pb-4"><p class="text-[10px] text-gray-500">Developed for Telegram Mini Apps</p></div>
@@ -445,6 +451,20 @@
             <button onclick="closeModal('modal-msg')" class="w-full py-3 rounded-xl font-bold text-xs text-mystic-900 bg-gradient-to-r from-yellow-600 via-yellow-400 to-yellow-600 shadow-lg">နားလည်ပါပြီ (OK)</button>
         </div>
     </div>
+
+    <!-- Audio Elements -->
+    <audio id="bgMusic" loop>
+        <source src="assets/audio/bg-music.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sfxClick">
+        <source src="assets/audio/click.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sfxShuffle">
+        <source src="assets/audio/shuffle.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sfxReveal">
+        <source src="assets/audio/reveal.mp3" type="audio/mpeg">
+    </audio>
 
     <script src="tarot-data.js"></script>
     <script src="tarot.js"></script>
