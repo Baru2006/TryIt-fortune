@@ -1,689 +1,683 @@
-// ==========================================
-// GLOBAL STATE & VARIABLES
-// ==========================================
-let currentMode = ''; 
-let readingPhase = ''; 
-let requiredPicks = 1;
-let currentPicks = 0;
-let pickedCards = [];
-let shuffledDeck = [];
-let isPicking = false;
-let currentResultData = { mode: '', date: '', cards: [], textHTML: '' };
-
-const SEASON_BACKGROUNDS = {
-  0: 'assets/bg/jan.webp', 1: 'assets/bg/feb.webp', 2: 'assets/bg/mar.webp',
-  3: 'assets/bg/apr.webp', 4: 'assets/bg/may.webp', 5: 'assets/bg/jun.webp',
-  6: 'assets/bg/jul.webp', 7: 'assets/bg/aug.webp', 8: 'assets/bg/sep.webp',
-  9: 'assets/bg/oct.webp', 10: 'assets/bg/nov.webp', 11: 'assets/bg/dec.webp'
+// Global State
+let appState = {
+    tickets: 3,
+    lastLoginDate: "",
+    adCount: 0,
+    shareCount: 0,
+    currentMode: "",
+    currentCategory: "",
+    selectedCards: [],
+    savedResults: [],
+    activeCardIndex: 0
 };
 
-const LONG_DIALOGUE = "မင်္ဂလာပါ။ ကျွန်မက ဒီနေ့အတွက် သင့်ကို ဟောစာတမ်း ဖတ်ပေးမယ့် နက္ခတ်ဆရာမလေးပါ။ ကဒ်တွေက သင့်အတွက် အရေးကြီးတဲ့ အချက်အလက်တွေကို ဖော်ပြပေးပါလိမ့်မယ်။ စိတ်ကို အေးအေးထားပြီး သင့်မေးခွန်းကို အာရုံပြုလိုက်ပါ။ ဘယ်အကြောင်းအရာကို ဟောကြည့်ချင်ပါသလဲ?";
-
-// DOM Elements
-const bgMusic = document.getElementById('bgMusic');
-const sfxClick = document.getElementById('sfxClick');
-const sfxShuffle = document.getElementById('sfxShuffle');
-const sfxReveal = document.getElementById('sfxReveal');
-
-// ==========================================
-// ADSGRAM INTEGRATION (ကြော်ငြာ Block ID ကို ဒီနေရာမှာ ထည့်ပါ)
-// ==========================================
-const ADSGRAM_BLOCK_ID = "55313"; // မင်းရဲ့ Adsgram Block ID ကို ဒီမှာ ထည့်ပါ
-
-// Initialize Adsgram
+// Adsgram Config
+const ADSGRAM_BLOCK_ID = "52425";
 let AdController = null;
-try {
-    if (window.Adsgram) {
-        AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
-    }
-} catch (e) {
-    console.log("Adsgram Init Error: ", e);
-}
+
+// Current Session Result
+let currentResultData = null;
+let typeInterval = null;
+let shuffleInterval = null;
 
 // ==========================================
-// INIT & UTILS
+// INITIALIZATION
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-    const month = new Date().getMonth();
-    document.getElementById('seasonBg').style.backgroundImage = `url('${SEASON_BACKGROUNDS[month]}')`;
-    
+    // 1. Check Internet
+    if (!navigator.onLine) {
+        alert("အသုံးပြုရန်အတွက် အင်တာနက် လိုအပ်ပါသည်။ ချိတ်ဆက်ပြီးမှ ပြန်လည်ဝင်ရောက်ပါ။");
+    }
+
+    // 2. Load State
+    loadState();
+    updateTicketDisplay();
     checkDailyResets();
-    updateTicketUI();
-    
+    setSeasonBackground();
+
+    // 3. Init Adsgram
+    if (window.Adsgram) {
+        try {
+            AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
+        } catch (e) {
+            console.log("Adsgram init error:", e);
+        }
+    }
+
+    // 4. Telegram Setup
     if (window.Telegram && window.Telegram.WebApp) {
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.expand();
     }
+
+    // 5. Setup Event Listeners
+    setupEventListeners();
+    checkDisclaimerState();
 });
 
-function getTodayStr() { return new Date().toDateString(); }
-function playSound(sfx) { if (sfx) { sfx.currentTime = 0; sfx.play().catch(e => console.log(e)); } }
-function showScreen(screenId) {
-    document.querySelectorAll('.tarot-screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(screenId).classList.add('active');
-}
-
-function goBack(screenId) {
-    playSound(sfxClick);
-    if(window.shuffleInterval) clearInterval(window.shuffleInterval);
-    showScreen(screenId);
-}
-
-function toggleAgreeBtn() {
-    const check = document.getElementById('agreeCheck');
-    const btn = document.getElementById('agreeBtn');
-    if(check.checked) {
-        btn.disabled = false; btn.style.opacity = '1';
-    } else {
-        btn.disabled = true; btn.style.opacity = '0.5';
+function setSeasonBackground() {
+    const month = new Date().getMonth();
+    const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+    const bgEl = document.getElementById('season-bg');
+    if (bgEl) {
+        bgEl.style.backgroundImage = `url('assets/bg/${months[month]}.webp')`;
     }
 }
 
-function agreeDisclaimer() {
-    playSound(sfxClick);
-    document.getElementById('disclaimerModal').style.display = 'none';
-    bgMusic.volume = 0.3;
-    bgMusic.play().catch(e => console.log(e));
-    
-    let progress = 0;
-    const bar = document.getElementById('progressBar');
-    const interval = setInterval(() => {
-        progress += Math.random() * 20;
-        if(progress > 100) progress = 100;
-        bar.style.width = progress + '%';
-        if(progress === 100) {
-            clearInterval(interval);
-            setTimeout(() => showScreen('screen-start'), 300);
+function setupEventListeners() {
+    const disclaimerCb = document.getElementById('disclaimer-checkbox');
+    const agreeBtn = document.getElementById('btn-disclaimer-agree');
+
+    disclaimerCb.addEventListener('change', (e) => {
+        if (e.target.checked) {
+            agreeBtn.disabled = false;
+            agreeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+            agreeBtn.disabled = true;
+            agreeBtn.classList.add('opacity-50', 'cursor-not-allowed');
         }
-    }, 100);
+    });
+
+    agreeBtn.addEventListener('click', () => {
+        localStorage.setItem('tarot_disclaimer_agreed', 'true');
+        switchScreen('screen-main-menu');
+    });
+}
+
+function checkDisclaimerState() {
+    if (localStorage.getItem('tarot_disclaimer_agreed') === 'true') {
+        switchScreen('screen-main-menu');
+    } else {
+        switchScreen('screen-disclaimer');
+    }
 }
 
 // ==========================================
-// TICKET & PERSISTENCE LOGIC
+// UTILITIES & STATE MANAGEMENT
 // ==========================================
-function getTickets() { return parseInt(localStorage.getItem('tarot_tickets') || '3'); }
-function setTickets(amount) { localStorage.setItem('tarot_tickets', amount); updateTicketUI(); }
+function loadState() {
+    const saved = localStorage.getItem('tarot_app_state');
+    if (saved) {
+        try { appState = { ...appState, ...JSON.parse(saved) }; } catch(e) { console.error(e); }
+    }
+}
 
-function updateTicketUI() { 
-    document.getElementById('ticketCount').innerText = getTickets(); 
-    
-    // Ticket Menu Limits ကို Update လုပ်မယ်
-    const today = getTodayStr();
-    
-    // Login Limit
-    const lastLogin = localStorage.getItem('last_login_date');
-    document.getElementById('loginLimit').innerText = (lastLogin === today) ? "1/1" : "0/1";
-
-    // Ad Limit (Max 7)
-    const adCount = parseInt(localStorage.getItem('ad_count') || '0');
-    document.getElementById('adLimit').innerText = `${adCount}/7`;
-
-    // Share Limit (Max 3)
-    const shareCount = parseInt(localStorage.getItem('share_count') || '0');
-    document.getElementById('shareLimit').innerText = `${shareCount}/3`;
+function saveState() {
+    localStorage.setItem('tarot_app_state', JSON.stringify(appState));
 }
 
 function checkDailyResets() {
-    const today = getTodayStr();
-    if(localStorage.getItem('last_ad_date') !== today) {
-        localStorage.setItem('ad_count', '0');
-        localStorage.setItem('share_count', '0');
-        localStorage.setItem('last_login_date', '');
-        localStorage.setItem('last_ad_date', today);
+    const today = new Date().toDateString();
+    let lastDate = localStorage.getItem('tarot_last_date');
+    
+    if (lastDate !== today) {
+        appState.adCount = 0;
+        appState.shareCount = 0;
+        appState.lastLoginDate = "";
+        localStorage.setItem('tarot_last_date', today);
+        saveState();
     }
 }
 
-function getReadData(mode) {
-    const data = localStorage.getItem(`read_${mode}`);
-    if (!data) return null;
-    const parsed = JSON.parse(data);
-    const today = new Date();
-    
-    if (mode === 'daily') return parsed.date === today.toDateString() ? parsed : null;
-    if (mode === 'weekly') {
-        const diffDays = Math.ceil(Math.abs(today - new Date(parsed.date)) / (1000 * 60 * 60 * 24)); 
-        return diffDays <= 7 ? parsed : null;
-    }
-    if (mode === 'monthly') return (new Date(parsed.date).getMonth() === today.getMonth()) ? parsed : null;
-    if (mode === 'yearly') return (new Date(parsed.date).getFullYear() === today.getFullYear()) ? parsed : null;
-    return null;
+function switchScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(el => el.classList.add('hidden'));
+    const target = document.getElementById(screenId);
+    if (target) target.classList.remove('hidden');
+    updateTicketDisplay();
 }
-function saveReadData(mode, data) { localStorage.setItem(`read_${mode}`, JSON.stringify(data)); }
+
+function updateTicketDisplay() {
+    document.getElementById('ticket-count').innerText = appState.tickets;
+    document.getElementById('ticket-screen-count').innerText = appState.tickets;
+    
+    const adEl = document.getElementById('ad-status-text');
+    if(adEl) adEl.innerText = `ကျန်ရှိမှု - ${7 - appState.adCount}/7 ကြိမ် (+2 Tickets)`;
+    
+    const shareEl = document.getElementById('share-status-text');
+    if(shareEl) shareEl.innerText = `ကျန်ရှိမှု - ${3 - appState.shareCount}/3 ကြိမ် (+1 Ticket)`;
+    
+    const loginBtn = document.getElementById('btn-task-login');
+    if (appState.lastLoginDate === new Date().toDateString() && loginBtn) {
+        loginBtn.disabled = true;
+        loginBtn.innerText = "ရယူပြီး";
+        loginBtn.classList.add('opacity-50');
+    }
+}
+
+function showMsg(title, text) {
+    document.getElementById('msg-title').innerText = title;
+    document.getElementById('msg-text').innerText = text;
+    document.getElementById('modal-msg').classList.remove('hidden');
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.add('hidden');
+}
 
 // ==========================================
-// FLOW CONTROL
+// READING FLOW & LOGIC
 // ==========================================
 function checkAndStart(mode) {
-    playSound(sfxClick);
-    const savedData = getReadData(mode);
+    appState.currentMode = mode;
+    appState.selectedCards = [];
     
-    if (savedData) {
-        reconstructResultFromSave(savedData);
-    } else {
-        currentMode = mode;
-        readingPhase = 'time';
-        pickedCards = [];
-        startShuffle();
-    }
-}
+    // Check if already read today (Persistence)
+    const todayStr = new Date().toDateString();
+    const savedKey = `tarot_res_${mode}_${todayStr}`;
+    const existingRes = localStorage.getItem(savedKey);
 
-function openCategoryDialogue() {
-    playSound(sfxClick);
-    showScreen('screen-category');
-    document.getElementById('categoryOptions').style.display = 'none';
-    document.getElementById('dialogueNextBtn').style.display = 'block';
-    
-    const textBox = document.getElementById('dialogueText');
-    textBox.innerHTML = '';
-    let i = 0;
-    const interval = setInterval(() => {
-        textBox.innerHTML += LONG_DIALOGUE.charAt(i);
-        i++;
-        if (i >= LONG_DIALOGUE.length) clearInterval(interval);
-    }, 30);
-}
-
-function showCategoryOptions() {
-    playSound(sfxClick);
-    document.getElementById('dialogueText').innerHTML = "<p style='color:#fbbf24; font-weight:bold; font-size:16px; text-align:center;'>ဘယ်အကြောင်းအရာကို ရွေးမလဲ?</p>";
-    document.getElementById('categoryOptions').style.display = 'grid';
-    document.getElementById('dialogueNextBtn').style.display = 'none';
-}
-
-function startCategory(category) {
-    playSound(sfxClick);
-    if (getTickets() < 1) { 
-        alert("Ticket မလုံလောက်ပါ။ ကြော်ငြာကြည့်ပြီး ယူပါ။"); 
-        openTicketMenu(); return; 
-    }
-    
-    const savedData = getReadData(category);
-    if (savedData) { reconstructResultFromSave(savedData); return; }
-
-    setTickets(getTickets() - 1);
-    currentMode = category;
-    pickedCards = [];
-    
-    if (category === 'ppf') { requiredPicks = 3; readingPhase = 'ppf'; } 
-    else { requiredPicks = 1; readingPhase = 'problem'; }
-    
-    startShuffle();
-}
-
-// ==========================================
-// SHUFFLE & PICK LOGIC
-// ==========================================
-function startShuffle() {
-    playSound(sfxShuffle);
-    showScreen('screen-shuffle');
-    
-    let currentFrame = 1;
-    const shuffleImg = document.getElementById('shuffleAnim');
-    
-    window.shuffleInterval = setInterval(() => {
-        currentFrame++;
-        if (currentFrame > 9) currentFrame = 1;
-        shuffleImg.src = `assets/ui/shuffle-${currentFrame}.png`;
-    }, 88); // 9 frames per 0.8s = 88ms/frame
-
-    setTimeout(() => {
-        clearInterval(window.shuffleInterval);
-        if (currentMode === 'daily' || currentMode === 'weekly' || currentMode === 'monthly' || currentMode === 'yearly') {
-            if (pickedCards.length === 0 && readingPhase === 'time') buildPick6();
-            else buildPick13();
-        } else {
-            buildPick13();
-        }
-    }, 5000); 
-}
-
-function buildPick6() {
-    showScreen('screen-pick6');
-    const grid = document.getElementById('pickGrid6');
-    grid.innerHTML = '';
-    for (let i = 0; i < 6; i++) {
-        const card = document.createElement('div');
-        card.className = 'tarot-card';
-        card.onclick = () => {
-            playSound(sfxClick);
-            card.classList.add('selected');
-            // ကဒ်ရွေးပြီးတာနဲ့ Before Result ကို မသွားဘဲ 13 ကဒ်ကို ဆက်သွားမယ် (Flow အရ)
-            setTimeout(() => buildPick13(), 500);
-        };
-        grid.appendChild(card);
-    }
-}
-
-function buildPick13() {
-    showScreen('screen-pick13');
-    currentPicks = 0;
-    isPicking = false;
-    if(pickedCards.length === 0) shuffledDeck = [...TAROT_DECK].sort(() => Math.random() - 0.5);
-
-    if (readingPhase === 'problem') document.getElementById('pick13Title').innerText = "ပြဿနာကဒ် (၁) ရွေးပါ";
-    else if (readingPhase === 'solution') document.getElementById('pick13Title').innerText = "ဖြေရှင်းနည်းကဒ် (၁) ရွေးပါ";
-    else if (readingPhase === 'ppf') document.getElementById('pick13Title').innerText = "အတိတ်၊ ပစ္စုပ္ပန်၊ အနာဂတ် (၃ ကဒ် အစဉ်လိုက်ရွေးပါ)";
-    else document.getElementById('pick13Title').innerText = "ဤ၁၃ပုံထဲက တစ်ပုံကို ရွေးပေးပါရှင့်";
-
-    document.querySelectorAll('.pick-row').forEach(row => row.innerHTML = '');
-    const rowIds = ['row-1', 'row-2', 'row-3', 'row-4', 'row-5'];
-    const rowCounts = [3, 2, 3, 2, 3];
-    let deckIndex = 0;
-
-    rowIds.forEach((id, index) => {
-        const rowEl = document.getElementById(id);
-        for (let i = 0; i < rowCounts[index]; i++) {
-            const cardData = shuffledDeck[deckIndex++];
-            const card = document.createElement('div');
-            card.className = 'tarot-card';
-            card.onclick = () => pickCard13(card, cardData);
-            rowEl.appendChild(card);
-        }
-    });
-}
-
-function pickCard13(cardElement, cardData) {
-    if (isPicking) return;
-    isPicking = true;
-    playSound(sfxClick);
-    
-    cardElement.classList.add('selected');
-    const newCard = JSON.parse(JSON.stringify(cardData));
-    newCard.isReversed = Math.random() < 0.5;
-    pickedCards.push(newCard);
-    currentPicks++;
-
-    if (currentPicks === requiredPicks) {
-        setTimeout(() => { playSound(sfxReveal); routeToResult(); isPicking = false; }, 600);
-    } else {
-        document.querySelectorAll('.tarot-card:not(.selected)').forEach(c => c.classList.add('dimmed'));
-        setTimeout(() => { document.querySelectorAll('.tarot-card').forEach(c => c.classList.remove('dimmed')); isPicking = false; }, 1000);
-    }
-}
-
-function confirmPick() {
-    if (pickedCards.length < requiredPicks) {
-        alert(`ကဒ် ${requiredPicks} ခု ရွေးပေးပါ။`);
+    if (existingRes) {
+        const resData = JSON.parse(existingRes);
+        currentResultData = resData;
+        displayResult(resData);
         return;
     }
-    routeToResult();
-}
 
-// ==========================================
-// RESULT RENDERING
-// ==========================================
-function routeToResult() {
-    // ပထမဆုံး Before Result Screen ကို ပြမယ်
-    showScreen('screen-before-result');
-    
-    const mainCard = pickedCards[0];
-    const state = mainCard.isReversed ? 'reversed' : 'upright';
-    
-    document.getElementById('beforeImg').src = `assets/cards/${mainCard.img}`;
-    document.getElementById('beforeImg').style.transform = mainCard.isReversed ? 'rotate(180deg)' : 'none';
-    document.getElementById('beforeName').innerText = mainCard.name;
-    
-    const badge = document.getElementById('beforeBadge');
-    badge.innerText = state === 'reversed' ? "Reversed" : "Upright";
-    badge.className = `status-badge ${state}`;
-}
-
-function showFullResult() {
-    playSound(sfxClick);
-    showScreen('screen-result');
-    document.getElementById('solutionBtnContainer').style.display = 'none';
-    document.getElementById('resultActionButtons').style.display = 'flex';
-    
-    document.querySelectorAll('#screen-result > div > div').forEach(d => { if(d.id.startsWith('layout')) d.style.display = 'none'; });
-
-    if (readingPhase === 'time') renderTimeResult();
-    else if (readingPhase === 'problem') renderProblemResult();
-    else if (readingPhase === 'solution') renderSolutionResult();
-    else if (readingPhase === 'ppf') renderPPFResult();
-}
-
-function renderTimeResult() {
-    document.getElementById('layout-single').style.display = 'flex';
-    const card = pickedCards[0]; const state = card.isReversed ? 'reversed' : 'upright';
-    
-    document.getElementById('resImg1').src = `assets/cards/${card.img}`;
-    document.getElementById('resImg1').style.transform = card.isReversed ? 'rotate(180deg)' : 'none';
-    document.getElementById('resName1').innerText = card.name;
-    
-    const badge = document.getElementById('resBadge1');
-    badge.innerText = state === 'reversed' ? "Reversed" : "Upright";
-    badge.className = `status-badge ${state}`;
-
-    // Date Badge ထည့်မယ်
-    let dateText = "";
-    const today = new Date();
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    if(currentMode === 'daily') dateText = today.toLocaleDateString('my-MM', options) + " အတွက်";
-    else if(currentMode === 'weekly') dateText = "ယခုတစ်ပတ်အတွက်";
-    else if(currentMode === 'monthly') dateText = today.toLocaleDateString('my-MM', {month: 'long', year: 'numeric'}) + " အတွက်";
-    else dateText = today.getFullYear() + " ခုနှစ်အတွက်";
-    document.getElementById('dateBadgeText').innerText = dateText;
-
-    let html = `<p>${card[state].general}</p>`;
-    document.getElementById('resultTextArea').innerHTML = html;
-    animateText();
-
-    currentResultData = { mode: currentMode, date: getTodayStr(), cards: [card], textHTML: html };
-    saveReadData(currentMode, currentResultData);
-}
-
-function renderProblemResult() {
-    document.getElementById('layout-problem').style.display = 'flex';
-    const card = pickedCards[0]; const state = card.isReversed ? 'reversed' : 'upright';
-    
-    document.getElementById('probImg').src = `assets/cards/${card.img}`;
-    document.getElementById('probImg').style.transform = card.isReversed ? 'rotate(180deg)' : 'none';
-    document.getElementById('probName').innerText = card.name;
-    
-    const badge = document.getElementById('probBadge');
-    badge.innerText = state === 'reversed' ? "Reversed" : "Upright";
-    badge.className = `status-badge ${state}`;
-
-    let html = `<p>${card[state][currentMode]}</p>`;
-    document.getElementById('resultTextArea').innerHTML = html;
-    animateText();
-
-    // ဒီအဆင့်မှာ Save/Again/Home ဖျောက်ပြီး ဖြေရှင်းနည်းခလုတ်ပဲပြမယ်
-    document.getElementById('resultActionButtons').style.display = 'none';
-    document.getElementById('solutionBtnContainer').style.display = 'block';
-}
-
-function startSolutionPhase() {
-    playSound(sfxClick);
-    readingPhase = 'solution';
-    requiredPicks = 1;
-    pickedCards = [pickedCards[0]]; // ပြဿနာကဒ်ကို သိမ်းထားမယ်
-    startShuffle();
-}
-
-function renderSolutionResult() {
-    document.getElementById('layout-solution').style.display = 'flex';
-    document.getElementById('resultActionButtons').style.display = 'flex';
-    
-    const probCard = pickedCards[0]; const solCard = pickedCards[1];
-    const pState = probCard.isReversed ? 'reversed' : 'upright'; const sState = solCard.isReversed ? 'reversed' : 'upright';
-
-    document.getElementById('solImg1').src = `assets/cards/${probCard.img}`;
-    document.getElementById('solImg1').style.transform = probCard.isReversed ? 'rotate(180deg)' : 'none';
-    document.getElementById('solName1').innerText = "ပြဿနာ: " + probCard.name;
-
-    document.getElementById('solImg2').src = `assets/cards/${solCard.img}`;
-    document.getElementById('solImg2').style.transform = solCard.isReversed ? 'rotate(180deg)' : 'none';
-    document.getElementById('solName2').innerText = "ဖြေရှင်းနည်း: " + solCard.name;
-
-    // Carousel / Slider အတွက် စာသားတွေကို သီးသန့် ပြင်ဆင်မယ် (ဒီနေရာမှာ နှစ်ခုလုံးကို ပေါင်းထည့်ထားမယ်၊ နောက်ပိုင်း CSS/JS နဲ့ ပွတ်ဆွဲလို့ရအောင် လုပ်မယ်)
-    let html = `
-        <div class="swipe-container">
-            <div class="swipe-slide">
-                <h3 style="color:#ef4444; margin-bottom:10px;">ပြဿနာ (${probCard.name})</h3>
-                <p>${probCard[pState][currentMode]}</p>
-            </div>
-            <div class="swipe-slide">
-                <h3 style="color:#10b981; margin-bottom:10px;">ဖြေရှင်းနည်း (${solCard.name})</h3>
-                <p>${solCard[sState][currentMode]}</p>
-            </div>
-        </div>
-    `;
-    document.getElementById('resultTextArea').innerHTML = html;
-    setupSwipe();
-    
-    currentResultData = { mode: currentMode, date: getTodayStr(), cards: [probCard, solCard], textHTML: html };
-    saveReadData(currentMode, currentResultData);
-}
-
-function renderPPFResult() {
-    document.getElementById('layout-ppf').style.display = 'flex';
-    const c1 = pickedCards[0]; const s1 = c1.isReversed ? 'reversed' : 'upright';
-    const c2 = pickedCards[1]; const s2 = c2.isReversed ? 'reversed' : 'upright';
-    const c3 = pickedCards[2]; const s3 = c3.isReversed ? 'reversed' : 'upright';
-
-    document.getElementById('ppfImg1').src = `assets/cards/${c1.img}`;
-    document.getElementById('ppfImg1').style.transform = c1.isReversed ? 'rotate(180deg)' : 'none';
-    document.getElementById('ppfImg2').src = `assets/cards/${c2.img}`;
-    document.getElementById('ppfImg2').style.transform = c2.isReversed ? 'rotate(180deg)' : 'none';
-    document.getElementById('ppfImg3').src = `assets/cards/${c3.img}`;
-    document.getElementById('ppfImg3').style.transform = c3.isReversed ? 'rotate(180deg)' : 'none';
-
-    let html = `
-        <div class="swipe-container">
-            <div class="swipe-slide"><h3 style="color:#fbbf24;">အတိတ် (${c1.name})</h3><p>${c1[s1].past}</p></div>
-            <div class="swipe-slide"><h3 style="color:#fbbf24;">ပစ္စုပ္ပန် (${c2.name})</h3><p>${c2[s2].present}</p></div>
-            <div class="swipe-slide"><h3 style="color:#fbbf24;">အနာဂတ် (${c3.name})</h3><p>${c3[s3].future}</p></div>
-        </div>
-    `;
-    document.getElementById('resultTextArea').innerHTML = html;
-    setupSwipe();
-
-    currentResultData = { mode: 'ppf', date: getTodayStr(), cards: [c1, c2, c3], textHTML: html };
-    saveReadData('ppf', currentResultData);
-}
-
-// Swipe/Slider အတွက် Helper Functions
-function setupSwipe() {
-    const container = document.querySelector('.swipe-container');
-    if (!container) return;
-    
-    // Swipe လုပ်ဖို့ Scroll ကို သုံးမယ် (CSS scroll-snap)
-    container.style.display = 'flex';
-    container.style.overflowX = 'auto';
-    container.style.scrollSnapType = 'x mandatory';
-    container.style.gap = '15px';
-    container.style.padding = '10px 0';
-    container.style.width = '100%';
-    
-    const slides = container.querySelectorAll('.swipe-slide');
-    slides.forEach(slide => {
-        slide.style.minWidth = '100%';
-        slide.style.scrollSnapAlign = 'center';
+    // Time readings are Free, so no ticket check. Just start.
+    startShuffle(() => {
+        startPickProcess();
     });
 }
 
-function animateText() {
-    const textBox = document.getElementById('resultTextArea');
-    if (!textBox) return;
-    textBox.style.opacity = '0';
-    textBox.style.transition = 'opacity 0.8s ease';
-    setTimeout(() => { textBox.style.opacity = '1'; }, 100);
+function openDialogue(mode) {
+    if (appState.tickets < 1) {
+        showMsg("Ticket မလုံလောက်ပါ", "ကြော်ငြာကြည့်ပြီး Ticket ယူပါ။");
+        return;
+    }
+
+    appState.currentMode = mode;
+    switchScreen('screen-dialogue');
+    const optionsContainer = document.getElementById('dialogue-options');
+    optionsContainer.innerHTML = '';
+
+    if (mode === 'category') {
+        document.getElementById('dialogue-text').innerText = "ချစ်ခင်ရတဲ့ မိတ်ဆွေ... ဘယ်နယ်ပယ်အတွက် တာရော့ကြည့်ချင်ပါသလဲရှင့်?";
+        const cats = [
+            { key: 'love', name: 'အချစ်ရေး', icon: 'fa-heart' },
+            { key: 'education', name: 'ပညာရေး', icon: 'fa-graduation-cap' },
+            { key: 'business', name: 'စီးပွားရေး', icon: 'fa-briefcase' },
+            { key: 'health', name: 'ကျန်းမာရေး', icon: 'fa-heart-pulse' }
+        ];
+        cats.forEach(c => {
+            const btn = document.createElement('button');
+            btn.className = "relative w-full py-3 px-4 rounded-xl text-xs font-bold text-center text-yellow-100 bg-mystic-800 border border-yellow-500/40 hover:bg-mystic-700 transition-all shadow-md flex items-center justify-center space-x-2";
+            btn.innerHTML = `<i class="fa-solid ${c.icon} text-yellow-400"></i><span>${c.name}</span>`;
+            btn.onclick = () => startCategory(c.key);
+            optionsContainer.appendChild(btn);
+        });
+    } else if (mode === 'ppf') {
+        document.getElementById('dialogue-text').innerText = "အတိတ်၊ ပစ္စုပ္ပန်၊ အနာဂတ် သုံးဘက်မြင် တာရော့ဟောကိန်းအတွက် စတင်ကြပါစို့ရှင်။";
+        const btn = document.createElement('button');
+        btn.className = "relative w-full py-3.5 px-4 rounded-xl text-xs font-bold text-center text-mystic-900 bg-gradient-to-r from-yellow-600 via-yellow-400 to-yellow-600 shadow-xl";
+        btn.innerHTML = `<span class="flex items-center justify-center space-x-2"><i class="fa-solid fa-play"></i><span>ကဒ်များစတင်ရွေးမည်</span></span>`;
+        btn.onclick = () => {
+            appState.tickets -= 1;
+            saveState();
+            startShuffle(() => startPPFPick());
+        };
+        optionsContainer.appendChild(btn);
+    }
+}
+
+function startCategory(catKey) {
+    appState.currentCategory = catKey;
+    appState.tickets -= 1;
+    saveState();
+    
+    startShuffle(() => {
+        startPick13(() => {
+            // Problem Card Picked
+            appState.selectedCards = [pickedCardObj];
+            
+            // Automatically proceed to Solution after brief delay
+            setTimeout(() => {
+                startShuffle(() => {
+                    startPick13(() => {
+                        // Solution Card Picked
+                        appState.selectedCards.push(pickedCardObj);
+                        showCategoryResultScreen();
+                    }, "ဖြေရှင်းနည်းအတွက် ကဒ်ရွေးပါ");
+                });
+            }, 500);
+        }, "ပြဿနာအတွက် ကဒ်ရွေးပါ");
+    });
+}
+
+function startPPFPick() {
+    appState.selectedCards = [];
+    
+    startShuffle(() => {
+        startPick13(() => {
+            appState.selectedCards.push({ ...pickedCardObj, role: 'အတိတ် (Past)' });
+            
+            startShuffle(() => {
+                startPick13(() => {
+                    appState.selectedCards.push({ ...pickedCardObj, role: 'ပစ္စုပ္ပန် (Present)' });
+                    
+                    startShuffle(() => {
+                        startPick13(() => {
+                            appState.selectedCards.push({ ...pickedCardObj, role: 'အနာဂတ် (Future)' });
+                            showPPFResultScreen();
+                        }, "အနာဂတ်အတွက် ကဒ်ရွေးပါ");
+                    });
+                }, "ပစ္စုပ္ပန်အတွက် ကဒ်ရွေးပါ");
+            });
+        }, "အတိတ်အတွက် ကဒ်ရွေးပါ");
+    });
 }
 
 // ==========================================
-// ADSGRAM & TICKET ACTIONS
+// SHUFFLE & PICK UI
 // ==========================================
-function openTicketMenu() { document.getElementById('ticketModal').classList.add('active'); }
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function startShuffle(callback) {
+    switchScreen('screen-shuffle');
+    let imgEl = document.getElementById('shuffle-img');
+    let frame = 1;
+    let totalCycles = 0;
+    
+    clearInterval(shuffleInterval);
+    shuffleInterval = setInterval(() => {
+        frame = (frame % 9) + 1;
+        imgEl.src = `assets/ui/shuffle-${frame}.png`;
+        totalCycles++;
+        
+        // 5 seconds (9 frames/0.8s = ~11.25ms per frame, total ~5s)
+        if (totalCycles >= 45) {
+            clearInterval(shuffleInterval);
+            if (callback) callback();
+        }
+    }, 110);
+}
 
-// ကြော်ငြာကြည့်တဲ့ Function (Adsgram)
+function startPickProcess() {
+    switchScreen('screen-pick');
+    document.getElementById('pick-title').innerText = "ဤကဒ် ခြောက်ပုံ ထဲက တစ်ပုံကို ရွေးပေးပါရှင်";
+    document.getElementById('pick-action-container').classList.add('hidden');
+    
+    const container = document.getElementById('pick-grid-container');
+    container.innerHTML = `
+        <div class="grid grid-cols-3 gap-4 w-full max-w-xs my-auto">
+            ${[1,2,3,4,5,6].map(i => `
+                <div onclick="proceedToPick13()" class="aspect-[2/3] rounded-xl border-2 border-yellow-500/50 shadow-[0_0_15px_rgba(212,175,55,0.3)] cursor-pointer hover:scale-105 transition-all flex items-center justify-center bg-mystic-800 overflow-hidden">
+                    <img src="assets/cards/back.png" onerror="this.src='https://placehold.co/80x120/15132d/d4af37?text=Tarot'" alt="Card Back" class="w-full h-full object-cover">
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function proceedToPick13() {
+    startPick13(() => {
+        showBeforeResultScreen();
+    }, "ဤ၁၃ပုံ ထဲက တစ်ပုံကို ရွေးပေးပါရှင်");
+}
+
+let pickedCardObj = null;
+let selectedPickId = null;
+let onPickComplete = null;
+
+function startPick13(callback, titleText) {
+    switchScreen('screen-pick');
+    document.getElementById('pick-title').innerText = titleText || "ကဒ်ရွေးပါ";
+    document.getElementById('pick-action-container').classList.remove('hidden');
+    onPickComplete = callback;
+    selectedPickId = null;
+    
+    const container = document.getElementById('pick-grid-container');
+    const rows = [3, 2, 3, 2, 3];
+    let html = '<div class="flex flex-col space-y-3 w-full max-w-xs my-auto items-center">';
+    let cardIdCounter = 1;
+    
+    rows.forEach(count => {
+        html += `<div class="flex justify-center space-x-3 w-full">`;
+        for(let i=0; i<count; i++) {
+            const id = cardIdCounter++;
+            html += `
+                <div id="pick-card-${id}" onclick="selectCard(${id})" class="w-14 aspect-[2/3] rounded-lg border border-yellow-500/50 shadow-md cursor-pointer transition-all flex items-center justify-center bg-mystic-800 overflow-hidden">
+                    <img src="assets/cards/back.png" onerror="this.src='https://placehold.co/50x75/15132d/d4af37?text=T'" alt="Back" class="w-full h-full object-cover opacity-80">
+                </div>
+            `;
+        }
+        html += `</div>`;
+    });
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function selectCard(id) {
+    document.querySelectorAll('[id^="pick-card-"]').forEach(el => {
+        el.classList.remove('ring-2', 'ring-yellow-400', 'scale-110', 'opacity-100');
+        el.classList.add('opacity-60');
+    });
+    
+    const target = document.getElementById(`pick-card-${id}`);
+    if (target) {
+        target.classList.remove('opacity-60');
+        target.classList.add('ring-2', 'ring-yellow-400', 'scale-110');
+        selectedPickId = id;
+    }
+}
+
+function confirmPick13() {
+    if (!selectedPickId) {
+        showMsg("ရွေးချယ်ပါ", "ကဒ်တစ်ပုံကို ဦးစွာ ရွေးချယ်ပါ။");
+        return;
+    }
+    
+    // Generate Random Card from Data
+    const randomCard = TAROT_DECK[Math.floor(Math.random() * TAROT_DECK.length)];
+    const isReversed = Math.random() > 0.7;
+    pickedCardObj = { ...randomCard, isReversed };
+
+    if (onPickComplete) onPickComplete();
+}
+
+// ==========================================
+// RESULTS
+// ==========================================
+function showBeforeResultScreen() {
+    switchScreen('screen-before-result');
+    document.getElementById('before-card-img').src = `assets/cards/${pickedCardObj.img}`;
+    document.getElementById('before-card-img').style.transform = pickedCardObj.isReversed ? 'rotate(180deg)' : 'none';
+    document.getElementById('before-card-name').innerText = pickedCardObj.name;
+    
+    const badge = document.getElementById('before-card-badge');
+    if (pickedCardObj.isReversed) {
+        badge.innerText = "Reversed";
+        badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/30";
+    } else {
+        badge.innerText = "Upright";
+        badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-green-500/20 text-green-300 border border-green-500/30";
+    }
+}
+
+function showFinalResult() {
+    appState.selectedCards = [pickedCardObj];
+    const todayStr = new Date().toDateString();
+    const resObj = {
+        mode: appState.currentMode,
+        category: appState.currentCategory,
+        date: new Date().toLocaleDateString('my-MM'),
+        cards: appState.selectedCards
+    };
+    
+    // Save Persistence for Time Reading
+    if (['daily', 'weekly', 'monthly', 'yearly'].includes(appState.currentMode)) {
+        localStorage.setItem(`tarot_res_${appState.currentMode}_${todayStr}`, JSON.stringify(resObj));
+    }
+    
+    displayResult(resObj);
+}
+
+function showCategoryResultScreen() {
+    const resObj = {
+        mode: 'category',
+        category: appState.currentCategory,
+        date: new Date().toLocaleDateString('my-MM'),
+        cards: appState.selectedCards
+    };
+    displayResult(resObj);
+}
+
+function showPPFResultScreen() {
+    const resObj = {
+        mode: 'ppf',
+        date: new Date().toLocaleDateString('my-MM'),
+        cards: appState.selectedCards
+    };
+    displayResult(resObj);
+}
+
+function displayResult(resData) {
+    currentResultData = resData;
+    appState.activeCardIndex = 0;
+    
+    switchScreen('screen-result');
+    document.getElementById('result-date-badge').innerText = resData.date;
+    document.getElementById('result-header-title').innerText = resData.mode === 'category' ? 'နယ်ပယ်အလိုက် ဟောကိန်း' : (resData.mode === 'ppf' ? 'PPF ဟောကိန်း' : 'ယနေ့အတွက် ဟောကိန်း');
+    
+    renderResultView();
+    setupSwipeGesture();
+}
+
+function renderResultView() {
+    const wrapper = document.getElementById('result-cards-wrapper');
+    const swipeInd = document.getElementById('swipe-indicator');
+    const cards = currentResultData.cards;
+    
+    if (cards.length > 1) swipeInd.classList.remove('hidden');
+    else swipeInd.classList.add('hidden');
+
+    wrapper.innerHTML = cards.map((c, idx) => {
+        const isActive = idx === appState.activeCardIndex;
+        const activeClass = isActive ? 'border-yellow-400 shadow-[0_0_20px_rgba(212,175,55,0.8)] scale-105 z-10' : 'border-gray-600 opacity-50 scale-90';
+        return `
+            <div class="result-card-item relative w-24 h-36 shrink-0 rounded-xl overflow-hidden border-2 ${activeClass} transition-all duration-300" onclick="setActiveCard(${idx})">
+                <img src="assets/cards/${c.img}" class="w-full h-full object-cover" style="transform: ${c.isReversed ? 'rotate(180deg)' : 'none'}">
+            </div>
+        `;
+    }).join('');
+
+    updateResultText();
+}
+
+function setActiveCard(index) {
+    appState.activeCardIndex = index;
+    renderResultView();
+}
+
+function updateResultText() {
+    const titleEl = document.getElementById('answer-section-title');
+    const textEl = document.getElementById('result-text');
+    
+    const card = currentResultData.cards[appState.activeCardIndex];
+    const stateKey = card.isReversed ? 'reversed' : 'upright';
+    let displayText = "";
+    let title = "";
+
+    if (currentResultData.mode === 'category') {
+        const role = appState.activeCardIndex === 0 ? "ပြဿနာ (Problem)" : "ဖြေရှင်းနည်း (Solution)";
+        title = `${role} - ${card.name}`;
+        displayText = card[stateKey][currentResultData.category];
+    } else if (currentResultData.mode === 'ppf') {
+        const role = card.role;
+        title = `${role} - ${card.name}`;
+        const pKey = appState.activeCardIndex === 0 ? 'past' : (appState.activeCardIndex === 1 ? 'present' : 'future');
+        displayText = card[stateKey][pKey];
+    } else {
+        title = `ကဒ်အမည် - ${card.name}`;
+        displayText = card[stateKey].general;
+    }
+
+    titleEl.innerText = title;
+    typeWriterEffect(displayText, textEl);
+}
+
+function typeWriterEffect(text, element) {
+    if (typeInterval) clearInterval(typeInterval);
+    element.innerText = "";
+    let i = 0;
+    typeInterval = setInterval(() => {
+        if (i < text.length) {
+            element.innerText += text.charAt(i);
+            i++;
+        } else {
+            clearInterval(typeInterval);
+        }
+    }, 20); // Speed
+}
+
+function setupSwipeGesture() {
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const resultScreen = document.getElementById('screen-result');
+
+    resultScreen.ontouchstart = (e) => { touchStartX = e.changedTouches[0].screenX; };
+    resultScreen.ontouchend = (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    };
+
+    function handleSwipe() {
+        if (!currentResultData || currentResultData.cards.length <= 1) return;
+        const maxIdx = currentResultData.cards.length - 1;
+
+        if (touchEndX < touchStartX - 50) { // Swipe Left
+            if (appState.activeCardIndex < maxIdx) {
+                appState.activeCardIndex++;
+                renderResultView();
+            }
+        }
+        if (touchEndX > touchStartX + 50) { // Swipe Right
+            if (appState.activeCardIndex > 0) {
+                appState.activeCardIndex--;
+                renderResultView();
+            }
+        }
+    }
+}
+
+// ==========================================
+// SAVE & AGAIN LOGIC
+// ==========================================
+function saveCurrentResult() {
+    if (!currentResultData) return;
+    let saves = appState.savedResults;
+    if (saves.length >= 5) saves.pop(); // Max 5
+    
+    saves.unshift({
+        id: Date.now(),
+        mode: currentResultData.mode,
+        category: currentResultData.category,
+        date: currentResultData.date,
+        cards: currentResultData.cards
+    });
+    appState.savedResults = saves;
+    saveState();
+    showMsg("အောင်မြင်သည်", "ဟောစာတမ်းကို သိမ်းဆည်းပြီးပါပြီ။");
+}
+
+function openSaveModal() {
+    const container = document.getElementById('save-list-container');
+    container.innerHTML = '';
+    const saves = appState.savedResults;
+
+    if (saves.length === 0) {
+        container.innerHTML = `<p class="text-xs text-gray-400 text-center py-6">သိမ်းဆည်းထားသော မှတ်တမ်း မရှိသေးပါ။</p>`;
+    } else {
+        saves.forEach(s => {
+            const item = document.createElement('div');
+            item.className = "flex items-center justify-between p-3 rounded-2xl glass-panel border border-yellow-500/30 hover:border-yellow-400 cursor-pointer transition-all";
+            let modeName = s.mode === 'daily' ? 'Daily' : s.mode === 'category' ? 'Category' : s.mode === 'ppf' ? 'PPF' : s.mode;
+            
+            item.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-14 rounded-lg overflow-hidden border border-yellow-500/40">
+                        <img src="assets/cards/${s.cards[0].img}" onerror="this.src='https://placehold.co/40x56/221e4a/d4af37?text=T'" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-xs text-yellow-300">${modeName}</h4>
+                        <p class="text-[10px] text-gray-400">${s.date} - ${s.cards[0].name}</p>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-right text-xs text-yellow-400"></i>
+            `;
+            item.onclick = () => {
+                closeModal('modal-save');
+                displayResult(s);
+            };
+            container.appendChild(item);
+        });
+    }
+    document.getElementById('modal-save').classList.remove('hidden');
+}
+
+function openAgainModal() {
+    const container = document.getElementById('again-options-container');
+    container.innerHTML = '';
+    const modes = [
+        { key: 'daily', name: 'ဒီနေ့အတွက် (Free)' },
+        { key: 'category', name: 'နယ်ပယ်အလိုက် (1 Ticket)' },
+        { key: 'ppf', name: 'PPF ဟောကိန်း (1 Ticket)' }
+    ];
+
+    modes.forEach(m => {
+        const btn = document.createElement('button');
+        btn.className = "w-full py-2.5 rounded-xl text-xs font-bold text-yellow-200 glass-panel border border-yellow-500/30 hover:bg-mystic-700 transition-all";
+        btn.innerText = m.name;
+        btn.onclick = () => {
+            closeModal('modal-again');
+            checkAndStart(m.key);
+        };
+        container.appendChild(btn);
+    });
+    document.getElementById('modal-again').classList.remove('hidden');
+}
+
+// ==========================================
+// TICKET TASKS & ADSGRAM
+// ==========================================
+function claimLoginTicket() {
+    const today = new Date().toDateString();
+    if (appState.lastLoginDate === today) return;
+    
+    appState.lastLoginDate = today;
+    appState.tickets += 1;
+    saveState();
+    updateTicketDisplay();
+    showMsg("အောင်မြင်သည်", "နေ့စဥ်ဝင်ရောက်မှုအတွက် +1 Ticket ရပါပြီ။");
+}
+
 function watchAd() {
-    let adCount = parseInt(localStorage.getItem('ad_count') || '0');
-    if (adCount >= 7) { 
-        alert("ဒီနေ့အတွက် ကြော်ငြာကြည့်ခွင့် ကုန်ပါပြီ။"); 
-        return; 
+    if (!navigator.onLine) {
+        showMsg("အင်တာနက် မကောင်းပါ", "အင်တာနက် ချိတ်ဆက်မှု မကောင်းပါ။ ခဏနေမှ ပြန်စမ်းပါ။");
+        return;
+    }
+    if (appState.adCount >= 7) {
+        showMsg("ကန့်သတ်ချက် ပြည့်ပါပြီ", "ယနေ့အတွက် ကြော်ငြာကြည့်ရှုမှု ပြည့်သွားပါပြီ။");
+        return;
     }
 
     if (!AdController) {
-        alert("ကြော်ငြာ စနစ် အသင့်မဖြစ်သေးပါ။ နောက်မှ ပြန်စမ်းပါ။");
+        showMsg("ကြော်ငြာ မအောင်မြင်ပါ", "ကြော်ငြာစနစ် အသင့်မဖြစ်သေးပါ။ ခဏနေမှ ပြန်စမ်းပါ။");
         return;
     }
 
-    // Adsgram ကြော်ငြာကို ပြမယ်
     AdController.show().then((result) => {
-        // ကြော်ငြာ ပြီးဆုံးသွားရင် (သို့) ပိတ်လိုက်ရင် Ticket ပေးမယ်
-        setTickets(getTickets() + 2);
-        localStorage.setItem('ad_count', adCount + 1);
-        updateTicketUI();
-        alert("Ticket ၂ ခု ရပါပြီ။");
-    }).catch((result) => {
-        // ကြော်ငြာ ကြည့်တဲ့အခါ Error တက်ရင်
-        console.log("Ad error: ", result);
-        alert("ကြော်ငြာ ကြည့်ခြင်း မအောင်မြင်ပါ။ ခဏနေမှ ပြန်စမ်းပါ။");
+        appState.adCount += 1;
+        appState.tickets += 2;
+        saveState();
+        updateTicketDisplay();
+        showMsg("အောင်မြင်သည်", "ကြော်ငြာကြည့်ရှုမှုအတွက် +2 Ticket ရပါပြီ။");
+    }).catch((error) => {
+        console.log("Ad error:", error);
+        showMsg("ကြော်ငြာ မအောင်မြင်ပါ", "အင်တာနက် ချိတ်ဆက်မှု မကောင်းပါ။ ခဏနေမှ ပြန်စမ်းပါ။");
     });
 }
 
-function dailyLogin() {
-    if (localStorage.getItem('last_login_date') === getTodayStr()) { 
-        alert("ဒီနေ့ ရရှိပြီးသား ဖြစ်ပါတယ်။"); 
-        return; 
-    }
-    setTickets(getTickets() + 1); 
-    localStorage.setItem('last_login_date', getTodayStr());
-    updateTicketUI();
-    alert("နေ့စဉ် Login အတွက် Ticket ၁ ခု ရပါပြီ။");
-}
-
 function shareApp() {
-    let shareCount = parseInt(localStorage.getItem('share_count') || '0');
-    if (shareCount >= 3) { 
-        alert("ဒီနေ့အတွက် ရှယ်ခွင့် ကုန်ပါပြီ။"); 
-        return; 
+    if (appState.shareCount >= 3) {
+        showMsg("ကန့်သတ်ချက် ပြည့်ပါပြီ", "ယနေ့အတွက် မျှဝေမှု ကန့်သတ်ချက် ပြည့်သွားပါပြီ။");
+        return;
     }
+    
+    appState.shareCount += 1;
+    appState.tickets += 1;
+    saveState();
+    updateTicketDisplay();
     
     if (window.Telegram && window.Telegram.WebApp) {
         const url = "https://t.me/share/url?url=" + encodeURIComponent("https://t.me/YourBotName") + "&text=" + encodeURIComponent("Tarot App လေး စမ်းကြည့်ပါဦး");
         window.Telegram.WebApp.openTelegramLink(url);
     }
     
-    setTickets(getTickets() + 1); 
-    localStorage.setItem('share_count', shareCount + 1); 
-    updateTicketUI();
-    alert("ရှယ်လုပ်ပြီးပါပြီ။ Ticket ၁ ခု ရပါပြီ။");
+    showMsg("အောင်မြင်သည်", "မျှဝေမှုအတွက် +1 Ticket ရပါပြီ။");
 }
 
-// ==========================================
-// SAVE SYSTEM
-// ==========================================
-function saveCurrentReading() {
-    playSound(sfxClick);
-    let saves = JSON.parse(localStorage.getItem('tarot_saves') || '[]');
-    if (saves.length >= 5) saves.shift();
-    
-    // ပုံအရေအတွက်ကို သတ်မှတ်မယ် (Save ထဲမှာ ပြဖို့)
-    currentResultData.imageCount = currentResultData.cards.length;
-    
-    saves.push(currentResultData);
-    localStorage.setItem('tarot_saves', JSON.stringify(saves));
-    alert("သိမ်းဆည်းပြီးပါပြီ။");
-}
-
-function openSaveList() {
-    playSound(sfxClick);
-    const container = document.getElementById('saveListContainer');
-    container.innerHTML = '';
-    let saves = JSON.parse(localStorage.getItem('tarot_saves') || '[]');
-    
-    if (saves.length === 0) {
-        container.innerHTML = "<p style='text-align:center; font-family:Padauk; color:#fff;'>သိမ်းထားတာ မရှိသေးပါဘူး။</p>";
+function exitApp() {
+    if (window.Telegram && window.Telegram.WebApp) {
+        window.Telegram.WebApp.close();
     } else {
-        saves.forEach((save) => {
-            const div = document.createElement('div');
-            div.style = "background: rgba(0,0,0,0.6); padding: 10px; border-radius: 10px; border: 1px solid #8b5cf6; display: flex; gap: 10px; align-items: center; cursor: pointer;";
-            div.onclick = () => { closeModal('saveModal'); reconstructResultFromSave(save); };
-            
-            // ပုံအရေအတွက်အလိုက် ပြမယ်
-            let imgsHtml = "";
-            if (save.imageCount === 1) imgsHtml = `<img src="assets/cards/${save.cards[0].img}" style="width: 40px; border-radius: 4px;">`;
-            else if (save.imageCount === 2) imgsHtml = `<div style="display:flex; gap:2px;"><img src="assets/cards/${save.cards[0].img}" style="width: 25px; border-radius: 2px;"><img src="assets/cards/${save.cards[1].img}" style="width: 25px; border-radius: 2px;"></div>`;
-            else imgsHtml = `<div style="display:flex; gap:2px;"><img src="assets/cards/${save.cards[0].img}" style="width: 20px; border-radius: 2px;"><img src="assets/cards/${save.cards[1].img}" style="width: 20px; border-radius: 2px;"><img src="assets/cards/${save.cards[2].img}" style="width: 20px; border-radius: 2px;"></div>`;
-
-            // Mode အလိုက် စာသား
-            let modeText = save.mode.toUpperCase();
-            if(save.mode === 'daily') modeText = 'Daily';
-            if(save.mode === 'weekly') modeText = 'Weekly';
-            if(save.mode === 'monthly') modeText = 'Monthly';
-            if(save.mode === 'yearly') modeText = 'Yearly';
-            if(save.mode === 'ppf') modeText = 'Past, Present, Future';
-
-            div.innerHTML = `
-                ${imgsHtml}
-                <div style="text-align:left; flex:1;">
-                    <h4 style="margin:0; color:#fbbf24; font-size:14px;">${modeText}</h4>
-                    <p style="margin:0; font-size:11px; color:#a0aec0;">${save.date}</p>
-                </div>
-            `;
-            container.appendChild(div);
-        });
+        window.location.href = 'tarot.html';
     }
-    document.getElementById('saveModal').classList.add('active');
-}
-
-function reconstructResultFromSave(data) {
-    showScreen('screen-result');
-    document.getElementById('solutionBtnContainer').style.display = 'none';
-    document.getElementById('resultActionButtons').style.display = 'flex';
-    document.querySelectorAll('#screen-result > div > div').forEach(d => { if(d.id.startsWith('layout')) d.style.display = 'none'; });
-    
-    document.getElementById('resultTextArea').innerHTML = data.textHTML;
-
-    if (data.mode === 'daily' || data.mode === 'weekly' || data.mode === 'monthly' || data.mode === 'yearly') {
-        document.getElementById('layout-single').style.display = 'flex';
-        const card = data.cards[0];
-        const state = card.isReversed ? 'reversed' : 'upright';
-        document.getElementById('resImg1').src = `assets/cards/${card.img}`;
-        document.getElementById('resImg1').style.transform = card.isReversed ? 'rotate(180deg)' : 'none';
-        document.getElementById('resName1').innerText = card.name;
-        const badge = document.getElementById('resBadge1');
-        badge.innerText = state === 'reversed' ? "Reversed" : "Upright";
-        badge.className = `status-badge ${state}`;
-    } 
-    else if (data.mode === 'ppf') {
-        document.getElementById('layout-ppf').style.display = 'flex';
-        for(let i=0; i<3; i++) {
-            document.getElementById(`ppfImg${i+1}`).src = `assets/cards/${data.cards[i].img}`;
-            document.getElementById(`ppfImg${i+1}`).style.transform = data.cards[i].isReversed ? 'rotate(180deg)' : 'none';
-        }
-        setupSwipe();
-    }
-    else {
-        if (data.cards.length === 2) {
-            document.getElementById('layout-solution').style.display = 'flex';
-            document.getElementById('solImg1').src = `assets/cards/${data.cards[0].img}`;
-            document.getElementById('solName1').innerText = "ပြဿနာ: " + data.cards[0].name;
-            document.getElementById('solImg2').src = `assets/cards/${data.cards[1].img}`;
-            document.getElementById('solName2').innerText = "ဖြေရှင်းနည်း: " + data.cards[1].name;
-        } else {
-            document.getElementById('layout-problem').style.display = 'flex';
-            document.getElementById('probImg').src = `assets/cards/${data.cards[0].img}`;
-            document.getElementById('probName').innerText = data.cards[0].name;
-        }
-        setupSwipe();
-    }
-    currentResultData = data;
-}
-
-// ==========================================
-// AGAIN & MISC
-// ==========================================
-function promptAgain() {
-    playSound(sfxClick);
-    document.getElementById('againModal').classList.add('active');
-}
-
-function confirmAgain(mode) {
-    closeModal('againModal');
-    if (getTickets() < 1) { alert("Ticket မလုံလောက်ပါ။"); openTicketMenu(); return; }
-    setTickets(getTickets() - 1);
-    
-    pickedCards = [];
-    if (mode === 'category_menu') { openCategoryDialogue(); } 
-    else { currentMode = mode; readingPhase = 'time'; startShuffle(); }
-}
-
-function goHome() {
-    playSound(sfxClick);
-    pickedCards = [];
-    showScreen('screen-start');
-}
-
-function openSettings() { 
-    alert("Settings (Coming Soon)"); 
-}
-function openAbout() { 
-    alert("About App (Coming Soon)"); 
-}
-function leaveApp() { 
-    window.location.href = 'index.html'; 
 }
