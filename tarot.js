@@ -1,6 +1,6 @@
 // Global State
 let appState = {
-    tickets: 5,
+    tickets: 1,
     lastLoginDate: "",
     adCount: 0,
     shareCount: 0,
