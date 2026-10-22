@@ -1,378 +1,461 @@
 <!DOCTYPE html>
-<html lang="my">
+<html lang="my" class="dark">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Tarot Reading — TryIt Hub</title>
-  
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  
-  <!-- Adsgram SDK ကို ဒီနေရာမှာ ထည့်ပါ -->
-  <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
-  
-  <link href="https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="tarot.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>တာရော့ဗေဒင် - TryIt Hub</title>
+    
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Adsgram SDK -->
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        mystic: {
+                            900: '#0b0b16',
+                            800: '#15132d',
+                            700: '#221e4a',
+                            600: '#383173',
+                            accent: '#d4af37', /* Gold */
+                            glow: '#9d4edd'    /* Purple Glow */
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Pyidaungsu', 'sans-serif'],
+                        cinzel: ['Cinzel', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Pyidaungsu:wght@400;700&family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="tarot-dark">
+<body class="min-h-screen flex flex-col items-center justify-start bg-mystic-900 text-gray-100 overflow-x-hidden relative select-none">
 
-  <!-- Audio -->
-  <audio id="bgMusic" loop><source src="assets/audio/bg-music.mp3" type="audio/mpeg"></audio>
-  <audio id="sfxClick"><source src="assets/audio/click.mp3" type="audio/mpeg"></audio>
-  <audio id="sfxShuffle"><source src="assets/audio/shuffle.mp3" type="audio/mpeg"></audio>
-  <audio id="sfxReveal"><source src="assets/audio/reveal.mp3" type="audio/mpeg"></audio>
-
-  <!-- ၁၂ လ ရာသီ နောက်ခံ -->
-  <div class="season-bg" id="seasonBg"></div>
-
-  <!-- Disclaimer Popup -->
-  <div class="modal-overlay active" id="disclaimerModal">
-    <div class="modal-content popup-bg" style="background-image: url('assets/ui/disclaimer-box.webp');">
-      <img src="assets/ui/disclaimer-box-text.webp" class="popup-title-img" alt="Title">
-      <p style="font-family:'Padauk'; line-height:1.6; margin-bottom:20px; text-align:center; color:#fff; text-shadow:1px 1px 2px #000;">
-        ဤ App သည် ဖျော်ဖြေရေးအတွက်သာ ဖြစ်ပါသည်။ ကြော်ငြာများ ပါဝင်မည်ဖြစ်ပါသည်။
-      </p>
-      
-      <label style="display:flex; align-items:center; justify-content:center; gap:10px; color:white; margin-bottom:15px; font-family:Padauk;">
-        <input type="checkbox" id="agreeCheck" onchange="toggleAgreeBtn()" style="width:20px; height:20px;">
-        ငါထောက်ခံပြီး၊ လက်ခံပါသည်။
-      </label>
-      
-      <button id="agreeBtn" class="btn primary-btn" onclick="agreeDisclaimer()" disabled style="opacity: 0.5;">ဝင်ရောက်မည်</button>
-    </div>
-  </div>
-
-  <!-- Loading Screen -->
-  <section class="tarot-screen" id="screen-loading">
-    <div class="loading-content">
-      <div class="loading-text">လုပ်ဆောင်နေသည်...</div>
-      <div class="progress-bar-container"><div class="progress-bar" id="progressBar"></div></div>
-    </div>
-  </section>
-
-  <!-- Main Menu Screen -->
-  <section class="tarot-screen" id="screen-start">
-    
-    <img src="assets/title/title-logo.webp" alt="TAROT" class="title-logo">
-
-    <div class="top-bar">
-      <div class="ticket-display">
-        <img src="assets/icons/ticket.webp" alt="Ticket" class="icon-img">
-        <span id="ticketCount">0</span>
-        <img src="assets/icons/plus.webp" alt="Plus" class="icon-img plus-btn" onclick="openTicketMenu()">
-      </div>
-    </div>
-
-    <div class="menu-container">
-      <div class="menu-card-wrapper">
-        <img src="assets/ui/main-frame.webp" alt="Frame" class="main-frame-img">
-
-        <div class="btn-container">
-          
-          <div class="row">
-            <button class="game-btn" onclick="checkAndStart('daily')">
-              <img src="assets/ui/btn-bg.webp" class="btn-bg">
-              <span>ဒီနေ့အတွက်</span>
-            </button>
-            <button class="game-btn" onclick="checkAndStart('weekly')">
-              <img src="assets/ui/btn-bg.webp" class="btn-bg">
-              <span>တစ်ပတ်လုံးအတွက်</span>
-            </button>
-          </div>
-
-          <div class="row">
-            <button class="game-btn" onclick="checkAndStart('monthly')">
-              <img src="assets/ui/btn-bg.webp" class="btn-bg">
-              <span>တစ်လလုံးအတွက်</span>
-            </button>
-            <button class="game-btn" onclick="checkAndStart('yearly')">
-              <img src="assets/ui/btn-bg.webp" class="btn-bg">
-              <span>တစ်နှစ်လုံးအတွက်</span>
-            </button>
-          </div>
-
-          <div class="row single">
-            <button class="game-btn large-btn" onclick="openCategoryDialogue()">
-              <img src="assets/ui/btn-bg.webp" class="btn-bg">
-              <span>နယ်ပယ်အလိုက် တာရော့ကြည့်မယ်</span>
-            </button>
-          </div>
-
-        </div>
-      </div>
-
-      <div class="bottom-icons">
-        <button class="icon-btn" onclick="openSettings()"><img src="assets/icons/settings.webp" alt="Settings"></button>
-        <button class="icon-btn" onclick="openSaveList()"><img src="assets/icons/save.webp" alt="Save"></button>
-        <button class="icon-btn" onclick="openAbout()"><img src="assets/icons/about.webp" alt="About"></button>
-        <button class="icon-btn" onclick="leaveApp()"><img src="assets/icons/exit.webp" alt="Exit"></button>
-      </div>
-    </div>
-  </section>
-
-  <!-- Category Dialogue Screen -->
-  <section class="tarot-screen" id="screen-category">
-    <button class="back-btn" onclick="goBack('screen-start')"><img src="assets/icons/back.webp" class="back-icon"></button>
-
-    <div class="dialogue-container">
-      <div class="char-wrapper">
-        <img src="assets/ui/char-frame.webp" class="char-frame-img">
-        <img src="assets/char/girl.webp" class="character-img" alt="Character">
-      </div>
-      
-      <div class="dialogue-box-wrapper">
-        <img src="assets/ui/dialogue-box.webp" class="dialog-bg">
-        <div id="dialogueText" class="dialogue-text-scroll"></div>
-        <button class="btn next-btn" id="dialogueNextBtn" onclick="showCategoryOptions()">ဆက်လုပ်မယ်</button>
-      </div>
-    </div>
-    
-    <div class="category-grid" id="categoryOptions" style="display: none;">
-      <button class="game-btn" onclick="startCategory('love')">
-        <img src="assets/ui/dialogue-ans-box.webp" class="btn-bg"><span>အချစ်ရေး</span>
-      </button>
-      <button class="game-btn" onclick="startCategory('education')">
-        <img src="assets/ui/dialogue-ans-box.webp" class="btn-bg"><span>ပညာရေး</span>
-      </button>
-      <button class="game-btn" onclick="startCategory('business')">
-        <img src="assets/ui/dialogue-ans-box.webp" class="btn-bg"><span>စီးပွားရေး</span>
-      </button>
-      <button class="game-btn" onclick="startCategory('health')">
-        <img src="assets/ui/dialogue-ans-box.webp" class="btn-bg"><span>ကျန်းမာရေး</span>
-      </button>
-      <button class="game-btn ppf-btn" onclick="startCategory('ppf')">
-        <img src="assets/ui/dialogue-ans-box.webp" class="btn-bg"><span>အတိတ်၊ ပစ္စုပ္ပန်၊ အနာဂတ်</span>
-      </button>
-    </div>
-  </section>
-
-  <!-- Shuffle Screen -->
-  <section class="tarot-screen" id="screen-shuffle">
-    <img id="shuffleAnim" src="assets/ui/shuffle-1.png" alt="Shuffling..." class="shuffle-img">
-    <h2 class="shuffle-text">ကဒ်များ မွှေနေသည်...</h2>
-  </section>
-
-  <!-- Pick 6 Screen -->
-  <section class="tarot-screen" id="screen-pick6">
-    <button class="back-btn" onclick="goBack('screen-start')"><img src="assets/icons/back.webp" class="back-icon"></button>
-    
-    <div class="pick-header">
-       <h2 class="pick-title">ဤကဒ် ခြောက်ပုံထဲက တစ်ပုံကို ရွေးပေးပါရှင့်</h2>
-    </div>
-
-    <div class="pick-grid-6" id="pickGrid6"></div>
-  </section>
-
-  <!-- Pick 13 Screen -->
-  <section class="tarot-screen" id="screen-pick13">
-    <button class="back-btn" onclick="goBack('screen-start')"><img src="assets/icons/back.webp" class="back-icon"></button>
-    
-    <div class="pick-header">
-       <h2 class="pick-title" id="pick13Title">ဤ၁၃ပုံထဲက တစ်ပုံကို ရွေးပေးပါရှင့်</h2>
-    </div>
-
-    <div class="pick-grid-13" id="pickGrid13">
-      <div class="pick-row" id="row-1"></div>
-      <div class="pick-row" id="row-2"></div>
-      <div class="pick-row" id="row-3"></div>
-      <div class="pick-row" id="row-4"></div>
-      <div class="pick-row" id="row-5"></div>
-    </div>
-
-    <div class="pick-footer">
-      <button class="game-btn large-btn" onclick="confirmPick()">
-         <img src="assets/ui/dialogue-ans-box.webp" class="btn-bg"><span>ကဒ်ကြည့်မယ်</span>
-      </button>
-    </div>
-  </section>
-
-  <!-- Before Result Screen (ကဒ်ပုံပဲပြ) -->
-  <section class="tarot-screen" id="screen-before-result">
-    <button class="back-btn" onclick="goBack('screen-start')"><img src="assets/icons/back.webp" class="back-icon"></button>
-    
-    <div class="result-scroll-area" style="justify-content: center; height: 100%;">
-      <div class="card-reveal-area" style="width: 200px;">
-        <img id="beforeImg" src="" class="drawn-card">
-        <img src="assets/ui/card-frame.webp" class="card-frame">
-      </div>
-      <div class="name-badge-wrapper">
-        <img src="assets/ui/tar-card-name-bg.webp" class="name-badge-bg">
-        <h2 id="beforeName" class="result-card-name">Card Name</h2>
-        <span id="beforeBadge" class="status-badge">Upright</span>
-      </div>
-      
-      <button class="game-btn large-btn" onclick="showFullResult()" style="margin-top: 40px; width: 80%;">
-         <img src="assets/ui/dialogue-ans-box.webp" class="btn-bg"><span>ဟောစာတမ်းကိုကြည့်မယ်</span>
-      </button>
-    </div>
-  </section>
-
-  <!-- Result Screen (Full) -->
-  <section class="tarot-screen" id="screen-result">
-    <button class="back-btn" onclick="goBack('screen-start')"><img src="assets/icons/back.webp" class="back-icon"></button>
-    
-    <div class="result-scroll-area">
-      
-      <!-- Single Card Layout (Time) -->
-      <div id="layout-single" style="display:none; width:100%; align-items:center; flex-direction:column;">
-        <div class="card-reveal-area" style="width: 160px;">
-          <img id="resImg1" src="" class="drawn-card">
-          <img src="assets/ui/card-frame.webp" class="card-frame">
-        </div>
-        <div class="name-badge-wrapper">
-          <img src="assets/ui/tar-card-name-bg.webp" class="name-badge-bg">
-          <h2 id="resName1" class="result-card-name">Card Name</h2>
-          <span id="resBadge1" class="status-badge">Upright</span>
-        </div>
+    <!-- App Container -->
+    <div class="w-full max-w-md min-h-screen flex flex-col relative shadow-2xl overflow-hidden bg-mystic-900/90 border-x border-mystic-700/50">
         
-        <div class="date-badge-wrapper">
-           <img src="assets/ui/tar-card-name-bg.webp" class="name-badge-bg">
-           <span id="dateBadgeText" class="date-text">ယနေ့အတွက်</span>
-        </div>
-      </div>
+        <!-- Season Background (Dynamic) -->
+        <div id="season-bg" class="absolute inset-0 z-0 bg-cover bg-center opacity-30 transition-all duration-1000"></div>
+        <div class="absolute inset-0 z-0 bg-gradient-to-b from-mystic-900/80 via-mystic-900/90 to-mystic-900"></div>
 
-      <!-- Problem Layout (2 Cards - Problem) -->
-      <div id="layout-problem" style="display:none; width:100%; align-items:center; flex-direction:column;">
-        <div class="card-reveal-area" style="width: 160px;">
-          <img id="probImg" src="" class="drawn-card">
-          <img src="assets/ui/card-frame.webp" class="card-frame">
-        </div>
-        <div class="name-badge-wrapper">
-          <img src="assets/ui/tar-card-name-bg.webp" class="name-badge-bg">
-          <h2 id="probName" class="result-card-name">Card Name</h2>
-          <span id="probBadge" class="status-badge">Upright</span>
-        </div>
-        
-        <div class="date-badge-wrapper">
-           <img src="assets/ui/tar-card-name-bg.webp" class="name-badge-bg">
-           <span class="date-text">ပြဿနာကဒ်</span>
-        </div>
-      </div>
+        <!-- ================= 1. DISCLAIMER SCREEN ================= -->
+        <div id="screen-disclaimer" class="screen absolute inset-0 z-50 flex flex-col justify-between p-6 bg-mystic-900/95 overflow-y-auto">
+            <div class="flex flex-col items-center mt-10">
+                <div class="text-center mb-6">
+                    <h1 class="font-cinzel text-2xl font-bold text-yellow-400 tracking-widest drop-shadow-[0_0_10px_rgba(212,175,55,0.8)]">DISCLAIMER</h1>
+                    <p class="text-xs text-yellow-200/70 mt-1">သတိပေးချက်</p>
+                </div>
+                
+                <div class="relative w-full p-6 rounded-2xl glass-panel border border-yellow-500/30 text-sm leading-relaxed text-gray-200 text-center mb-6 shadow-[0_0_20px_rgba(157,78,221,0.3)]">
+                    <p class="font-medium tracking-wide">
+                        ဤ တာရော့ဗေဒင် အက်ပ်လီကေးရှင်းသည် ဖျော်ဖြေရေးနှင့် မိမိကိုယ်ကို ဆင်ခြင်သုံးသပ်ရန်အတွက်သာ ရည်ရွယ်ပါသည်။ ရလဒ်များသည် သင်၏ ကိုယ်ပိုင်ဆုံးဖြတ်ချက်အပေါ်တွင်သာ မူတည်ပါသည်။
+                    </p>
+                </div>
+            </div>
 
-      <!-- Solution Layout (2 Cards - Solution) -->
-      <div id="layout-solution" style="display:none; width:100%; flex-direction:column; align-items:center;">
-        <div class="double-card-area">
-          <div class="mini-card">
-            <img id="solImg1" src="" class="drawn-card">
-            <img src="assets/ui/card-frame.webp" class="mini-frame">
-            <span id="solName1" class="mini-card-name"></span>
-          </div>
-          <div class="mini-card">
-            <img id="solImg2" src="" class="drawn-card">
-            <img src="assets/ui/card-frame.webp" class="mini-frame">
-            <span id="solName2" class="mini-card-name"></span>
-          </div>
-        </div>
-      </div>
+            <div class="flex flex-col space-y-4 mb-6">
+                <label class="flex items-center space-x-3 cursor-pointer bg-mystic-800/80 p-4 rounded-xl border border-mystic-accent/20 hover:border-mystic-accent transition-all">
+                    <input type="checkbox" id="disclaimer-checkbox" class="w-5 h-5 accent-yellow-500 rounded cursor-pointer">
+                    <span class="text-sm font-semibold text-gray-200">ငါထောက်ခံပြီး၊ လက်ခံပါသည်။</span>
+                </label>
 
-      <!-- PPF Layout (3 Cards) -->
-      <div id="layout-ppf" style="display:none; width:100%; flex-direction:column; align-items:center;">
-        <div class="triple-card-area">
-          <div class="mini-card">
-            <img id="ppfImg1" src="" class="drawn-card"><img src="assets/ui/card-frame.webp" class="mini-frame">
-            <span class="mini-card-name">အတိတ်</span>
-          </div>
-          <div class="mini-card">
-            <img id="ppfImg2" src="" class="drawn-card"><img src="assets/ui/card-frame.webp" class="mini-frame">
-            <span class="mini-card-name">ပစ္စုပ္ပန်</span>
-          </div>
-          <div class="mini-card">
-            <img id="ppfImg3" src="" class="drawn-card"><img src="assets/ui/card-frame.webp" class="mini-frame">
-            <span class="mini-card-name">အနာဂတ်</span>
-          </div>
+                <button id="btn-disclaimer-agree" disabled class="w-full py-4 rounded-xl font-bold uppercase tracking-wider text-sm transition-all duration-300 opacity-50 cursor-not-allowed text-mystic-900 bg-gradient-to-r from-yellow-600 via-yellow-400 to-yellow-600 shadow-lg">
+                    ဝင်ရောက်မည် (Agree)
+                </button>
+            </div>
         </div>
-      </div>
 
-      <!-- Text Content Area -->
-      <div class="text-content-wrapper">
-        <div class="content-title-wrapper">
-          <img src="assets/ui/answer-box-title.webp" class="content-title-img">
-          <h3 class="content-title">ကဒ်မှပေးသော ဟောစာတမ်း</h3>
+        <!-- ================= 2. MAIN MENU SCREEN ================= -->
+        <div id="screen-main-menu" class="screen absolute inset-0 z-40 flex flex-col justify-between p-5 hidden overflow-y-auto">
+            <!-- Top Bar: Title & Ticket -->
+            <div class="flex items-center justify-between w-full mt-2 z-10">
+                <img src="assets/title/title-logo.webp" onerror="this.src='https://placehold.co/120x40/15132d/d4af37?text=TAROT'" alt="Logo" class="h-10 object-contain drop-shadow-[0_0_8px_rgba(212,175,55,0.6)]">
+                
+                <div class="flex items-center space-x-2 glass-panel px-3 py-1.5 rounded-full border border-mystic-accent/40">
+                    <img src="assets/icons/ticket.webp" onerror="this.src='https://placehold.co/24x24/d4af37/000?text=T'" alt="Ticket" class="w-5 h-5 object-contain">
+                    <span id="ticket-count" class="font-bold text-yellow-400 text-sm">3</span>
+                    <button onclick="switchScreen('screen-ticket')" class="w-6 h-6 rounded-full bg-yellow-500 text-mystic-900 flex items-center justify-center hover:bg-yellow-400 active:scale-95 shadow-md">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Center Content: Main Frame BG & Buttons -->
+            <div class="relative flex-1 flex flex-col items-center justify-center my-6 z-10">
+                <div class="relative w-full max-w-[340px] aspect-[4/5] flex flex-col items-center justify-center p-6 rounded-3xl bg-mystic-800/40 border border-mystic-accent/20 backdrop-blur-sm shadow-[0_0_30px_rgba(157,78,221,0.2)]">
+                    <img src="assets/ui/main-frame.webp" onerror="this.style.display='none'" alt="Frame Bg" class="absolute inset-0 w-full h-full object-cover -z-10 opacity-60 rounded-3xl mix-blend-screen">
+                    
+                    <div class="text-center mb-6">
+                        <h2 class="font-cinzel text-xl font-bold text-yellow-400 tracking-wider mb-1 drop-shadow-md">TryIt Hub Tarot</h2>
+                        <p class="text-xs text-gray-300">သင့်ရဲ့ ကံကြမ္မာကို ယနေ့ပဲ ဟောကိန်းထုတ်လိုက်ပါ</p>
+                    </div>
+
+                    <div class="w-full flex flex-col space-y-3 z-10">
+                        <!-- Row 1 -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="checkAndStart('daily')" class="relative py-3 px-2 rounded-xl text-xs font-bold text-center text-yellow-200 bg-mystic-700/80 border border-yellow-500/40 hover:scale-105 transition-all shadow-lg overflow-hidden group">
+                                <span class="relative z-10 flex flex-col items-center justify-center space-y-1">
+                                    <i class="fa-solid fa-sun text-yellow-400 text-base"></i>
+                                    <span>ဒီနေ့အတွက်</span>
+                                </span>
+                            </button>
+                            <button onclick="checkAndStart('weekly')" class="relative py-3 px-2 rounded-xl text-xs font-bold text-center text-yellow-200 bg-mystic-700/80 border border-yellow-500/40 hover:scale-105 transition-all shadow-lg overflow-hidden group">
+                                <span class="relative z-10 flex flex-col items-center justify-center space-y-1">
+                                    <i class="fa-solid fa-calendar-week text-yellow-400 text-base"></i>
+                                    <span>တစ်ပတ်လုံးအတွက်</span>
+                                </span>
+                            </button>
+                        </div>
+
+                        <!-- Row 2 -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <button onclick="checkAndStart('monthly')" class="relative py-3 px-2 rounded-xl text-xs font-bold text-center text-yellow-200 bg-mystic-700/80 border border-yellow-500/40 hover:scale-105 transition-all shadow-lg overflow-hidden group">
+                                <span class="relative z-10 flex flex-col items-center justify-center space-y-1">
+                                    <i class="fa-solid fa-calendar-days text-yellow-400 text-base"></i>
+                                    <span>တစ်လလုံးအတွက်</span>
+                                </span>
+                            </button>
+                            <button onclick="checkAndStart('yearly')" class="relative py-3 px-2 rounded-xl text-xs font-bold text-center text-yellow-200 bg-mystic-700/80 border border-yellow-500/40 hover:scale-105 transition-all shadow-lg overflow-hidden group">
+                                <span class="relative z-10 flex flex-col items-center justify-center space-y-1">
+                                    <i class="fa-solid fa-calendar text-yellow-400 text-base"></i>
+                                    <span>တစ်နှစ်လုံးအတွက်</span>
+                                </span>
+                            </button>
+                        </div>
+
+                        <!-- Row 3 (Category) -->
+                        <button onclick="openDialogue('category')" class="relative w-full py-3.5 px-4 rounded-xl text-xs font-bold text-center text-yellow-100 bg-gradient-to-r from-purple-900 to-indigo-900 border border-yellow-500/50 hover:scale-[1.02] transition-all shadow-[0_0_15px_rgba(212,175,55,0.3)] overflow-hidden group">
+                            <span class="relative z-10 flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-wand-magic-sparkles text-yellow-400 text-sm"></i>
+                                <span>နယ်ပယ်အလိုက် တာရော့ကြည့်မယ် (1 Ticket)</span>
+                            </span>
+                        </button>
+
+                        <!-- Row 4 (PPF) -->
+                        <button onclick="openDialogue('ppf')" class="relative w-full py-3.5 px-4 rounded-xl text-xs font-bold text-center text-yellow-100 bg-gradient-to-r from-indigo-900 to-purple-900 border border-yellow-500/50 hover:scale-[1.02] transition-all shadow-[0_0_15px_rgba(157,78,221,0.3)] overflow-hidden group">
+                            <span class="relative z-10 flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-clock-rotate-left text-yellow-400 text-sm"></i>
+                                <span>အတိတ်၊ ပစ္စုပ္ပန်၊ အနာဂတ် (1 Ticket)</span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Icons -->
+            <div class="flex items-center justify-around w-full py-3 glass-panel rounded-2xl border-t border-mystic-accent/30 z-10 mb-2">
+                <button onclick="switchScreen('screen-settings')" class="flex flex-col items-center text-gray-300 hover:text-yellow-400 transition-colors">
+                    <i class="fa-solid fa-gear text-xl mb-1"></i>
+                    <span class="text-[10px]">ဆက်တင်</span>
+                </button>
+                <button onclick="openSaveModal()" class="flex flex-col items-center text-gray-300 hover:text-yellow-400 transition-colors">
+                    <i class="fa-solid fa-bookmark text-xl mb-1"></i>
+                    <span class="text-[10px]">မှတ်တမ်း</span>
+                </button>
+                <button onclick="switchScreen('screen-about')" class="flex flex-col items-center text-gray-300 hover:text-yellow-400 transition-colors">
+                    <i class="fa-solid fa-circle-info text-xl mb-1"></i>
+                    <span class="text-[10px]">အကြောင်း</span>
+                </button>
+                <button onclick="exitApp()" class="flex flex-col items-center text-red-400 hover:text-red-300 transition-colors">
+                    <i class="fa-solid fa-right-from-bracket text-xl mb-1"></i>
+                    <span class="text-[10px]">ထွက်မည်</span>
+                </button>
+            </div>
         </div>
-        
-        <div class="content-box-wrapper">
-          <img src="assets/ui/answer-box.webp" class="content-bg">
-          <div class="content-text" id="resultTextArea"></div>
+
+        <!-- ================= 3. DIALOGUE SCREEN ================= -->
+        <div id="screen-dialogue" class="screen absolute inset-0 z-40 flex flex-col justify-between p-5 hidden">
+            <div class="flex items-center justify-between w-full mt-2 z-10">
+                <button onclick="switchScreen('screen-main-menu')" class="p-2 rounded-full glass-panel border border-mystic-accent/30 text-yellow-400 hover:bg-mystic-700 transition-all">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <span class="font-cinzel text-sm text-yellow-400 tracking-wider">နက္ခတ်ဆရာမ မီမီ</span>
+                <div class="w-8"></div>
+            </div>
+
+            <div class="flex-1 flex flex-col items-center justify-center my-4 space-y-6 z-10">
+                <!-- Character Profile -->
+                <div class="flex flex-col items-center animate-float">
+                    <div class="relative w-32 h-32 rounded-full p-1 bg-gradient-to-tr from-yellow-500 to-purple-600 shadow-[0_0_20px_rgba(157,78,221,0.6)]">
+                        <img src="assets/char/girl.webp" onerror="this.src='https://placehold.co/120x120/221e4a/d4af37?text=Mimi'" alt="Mimi" class="w-full h-full object-cover rounded-full border-2 border-mystic-900">
+                    </div>
+                    <span class="mt-3 text-sm font-bold text-yellow-300 drop-shadow-md">မီမီ</span>
+                </div>
+
+                <!-- Speech Bubble -->
+                <div class="relative w-full p-5 rounded-2xl glass-panel border border-yellow-500/30 text-sm leading-relaxed text-gray-100 min-h-[100px] flex items-center justify-center text-center shadow-xl">
+                    <p id="dialogue-text" class="font-medium">မင်္ဂလာပါရှင်! ဘယ်လိုကိစ္စရပ်အတွက် တာရော့ကြည့်ချင်ပါသလဲရှင့်?</p>
+                </div>
+            </div>
+
+            <div id="dialogue-options" class="flex flex-col space-y-3 mb-4 z-10">
+                <!-- Dynamic buttons -->
+            </div>
         </div>
-      </div>
 
-      <!-- Solution Button (Appears only after problem) -->
-      <div id="solutionBtnContainer" style="display:none; width:100%; max-width:400px; margin-top:20px;">
-        <button class="game-btn large-btn" onclick="startSolutionPhase()">
-          <img src="assets/ui/btn-bg.webp" class="btn-bg"><span>ဖြေရှင်းနည်းကြည့်မယ်</span>
-        </button>
-      </div>
+        <!-- ================= 4. SHUFFLE SCREEN ================= -->
+        <div id="screen-shuffle" class="screen absolute inset-0 z-40 flex flex-col items-center justify-center p-5 hidden">
+            <div class="relative w-64 h-96 rounded-2xl glass-panel border border-yellow-500/50 flex items-center justify-center overflow-hidden shadow-[0_0_30px_rgba(212,175,55,0.4)]">
+                <img id="shuffle-img" src="assets/ui/shuffle-1.png" onerror="this.src='https://placehold.co/240x360/15132d/d4af37?text=Shuffling...'" alt="Shuffle" class="w-full h-full object-cover">
+            </div>
+            <div class="mt-8 text-center z-10">
+                <h3 class="font-cinzel text-lg font-bold text-yellow-400 tracking-wider mb-1 animate-pulse">ကဒ်များကို ရောနှောနေပါသည်...</h3>
+                <p class="text-xs text-gray-400">ကျေးဇူးပြု၍ ခဏစောင့်ပါရှင်</p>
+            </div>
+        </div>
 
-      <!-- Action Buttons -->
-      <div class="result-actions" id="resultActionButtons">
-        <button class="game-btn small-btn" onclick="saveCurrentReading()"><img src="assets/ui/btn-bg.webp" class="btn-bg"><span>Save</span></button>
-        <button class="game-btn small-btn" onclick="promptAgain()"><img src="assets/ui/btn-bg.webp" class="btn-bg"><span>Again</span></button>
-        <button class="game-btn small-btn" onclick="goHome()"><img src="assets/ui/btn-bg.webp" class="btn-bg"><span>Home</span></button>
-      </div>
+        <!-- ================= 5. PICK SCREEN ================= -->
+        <div id="screen-pick" class="screen absolute inset-0 z-40 flex flex-col justify-between p-5 hidden overflow-y-auto">
+            <div class="flex items-center justify-between w-full mt-2 z-10">
+                <button onclick="switchScreen('screen-main-menu')" class="p-2 rounded-full glass-panel border border-mystic-accent/30 text-yellow-400 hover:bg-mystic-700 transition-all">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <span id="pick-title" class="font-cinzel text-xs text-yellow-400 tracking-wider text-center px-2">ဤကဒ် ခြောက်ပုံ ထဲက တစ်ပုံကို ရွေးပေးပါရှင့်</span>
+                <div class="w-8"></div>
+            </div>
+
+            <div id="pick-grid-container" class="flex-1 flex flex-col items-center justify-center my-4 z-10">
+                <!-- Dynamic Grid -->
+            </div>
+
+            <div id="pick-action-container" class="w-full pb-2 hidden z-10">
+                <button id="btn-confirm-pick" onclick="confirmPick13()" class="w-full py-3.5 rounded-xl font-bold uppercase tracking-wider text-xs text-mystic-900 bg-gradient-to-r from-yellow-600 via-yellow-400 to-yellow-600 shadow-xl hover:scale-[1.02] transition-all">
+                    ကဒ်ကြည့်မယ်
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= 6. BEFORE RESULT SCREEN ================= -->
+        <div id="screen-before-result" class="screen absolute inset-0 z-40 flex flex-col justify-between p-5 hidden">
+            <div class="flex items-center justify-between w-full mt-2 z-10">
+                <button onclick="switchScreen('screen-main-menu')" class="p-2 rounded-full glass-panel border border-mystic-accent/30 text-yellow-400 hover:bg-mystic-700 transition-all">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <span class="font-cinzel text-sm text-yellow-400 tracking-wider">ရွေးချယ်ထားသော ကဒ်</span>
+                <div class="w-8"></div>
+            </div>
+
+            <div class="flex-1 flex flex-col items-center justify-center my-4 space-y-6 z-10">
+                <!-- Glowing Card -->
+                <div class="relative w-48 h-72 rounded-2xl p-1 bg-gradient-to-br from-yellow-400 via-purple-600 to-yellow-400 shadow-[0_0_40px_rgba(157,78,221,0.7)] flex items-center justify-center">
+                    <img id="before-card-img" src="" alt="Card" class="w-full h-full object-cover rounded-xl border-2 border-mystic-900">
+                </div>
+
+                <div class="flex flex-col items-center space-y-2">
+                    <span id="before-card-name" class="font-bold text-lg text-yellow-300 drop-shadow-md">The Fool</span>
+                    <span id="before-card-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-green-500/20 text-green-300 border border-green-500/30">Upright</span>
+                </div>
+            </div>
+
+            <div class="w-full pb-4 z-10">
+                <button onclick="showFinalResult()" class="w-full py-4 rounded-xl font-bold uppercase tracking-wider text-xs text-mystic-900 bg-gradient-to-r from-yellow-600 via-yellow-400 to-yellow-600 shadow-xl hover:scale-[1.02] transition-all">
+                    ဟောစာတမ်းကိုကြည့်မယ်
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= 7. RESULT SCREEN ================= -->
+        <div id="screen-result" class="screen absolute inset-0 z-40 flex flex-col justify-between p-5 hidden overflow-y-auto">
+            <div class="flex items-center justify-between w-full mt-2 z-10">
+                <button onclick="switchScreen('screen-main-menu')" class="p-2 rounded-full glass-panel border border-mystic-accent/30 text-yellow-400 hover:bg-mystic-700 transition-all">
+                    <i class="fa-solid fa-house"></i>
+                </button>
+                <span id="result-header-title" class="font-cinzel text-xs text-yellow-400 tracking-wider">တာရော့ဟောစာတမ်း</span>
+                <button onclick="openSaveModal()" class="p-2 rounded-full glass-panel border border-mystic-accent/30 text-yellow-400 hover:bg-mystic-700 transition-all">
+                    <i class="fa-solid fa-bookmark"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 flex flex-col items-center my-4 space-y-4 z-10">
+                <div id="result-cards-wrapper" class="flex items-center justify-center space-x-3 my-2 w-full overflow-x-auto pb-2">
+                    <!-- Cards -->
+                </div>
+
+                <div id="swipe-indicator" class="hidden text-[10px] text-yellow-400 bg-mystic-800/80 px-3 py-1 rounded-full border border-yellow-500/25 animate-pulse flex items-center space-x-2">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>ဘယ်/ညာ ပွတ်၍ ဖတ်ပါ</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </div>
+
+                <!-- Text Box -->
+                <div class="relative w-full p-5 rounded-2xl glass-panel border border-yellow-500/30 shadow-[0_0_20px_rgba(0,0,0,0.5)] flex flex-col h-[250px]">
+                    <div class="flex items-center justify-between mb-2 border-b border-yellow-500/20 pb-2 shrink-0">
+                        <h4 id="answer-section-title" class="font-bold text-xs text-yellow-300">ယနေ့အတွက် ဟောကိန်း</h4>
+                        <span id="result-date-badge" class="text-[10px] text-gray-400">24 Oct 2026</span>
+                    </div>
+                    <div class="flex-1 overflow-y-auto pr-1">
+                        <p id="result-text" class="text-sm leading-relaxed text-gray-200 typewriter-text"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-3 pt-2 border-t border-mystic-accent/20 z-10 mb-2">
+                <button onclick="saveCurrentResult()" class="py-3 px-2 rounded-xl text-xs font-bold text-yellow-200 glass-panel border border-yellow-500/40 hover:bg-mystic-700 transition-all flex flex-col items-center justify-center">
+                    <i class="fa-solid fa-bookmark text-yellow-400 mb-1"></i>
+                    <span>သိမ်းမည်</span>
+                </button>
+                <button onclick="openAgainModal()" class="py-3 px-2 rounded-xl text-xs font-bold text-mystic-900 bg-gradient-to-r from-yellow-600 via-yellow-400 to-yellow-600 shadow-lg hover:scale-105 transition-all flex flex-col items-center justify-center">
+                    <i class="fa-solid fa-rotate-right mb-1"></i>
+                    <span>ထပ်ကြည့်မည်</span>
+                </button>
+                <button onclick="switchScreen('screen-main-menu')" class="py-3 px-2 rounded-xl text-xs font-bold text-yellow-200 glass-panel border border-yellow-500/40 hover:bg-mystic-700 transition-all flex flex-col items-center justify-center">
+                    <i class="fa-solid fa-house text-yellow-400 mb-1"></i>
+                    <span>ပင်မ</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= 8. TICKET SCREEN ================= -->
+        <div id="screen-ticket" class="screen absolute inset-0 z-40 flex flex-col justify-between p-5 hidden overflow-y-auto">
+            <div class="flex items-center justify-between w-full mt-2 z-10">
+                <button onclick="switchScreen('screen-main-menu')" class="p-2 rounded-full glass-panel border border-mystic-accent/30 text-yellow-400 hover:bg-mystic-700 transition-all">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <span class="font-cinzel text-sm text-yellow-400 tracking-wider">Ticket ဖြည့်ရန်</span>
+                <div class="flex items-center space-x-1 glass-panel px-3 py-1 rounded-full border border-yellow-500/40">
+                    <img src="assets/icons/ticket.webp" onerror="this.src='https://placehold.co/20x20/d4af37/000?text=T'" class="w-4 h-4 object-contain">
+                    <span id="ticket-screen-count" class="font-bold text-yellow-400 text-xs">3</span>
+                </div>
+            </div>
+
+            <div class="flex-1 flex flex-col space-y-4 my-6 z-10">
+                <div class="flex items-center justify-between p-4 rounded-2xl glass-panel border border-yellow-500/30">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-yellow-500/20 border border-yellow-500/40 flex items-center justify-center text-yellow-400">
+                            <i class="fa-solid fa-right-to-bracket text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-xs text-yellow-300">နေ့စဥ် ဝင်ရောက်ခြင်း</h4>
+                            <p class="text-[10px] text-gray-400">တစ်နေ့လျှင် ၁ ကြိမ် (+1 Ticket)</p>
+                        </div>
+                    </div>
+                    <button id="btn-task-login" onclick="claimLoginTicket()" class="px-4 py-2 rounded-xl text-xs font-bold text-mystic-900 bg-yellow-500 hover:bg-yellow-400 transition-all shadow-md">ရယူမည်</button>
+                </div>
+
+                <div class="flex items-center justify-between p-4 rounded-2xl glass-panel border border-yellow-500/30">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-yellow-500/20 border border-yellow-500/40 flex items-center justify-center text-yellow-400">
+                            <i class="fa-solid fa-video text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-xs text-yellow-300">ကြော်ငြာကြည့်ရှုခြင်း</h4>
+                            <p id="ad-status-text" class="text-[10px] text-gray-400">ကျန်ရှိမှု - 7/7 ကြိမ် (+2 Tickets)</p>
+                        </div>
+                    </div>
+                    <button onclick="watchAd()" class="px-4 py-2 rounded-xl text-xs font-bold text-mystic-900 bg-yellow-500 hover:bg-yellow-400 transition-all shadow-md">ကြည့်မည်</button>
+                </div>
+
+                <div class="flex items-center justify-between p-4 rounded-2xl glass-panel border border-yellow-500/30">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-yellow-500/20 border border-yellow-500/40 flex items-center justify-center text-yellow-400">
+                            <i class="fa-solid fa-share-nodes text-lg"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-xs text-yellow-300">မိတ်ဆွေများထံ မျှဝေခြင်း</h4>
+                            <p id="share-status-text" class="text-[10px] text-gray-400">ကျန်ရှိမှု - 3/3 ကြိမ် (+1 Ticket)</p>
+                        </div>
+                    </div>
+                    <button onclick="shareApp()" class="px-4 py-2 rounded-xl text-xs font-bold text-mystic-900 bg-yellow-500 hover:bg-yellow-400 transition-all shadow-md">မျှဝေမည်</button>
+                </div>
+            </div>
+            <div class="text-center pb-2 z-10">
+                <p class="text-[10px] text-gray-500">Adsgram Block ID: 52425</p>
+            </div>
+        </div>
+
+        <!-- ================= 9. SETTINGS & ABOUT ================= -->
+        <div id="screen-settings" class="screen absolute inset-0 z-40 flex flex-col justify-between p-5 hidden">
+            <div class="flex items-center justify-between w-full mt-2">
+                <button onclick="switchScreen('screen-main-menu')" class="p-2 rounded-full glass-panel border border-mystic-accent/30 text-yellow-400 hover:bg-mystic-700 transition-all">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <span class="font-cinzel text-sm text-yellow-400 tracking-wider">ဆက်တင်များ</span>
+                <div class="w-8"></div>
+            </div>
+            <div class="flex-1 flex flex-col space-y-4 my-6">
+                <div class="flex items-center justify-between p-4 rounded-2xl glass-panel border border-yellow-500/30">
+                    <div class="flex items-center space-x-3">
+                        <i class="fa-solid fa-volume-high text-yellow-400"></i>
+                        <span class="text-sm font-bold text-gray-200">အသံနှင့် တေးဂီတ</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="setting-sound" checked class="sr-only peer">
+                        <div class="w-11 h-6 bg-mystic-700 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-yellow-500"></div>
+                    </label>
+                </div>
+            </div>
+            <div class="text-center pb-4"><p class="text-[10px] text-gray-500">Version 2.72.1</p></div>
+        </div>
+
+        <div id="screen-about" class="screen absolute inset-0 z-40 flex flex-col justify-between p-5 hidden overflow-y-auto">
+            <div class="flex items-center justify-between w-full mt-2">
+                <button onclick="switchScreen('screen-main-menu')" class="p-2 rounded-full glass-panel border border-mystic-accent/30 text-yellow-400 hover:bg-mystic-700 transition-all">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <span class="font-cinzel text-sm text-yellow-400 tracking-wider">အကြောင်းအရာ</span>
+                <div class="w-8"></div>
+            </div>
+            <div class="flex-1 flex flex-col items-center my-6 space-y-4 text-center">
+                <img src="assets/title/title-logo.webp" onerror="this.src='https://placehold.co/150x50/15132d/d4af37?text=Tarot'" class="h-14 object-contain animate-float mb-2">
+                <div class="glass-panel p-5 rounded-2xl border border-yellow-500/30 text-sm leading-relaxed text-gray-200">
+                    <p class="mb-2">ဤအက်ပ်ကို TryIt Hub မှ ဖန်တီးထားပါသည်။</p>
+                    <p class="text-xs text-gray-400 mb-2">ကျွန်ုပ်တို့၏ တာရော့ဗေဒင် ဟောစာတမ်းများသည် ပရော်ဖက်ရှင်နယ် အကြံဉာဏ်များ မဟုတ်ပါ။</p>
+                    <p class="text-yellow-400 font-bold">မီမီ (Mimi) ၏ မှော်ပညာ စကြဝဠာ</p>
+                </div>
+            </div>
+            <div class="text-center pb-4"><p class="text-[10px] text-gray-500">Developed for Telegram Mini Apps</p></div>
+        </div>
+
     </div>
-  </section>
 
-  <!-- Save List Modal -->
-  <div class="modal-overlay" id="saveModal">
-    <div class="modal-content popup-bg" style="background-image: url('assets/ui/ticket-modal-bg.webp'); max-height: 80vh; overflow-y: auto;">
-      <h2 style="color:#fbbf24; margin-bottom:15px; font-family:'Padauk'; text-align:center;">Save ထားသည်များ</h2>
-      <div id="saveListContainer" style="display:flex; flex-direction:column; gap:10px;"></div>
-      <button class="btn primary-btn" onclick="closeModal('saveModal')" style="margin-top:20px;">ပိတ်မည်</button>
-    </div>
-  </div>
-
-  <!-- Again Prompt Modal -->
-  <div class="modal-overlay" id="againModal">
-    <div class="modal-content popup-bg" style="background-image: url('assets/ui/disclaimer-box.webp'); padding: 30px 20px;">
-      <img src="assets/char/girl.webp" style="width:100px; margin:-80px auto 10px; display:block;">
-      <p style="font-family:'Padauk'; font-size:16px; margin-bottom:20px; text-align:center; color:white; text-shadow:1px 1px 2px #000;">မင်္ဂလာပါ။ တာရော့ကဒ်ကို ဘာအတွက်ဟောဖို့သုံးမှာလဲရှင့်။<br><span style="color:#ef4444; font-size:14px;">(Ticket ၁ ခု ကုန်ပါမည်)</span></p>
-      <div style="display:flex; flex-direction:column; gap:10px;">
-        <button class="game-btn" onclick="confirmAgain('daily')"><img src="assets/ui/dialogue-ans-box.webp" class="btn-bg"><span>ဒီနေ့အတွက်</span></button>
-        <button class="game-btn" onclick="confirmAgain('weekly')"><img src="assets/ui/dialogue-ans-box.webp" class="btn-bg"><span>တစ်ပတ်လုံးအတွက်</span></button>
-        <button class="game-btn" onclick="confirmAgain('monthly')"><img src="assets/ui/dialogue-ans-box.webp" class="btn-bg"><span>တစ်လလုံးအတွက်</span></button>
-        <button class="game-btn" onclick="confirmAgain('yearly')"><img src="assets/ui/dialogue-ans-box.webp" class="btn-bg"><span>တစ်နှစ်လုံးအတွက်</span></button>
-        <button class="game-btn" onclick="confirmAgain('category_menu')"><img src="assets/ui/dialogue-ans-box.webp" class="btn-bg"><span>နယ်ပယ်အလိုက် / PPF</span></button>
-      </div>
-      <button class="btn" onclick="closeModal('againModal')" style="margin-top:15px; background:rgba(255,255,255,0.1); width:100%; color:white; border-radius:10px; padding:12px; border:1px solid #555;">မလုပ်တော့ပါ</button>
-    </div>
-  </div>
-
-  <!-- Ticket Popup -->
-  <div class="modal-overlay" id="ticketModal">
-    <div class="modal-content popup-bg" style="background-image: url('assets/ui/ticket-modal-bg.webp');">
-      <h3 style="color:#fbbf24; margin-bottom:15px; font-family:'Padauk'; text-align:center;">Ticket များရယူရန်</h3>
-      
-      <div class="ticket-menu-item">
-        <img src="assets/icons/login-in.webp" class="ticket-icon">
-        <div class="ticket-text">
-           <span>နေ့စဉ် ဝင်ရောက်ပါ။</span>
-           <span class="ticket-limit" id="loginLimit">0/1</span>
+    <!-- MODALS -->
+    <!-- Save List Modal -->
+    <div id="modal-save" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="relative w-full max-w-sm rounded-3xl glass-panel border border-yellow-500/40 p-5 flex flex-col max-h-[80vh] shadow-2xl">
+            <div class="flex items-center justify-between mb-4 border-b border-yellow-500/20 pb-3">
+                <h3 class="font-cinzel text-sm font-bold text-yellow-400">သိမ်းဆည်းထားသော မှတ်တမ်းများ (Max 5)</h3>
+                <button onclick="closeModal('modal-save')" class="text-gray-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div id="save-list-container" class="flex-1 overflow-y-auto space-y-3 pr-1">
+                <!-- Saved Items -->
+            </div>
         </div>
-        <button class="ticket-add-btn" onclick="dailyLogin()">+1</button>
-      </div>
-
-      <div class="ticket-menu-item">
-        <img src="assets/icons/watch-ads.webp" class="ticket-icon">
-        <div class="ticket-text">
-           <span>ကြော်ငြာကြည့်ပြီး ကဒ်ယူပါ။</span>
-           <span class="ticket-limit" id="adLimit">0/7</span>
-        </div>
-        <button class="ticket-add-btn" onclick="watchAd()">+2</button>
-      </div>
-
-      <div class="ticket-menu-item">
-        <img src="assets/icons/share.webp" class="ticket-icon">
-        <div class="ticket-text">
-           <span>သင့်သူငယ်ချင်းထံ ရှယ်ပါ။</span>
-           <span class="ticket-limit" id="shareLimit">0/3</span>
-        </div>
-        <button class="ticket-add-btn" onclick="shareApp()">+1</button>
-      </div>
-
-      <button class="btn primary-btn" onclick="closeModal('ticketModal')" style="margin-top:15px;">ပိတ်မည်</button>
     </div>
-  </div>
 
-  <script src="tarot-data.js"></script>
-  <script src="tarot.js"></script>
+    <!-- Again Modal -->
+    <div id="modal-again" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="relative w-full max-w-xs rounded-3xl glass-panel border border-yellow-500/40 p-5 flex flex-col text-center shadow-2xl">
+            <img src="assets/char/girl.webp" onerror="this.style.display='none'" class="w-16 h-16 rounded-full mx-auto mb-3 border border-yellow-400">
+            <h3 class="font-cinzel text-sm font-bold text-yellow-400 mb-2">ထပ်မံကြည့်ရှုမည်</h3>
+            <p class="text-xs text-gray-300 mb-4">မည်သည့် ဟောကိန်းအမျိုးအစားဖြင့် ထပ်မံကြည့်လိုပါသလဲ? <br><span class="text-red-400 text-[10px]">(Ticket ၁ ခု ကုန်ပါမည်)</span></p>
+            <div id="again-options-container" class="flex flex-col space-y-2 mb-4">
+                <!-- Dynamic Options -->
+            </div>
+            <button onclick="closeModal('modal-again')" class="w-full py-2.5 rounded-xl text-xs font-bold text-gray-300 bg-mystic-700 hover:bg-mystic-600 transition-all">မလုပ်တော့ပါ (Cancel)</button>
+        </div>
+    </div>
+
+    <!-- Custom Message Modal -->
+    <div id="modal-msg" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="relative w-full max-w-xs rounded-3xl glass-panel border border-yellow-500/40 p-6 flex flex-col text-center shadow-2xl">
+            <h3 id="msg-title" class="font-cinzel text-base font-bold text-yellow-400 mb-2">အသိပေးချက်</h3>
+            <p id="msg-text" class="text-xs text-gray-200 mb-5 leading-relaxed">မက်ဆေ့ခ်ျ...</p>
+            <button onclick="closeModal('modal-msg')" class="w-full py-3 rounded-xl font-bold text-xs text-mystic-900 bg-gradient-to-r from-yellow-600 via-yellow-400 to-yellow-600 shadow-lg">နားလည်ပါပြီ (OK)</button>
+        </div>
+    </div>
+
+    <script src="tarot-data.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
