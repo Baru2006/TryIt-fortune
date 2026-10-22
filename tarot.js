@@ -24,6 +24,39 @@ let selectedPickId = null;
 let onPickComplete = null;
 
 // ==========================================
+// DISCLAIMER LOGIC (အလုပ်မလုပ်တာ ပြင်ထားတယ်)
+// ==========================================
+function toggleAgreeButton() {
+    const cb = document.getElementById('disclaimer-checkbox');
+    const btn = document.getElementById('btn-disclaimer-agree');
+    
+    if (cb.checked) {
+        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        btn.classList.add('opacity-100', 'cursor-pointer', 'hover:scale-105');
+    } else {
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+        btn.classList.remove('opacity-100', 'cursor-pointer', 'hover:scale-105');
+    }
+}
+
+function agreeDisclaimer() {
+    const cb = document.getElementById('disclaimer-checkbox');
+    if (!cb.checked) {
+        alert("ကျေးဇူးပြု၍ သတိပေးချက်ကို အရင်ဆုံး သဘောတူညီပေးပါ။");
+        return;
+    }
+    
+    localStorage.setItem('tarot_disclaimer_agreed', 'true');
+    
+    // စခရင်ကို တိုက်ရိုက်ပြောင်းမယ်
+    document.getElementById('screen-disclaimer').classList.add('hidden');
+    document.getElementById('screen-disclaimer').style.display = 'none';
+    
+    document.getElementById('screen-main-menu').classList.remove('hidden');
+    document.getElementById('screen-main-menu').style.display = 'flex';
+}
+
+// ==========================================
 // INITIALIZATION & UTILS
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -45,7 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.Telegram.WebApp.expand();
     }
 
-    // Check Disclaimer Status
     if (localStorage.getItem('tarot_disclaimer_agreed') === 'true') {
         switchScreen('screen-main-menu');
     } else {
@@ -60,27 +92,6 @@ function setSeasonBackground() {
     if (bgEl) bgEl.style.backgroundImage = `url('assets/bg/${months[month]}.webp')`;
 }
 
-// Disclaimer Functions (Directly called from HTML)
-function toggleAgreeButton() {
-    const cb = document.getElementById('disclaimer-checkbox');
-    const btn = document.getElementById('btn-disclaimer-agree');
-    if (cb.checked) {
-        btn.removeAttribute('disabled');
-        btn.classList.remove('opacity-50', 'cursor-not-allowed');
-        btn.classList.add('opacity-100', 'cursor-pointer');
-    } else {
-        btn.setAttribute('disabled', 'true');
-        btn.classList.add('opacity-50', 'cursor-not-allowed');
-        btn.classList.remove('opacity-100', 'cursor-pointer');
-    }
-}
-
-function agreeDisclaimer() {
-    localStorage.setItem('tarot_disclaimer_agreed', 'true');
-    switchScreen('screen-main-menu');
-}
-
-// State Management
 function loadState() {
     const saved = localStorage.getItem('tarot_app_state');
     if (saved) {
@@ -103,12 +114,12 @@ function checkDailyResets() {
 function switchScreen(screenId) {
     document.querySelectorAll('.screen').forEach(el => {
         el.classList.add('hidden');
-        el.style.display = 'none'; // Force hide
+        el.style.display = 'none';
     });
     const target = document.getElementById(screenId);
     if (target) {
         target.classList.remove('hidden');
-        target.style.display = 'flex'; // Force show
+        target.style.display = 'flex';
     }
     updateTicketDisplay();
 }
