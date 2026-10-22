@@ -11,113 +11,87 @@ let appState = {
     activeCardIndex: 0
 };
 
-// Adsgram Config
+// Adsgram
 const ADSGRAM_BLOCK_ID = "52425";
 let AdController = null;
 
-// Current Session Result
+// Session
 let currentResultData = null;
 let typeInterval = null;
 let shuffleInterval = null;
+let pickedCardObj = null;
+let selectedPickId = null;
+let onPickComplete = null;
 
 // ==========================================
-// INITIALIZATION
+// INITIALIZATION & UTILS
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Check Internet
     if (!navigator.onLine) {
         alert("အသုံးပြုရန်အတွက် အင်တာနက် လိုအပ်ပါသည်။ ချိတ်ဆက်ပြီးမှ ပြန်လည်ဝင်ရောက်ပါ။");
     }
 
-    // 2. Load State
     loadState();
     updateTicketDisplay();
     checkDailyResets();
     setSeasonBackground();
 
-    // 3. Init Adsgram
     if (window.Adsgram) {
-        try {
-            AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID });
-        } catch (e) {
-            console.log("Adsgram init error:", e);
-        }
+        try { AdController = window.Adsgram.init({ blockId: ADSGRAM_BLOCK_ID }); } catch (e) { console.log(e); }
     }
 
-    // 4. Telegram Setup
     if (window.Telegram && window.Telegram.WebApp) {
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.expand();
     }
 
-    // 5. Setup Event Listeners
-    setupEventListeners();
-    checkDisclaimerState();
+    // Check Disclaimer Status
+    if (localStorage.getItem('tarot_disclaimer_agreed') === 'true') {
+        switchScreen('screen-main-menu');
+    } else {
+        switchScreen('screen-disclaimer');
+    }
 });
 
 function setSeasonBackground() {
     const month = new Date().getMonth();
     const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
     const bgEl = document.getElementById('season-bg');
-    if (bgEl) {
-        bgEl.style.backgroundImage = `url('assets/bg/${months[month]}.webp')`;
-    }
+    if (bgEl) bgEl.style.backgroundImage = `url('assets/bg/${months[month]}.webp')`;
 }
 
-function setupEventListeners() {
-    const disclaimerCb = document.getElementById('disclaimer-checkbox');
-    const agreeBtn = document.getElementById('btn-disclaimer-agree');
-
-    if(disclaimerCb) {
-        disclaimerCb.addEventListener('change', (e) => {
-            if (e.target.checked) {
-                agreeBtn.removeAttribute('disabled'); // Disabled ကို ဖြုတ်မယ်
-                agreeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            } else {
-                agreeBtn.setAttribute('disabled', 'true');
-                agreeBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            }
-        });
-    }
-}
-
-function checkDisclaimerState() {
-    if (localStorage.getItem('tarot_disclaimer_agreed') === 'true') {
-        switchScreen('screen-main-menu');
+// Disclaimer Functions (Directly called from HTML)
+function toggleAgreeButton() {
+    const cb = document.getElementById('disclaimer-checkbox');
+    const btn = document.getElementById('btn-disclaimer-agree');
+    if (cb.checked) {
+        btn.removeAttribute('disabled');
+        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        btn.classList.add('opacity-100', 'cursor-pointer');
     } else {
-        switchScreen('screen-disclaimer');
+        btn.setAttribute('disabled', 'true');
+        btn.classList.add('opacity-50', 'cursor-not-allowed');
+        btn.classList.remove('opacity-100', 'cursor-pointer');
     }
 }
 
 function agreeDisclaimer() {
-    try {
-        localStorage.setItem('tarot_disclaimer_agreed', 'true');
-    } catch(e) {
-        console.log("Local storage error", e);
-    }
+    localStorage.setItem('tarot_disclaimer_agreed', 'true');
     switchScreen('screen-main-menu');
 }
 
-
-// ==========================================
-// UTILITIES & STATE MANAGEMENT
-// ==========================================
+// State Management
 function loadState() {
     const saved = localStorage.getItem('tarot_app_state');
     if (saved) {
-        try { appState = { ...appState, ...JSON.parse(saved) }; } catch(e) { console.error(e); }
+        try { appState = { ...appState, ...JSON.parse(saved) }; } catch(e) {}
     }
 }
-
-function saveState() {
-    localStorage.setItem('tarot_app_state', JSON.stringify(appState));
-}
+function saveState() { localStorage.setItem('tarot_app_state', JSON.stringify(appState)); }
 
 function checkDailyResets() {
     const today = new Date().toDateString();
-    let lastDate = localStorage.getItem('tarot_last_date');
-    
-    if (lastDate !== today) {
+    if (localStorage.getItem('tarot_last_date') !== today) {
         appState.adCount = 0;
         appState.shareCount = 0;
         appState.lastLoginDate = "";
@@ -140,8 +114,10 @@ function switchScreen(screenId) {
 }
 
 function updateTicketDisplay() {
-    document.getElementById('ticket-count').innerText = appState.tickets;
-    document.getElementById('ticket-screen-count').innerText = appState.tickets;
+    const tc = document.getElementById('ticket-count');
+    const tsc = document.getElementById('ticket-screen-count');
+    if(tc) tc.innerText = appState.tickets;
+    if(tsc) tsc.innerText = appState.tickets;
     
     const adEl = document.getElementById('ad-status-text');
     if(adEl) adEl.innerText = `ကျန်ရှိမှု - ${7 - appState.adCount}/7 ကြိမ် (+2 Tickets)`;
@@ -162,34 +138,25 @@ function showMsg(title, text) {
     document.getElementById('msg-text').innerText = text;
     document.getElementById('modal-msg').classList.remove('hidden');
 }
-
-function closeModal(id) {
-    document.getElementById(id).classList.add('hidden');
-}
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
 // ==========================================
-// READING FLOW & LOGIC
+// READING FLOW
 // ==========================================
 function checkAndStart(mode) {
     appState.currentMode = mode;
     appState.selectedCards = [];
     
-    // Check if already read today (Persistence)
     const todayStr = new Date().toDateString();
-    const savedKey = `tarot_res_${mode}_${todayStr}`;
-    const existingRes = localStorage.getItem(savedKey);
+    const existingRes = localStorage.getItem(`tarot_res_${mode}_${todayStr}`);
 
     if (existingRes) {
-        const resData = JSON.parse(existingRes);
-        currentResultData = resData;
-        displayResult(resData);
+        currentResultData = JSON.parse(existingRes);
+        displayResult(currentResultData);
         return;
     }
 
-    // Time readings are Free, so no ticket check. Just start.
-    startShuffle(() => {
-        startPickProcess();
-    });
+    startShuffle(() => startPickProcess());
 }
 
 function openDialogue(mode) {
@@ -239,14 +206,10 @@ function startCategory(catKey) {
     
     startShuffle(() => {
         startPick13(() => {
-            // Problem Card Picked
             appState.selectedCards = [pickedCardObj];
-            
-            // Automatically proceed to Solution after brief delay
             setTimeout(() => {
                 startShuffle(() => {
                     startPick13(() => {
-                        // Solution Card Picked
                         appState.selectedCards.push(pickedCardObj);
                         showCategoryResultScreen();
                     }, "ဖြေရှင်းနည်းအတွက် ကဒ်ရွေးပါ");
@@ -262,11 +225,9 @@ function startPPFPick() {
     startShuffle(() => {
         startPick13(() => {
             appState.selectedCards.push({ ...pickedCardObj, role: 'အတိတ် (Past)' });
-            
             startShuffle(() => {
                 startPick13(() => {
                     appState.selectedCards.push({ ...pickedCardObj, role: 'ပစ္စုပ္ပန် (Present)' });
-                    
                     startShuffle(() => {
                         startPick13(() => {
                             appState.selectedCards.push({ ...pickedCardObj, role: 'အနာဂတ် (Future)' });
@@ -280,7 +241,7 @@ function startPPFPick() {
 }
 
 // ==========================================
-// SHUFFLE & PICK UI
+// SHUFFLE & PICK
 // ==========================================
 function startShuffle(callback) {
     switchScreen('screen-shuffle');
@@ -293,8 +254,6 @@ function startShuffle(callback) {
         frame = (frame % 9) + 1;
         imgEl.src = `assets/ui/shuffle-${frame}.png`;
         totalCycles++;
-        
-        // 5 seconds (9 frames/0.8s = ~11.25ms per frame, total ~5s)
         if (totalCycles >= 45) {
             clearInterval(shuffleInterval);
             if (callback) callback();
@@ -312,7 +271,7 @@ function startPickProcess() {
         <div class="grid grid-cols-3 gap-4 w-full max-w-xs my-auto">
             ${[1,2,3,4,5,6].map(i => `
                 <div onclick="proceedToPick13()" class="aspect-[2/3] rounded-xl border-2 border-yellow-500/50 shadow-[0_0_15px_rgba(212,175,55,0.3)] cursor-pointer hover:scale-105 transition-all flex items-center justify-center bg-mystic-800 overflow-hidden">
-                    <img src="assets/cards/back.png" onerror="this.src='https://placehold.co/80x120/15132d/d4af37?text=Tarot'" alt="Card Back" class="w-full h-full object-cover">
+                    <img src="assets/cards/back.png" onerror="this.src='https://placehold.co/80x120/15132d/d4af37?text=Tarot'" alt="Card" class="w-full h-full object-cover">
                 </div>
             `).join('')}
         </div>
@@ -320,14 +279,8 @@ function startPickProcess() {
 }
 
 function proceedToPick13() {
-    startPick13(() => {
-        showBeforeResultScreen();
-    }, "ဤ၁၃ပုံ ထဲက တစ်ပုံကို ရွေးပေးပါရှင်");
+    startPick13(() => showBeforeResultScreen(), "ဤ၁၃ပုံ ထဲက တစ်ပုံကို ရွေးပေးပါရှင်");
 }
-
-let pickedCardObj = null;
-let selectedPickId = null;
-let onPickComplete = null;
 
 function startPick13(callback, titleText) {
     switchScreen('screen-pick');
@@ -377,7 +330,6 @@ function confirmPick13() {
         return;
     }
     
-    // Generate Random Card from Data
     const randomCard = TAROT_DECK[Math.floor(Math.random() * TAROT_DECK.length)];
     const isReversed = Math.random() > 0.7;
     pickedCardObj = { ...randomCard, isReversed };
@@ -414,40 +366,27 @@ function showFinalResult() {
         cards: appState.selectedCards
     };
     
-    // Save Persistence for Time Reading
     if (['daily', 'weekly', 'monthly', 'yearly'].includes(appState.currentMode)) {
         localStorage.setItem(`tarot_res_${appState.currentMode}_${todayStr}`, JSON.stringify(resObj));
     }
-    
     displayResult(resObj);
 }
 
 function showCategoryResultScreen() {
-    const resObj = {
-        mode: 'category',
-        category: appState.currentCategory,
-        date: new Date().toLocaleDateString('my-MM'),
-        cards: appState.selectedCards
-    };
-    displayResult(resObj);
+    displayResult({ mode: 'category', category: appState.currentCategory, date: new Date().toLocaleDateString('my-MM'), cards: appState.selectedCards });
 }
 
 function showPPFResultScreen() {
-    const resObj = {
-        mode: 'ppf',
-        date: new Date().toLocaleDateString('my-MM'),
-        cards: appState.selectedCards
-    };
-    displayResult(resObj);
+    displayResult({ mode: 'ppf', date: new Date().toLocaleDateString('my-MM'), cards: appState.selectedCards });
 }
 
 function displayResult(resData) {
     currentResultData = resData;
     appState.activeCardIndex = 0;
-    
     switchScreen('screen-result');
+    
     document.getElementById('result-date-badge').innerText = resData.date;
-    document.getElementById('result-header-title').innerText = resData.mode === 'category' ? 'နယ်ပယ်အလိုက် ဟောကိန်း' : (resData.mode === 'ppf' ? 'PPF ဟောကိန်း' : 'ယနေ့အတွက် ဟောကိန်း');
+    document.getElementById('result-header-title').innerText = resData.mode === 'category' ? 'နယ်ပယ်အလိုက်' : (resData.mode === 'ppf' ? 'PPF ဟောကိန်း' : 'ယနေ့အတွက်');
     
     renderResultView();
     setupSwipeGesture();
@@ -470,7 +409,6 @@ function renderResultView() {
             </div>
         `;
     }).join('');
-
     updateResultText();
 }
 
@@ -485,16 +423,13 @@ function updateResultText() {
     
     const card = currentResultData.cards[appState.activeCardIndex];
     const stateKey = card.isReversed ? 'reversed' : 'upright';
-    let displayText = "";
-    let title = "";
+    let displayText = "", title = "";
 
     if (currentResultData.mode === 'category') {
-        const role = appState.activeCardIndex === 0 ? "ပြဿနာ (Problem)" : "ဖြေရှင်းနည်း (Solution)";
-        title = `${role} - ${card.name}`;
+        title = `${appState.activeCardIndex === 0 ? 'ပြဿနာ' : 'ဖြေရှင်းနည်း'} - ${card.name}`;
         displayText = card[stateKey][currentResultData.category];
     } else if (currentResultData.mode === 'ppf') {
-        const role = card.role;
-        title = `${role} - ${card.name}`;
+        title = `${card.role} - ${card.name}`;
         const pKey = appState.activeCardIndex === 0 ? 'past' : (appState.activeCardIndex === 1 ? 'present' : 'future');
         displayText = card[stateKey][pKey];
     } else {
@@ -511,94 +446,56 @@ function typeWriterEffect(text, element) {
     element.innerText = "";
     let i = 0;
     typeInterval = setInterval(() => {
-        if (i < text.length) {
-            element.innerText += text.charAt(i);
-            i++;
-        } else {
-            clearInterval(typeInterval);
-        }
-    }, 20); // Speed
+        if (i < text.length) { element.innerText += text.charAt(i); i++; }
+        else { clearInterval(typeInterval); }
+    }, 20);
 }
 
 function setupSwipeGesture() {
-    let touchStartX = 0;
-    let touchEndX = 0;
-    const resultScreen = document.getElementById('screen-result');
-
-    resultScreen.ontouchstart = (e) => { touchStartX = e.changedTouches[0].screenX; };
-    resultScreen.ontouchend = (e) => {
+    let touchStartX = 0, touchEndX = 0;
+    const rs = document.getElementById('screen-result');
+    rs.ontouchstart = (e) => { touchStartX = e.changedTouches[0].screenX; };
+    rs.ontouchend = (e) => {
         touchEndX = e.changedTouches[0].screenX;
-        handleSwipe();
-    };
-
-    function handleSwipe() {
         if (!currentResultData || currentResultData.cards.length <= 1) return;
-        const maxIdx = currentResultData.cards.length - 1;
-
-        if (touchEndX < touchStartX - 50) { // Swipe Left
-            if (appState.activeCardIndex < maxIdx) {
-                appState.activeCardIndex++;
-                renderResultView();
-            }
+        
+        if (touchEndX < touchStartX - 50 && appState.activeCardIndex < currentResultData.cards.length - 1) {
+            appState.activeCardIndex++; renderResultView();
         }
-        if (touchEndX > touchStartX + 50) { // Swipe Right
-            if (appState.activeCardIndex > 0) {
-                appState.activeCardIndex--;
-                renderResultView();
-            }
+        if (touchEndX > touchStartX + 50 && appState.activeCardIndex > 0) {
+            appState.activeCardIndex--; renderResultView();
         }
-    }
+    };
 }
 
 // ==========================================
-// SAVE & AGAIN LOGIC
+// SAVE, AGAIN, TICKET
 // ==========================================
 function saveCurrentResult() {
     if (!currentResultData) return;
     let saves = appState.savedResults;
-    if (saves.length >= 5) saves.pop(); // Max 5
-    
-    saves.unshift({
-        id: Date.now(),
-        mode: currentResultData.mode,
-        category: currentResultData.category,
-        date: currentResultData.date,
-        cards: currentResultData.cards
-    });
+    if (saves.length >= 5) saves.pop();
+    saves.unshift({ ...currentResultData, id: Date.now() });
     appState.savedResults = saves;
     saveState();
-    showMsg("အောင်မြင်သည်", "ဟောစာတမ်းကို သိမ်းဆည်းပြီးပါပြီ။");
+    showMsg("အောင်မြင်သည်", "သိမ်းဆည်းပြီးပါပြီ။");
 }
 
 function openSaveModal() {
     const container = document.getElementById('save-list-container');
     container.innerHTML = '';
-    const saves = appState.savedResults;
-
-    if (saves.length === 0) {
-        container.innerHTML = `<p class="text-xs text-gray-400 text-center py-6">သိမ်းဆည်းထားသော မှတ်တမ်း မရှိသေးပါ။</p>`;
+    if (appState.savedResults.length === 0) {
+        container.innerHTML = `<p class="text-xs text-gray-400 text-center py-6">မှတ်တမ်း မရှိပါ။</p>`;
     } else {
-        saves.forEach(s => {
+        appState.savedResults.forEach(s => {
             const item = document.createElement('div');
-            item.className = "flex items-center justify-between p-3 rounded-2xl glass-panel border border-yellow-500/30 hover:border-yellow-400 cursor-pointer transition-all";
-            let modeName = s.mode === 'daily' ? 'Daily' : s.mode === 'category' ? 'Category' : s.mode === 'ppf' ? 'PPF' : s.mode;
-            
+            item.className = "flex items-center justify-between p-3 rounded-2xl glass-panel border border-yellow-500/30 cursor-pointer";
             item.innerHTML = `
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-14 rounded-lg overflow-hidden border border-yellow-500/40">
-                        <img src="assets/cards/${s.cards[0].img}" onerror="this.src='https://placehold.co/40x56/221e4a/d4af37?text=T'" class="w-full h-full object-cover">
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-xs text-yellow-300">${modeName}</h4>
-                        <p class="text-[10px] text-gray-400">${s.date} - ${s.cards[0].name}</p>
-                    </div>
-                </div>
-                <i class="fa-solid fa-chevron-right text-xs text-yellow-400"></i>
-            `;
-            item.onclick = () => {
-                closeModal('modal-save');
-                displayResult(s);
-            };
+                    <img src="assets/cards/${s.cards[0].img}" class="w-10 h-14 object-cover rounded border border-yellow-500/40">
+                    <div><h4 class="font-bold text-xs text-yellow-300">${s.mode}</h4><p class="text-[10px] text-gray-400">${s.date}</p></div>
+                </div><i class="fa-solid fa-chevron-right text-yellow-400"></i>`;
+            item.onclick = () => { closeModal('modal-save'); displayResult(s); };
             container.appendChild(item);
         });
     }
@@ -608,89 +505,49 @@ function openSaveModal() {
 function openAgainModal() {
     const container = document.getElementById('again-options-container');
     container.innerHTML = '';
-    const modes = [
-        { key: 'daily', name: 'ဒီနေ့အတွက် (Free)' },
-        { key: 'category', name: 'နယ်ပယ်အလိုက် (1 Ticket)' },
-        { key: 'ppf', name: 'PPF ဟောကိန်း (1 Ticket)' }
-    ];
-
-    modes.forEach(m => {
+    ['daily', 'category', 'ppf'].forEach(m => {
         const btn = document.createElement('button');
-        btn.className = "w-full py-2.5 rounded-xl text-xs font-bold text-yellow-200 glass-panel border border-yellow-500/30 hover:bg-mystic-700 transition-all";
-        btn.innerText = m.name;
-        btn.onclick = () => {
-            closeModal('modal-again');
-            checkAndStart(m.key);
-        };
+        btn.className = "w-full py-2.5 rounded-xl text-xs font-bold text-yellow-200 glass-panel border border-yellow-500/30";
+        btn.innerText = m === 'daily' ? 'ဒီနေ့အတွက်' : (m === 'category' ? 'နယ်ပယ်အလိုက် (1 Ticket)' : 'PPF (1 Ticket)');
+        btn.onclick = () => { closeModal('modal-again'); checkAndStart(m); };
         container.appendChild(btn);
     });
     document.getElementById('modal-again').classList.remove('hidden');
 }
 
-// ==========================================
-// TICKET TASKS & ADSGRAM
-// ==========================================
 function claimLoginTicket() {
-    const today = new Date().toDateString();
-    if (appState.lastLoginDate === today) return;
-    
-    appState.lastLoginDate = today;
+    if (appState.lastLoginDate === new Date().toDateString()) return;
+    appState.lastLoginDate = new Date().toDateString();
     appState.tickets += 1;
-    saveState();
-    updateTicketDisplay();
-    showMsg("အောင်မြင်သည်", "နေ့စဥ်ဝင်ရောက်မှုအတွက် +1 Ticket ရပါပြီ။");
+    saveState(); updateTicketDisplay();
+    showMsg("အောင်မြင်သည်", "+1 Ticket ရပါပြီ။");
 }
 
 function watchAd() {
-    if (!navigator.onLine) {
-        showMsg("အင်တာနက် မကောင်းပါ", "အင်တာနက် ချိတ်ဆက်မှု မကောင်းပါ။ ခဏနေမှ ပြန်စမ်းပါ။");
-        return;
-    }
-    if (appState.adCount >= 7) {
-        showMsg("ကန့်သတ်ချက် ပြည့်ပါပြီ", "ယနေ့အတွက် ကြော်ငြာကြည့်ရှုမှု ပြည့်သွားပါပြီ။");
-        return;
-    }
+    if (!navigator.onLine) { showMsg("အင်တာနက် မကောင်းပါ", "ချိတ်ဆက်မှု မကောင်းပါ။"); return; }
+    if (appState.adCount >= 7) { showMsg("ပြည့်သွားပါပြီ", "ကြော်ငြာကြည့်ခွင့် ကုန်ပါပြီ။"); return; }
+    if (!AdController) { showMsg("စနစ် အသင့်မဖြစ်ပါ", "ခဏနေမှ ပြန်စမ်းပါ။"); return; }
 
-    if (!AdController) {
-        showMsg("ကြော်ငြာ မအောင်မြင်ပါ", "ကြော်ငြာစနစ် အသင့်မဖြစ်သေးပါ။ ခဏနေမှ ပြန်စမ်းပါ။");
-        return;
-    }
-
-    AdController.show().then((result) => {
-        appState.adCount += 1;
-        appState.tickets += 2;
-        saveState();
-        updateTicketDisplay();
-        showMsg("အောင်မြင်သည်", "ကြော်ငြာကြည့်ရှုမှုအတွက် +2 Ticket ရပါပြီ။");
-    }).catch((error) => {
-        console.log("Ad error:", error);
-        showMsg("ကြော်ငြာ မအောင်မြင်ပါ", "အင်တာနက် ချိတ်ဆက်မှု မကောင်းပါ။ ခဏနေမှ ပြန်စမ်းပါ။");
+    AdController.show().then(() => {
+        appState.adCount += 1; appState.tickets += 2;
+        saveState(); updateTicketDisplay();
+        showMsg("အောင်မြင်သည်", "+2 Tickets ရပါပြီ။");
+    }).catch(() => {
+        showMsg("မအောင်မြင်ပါ", "အင်တာနက် မကောင်းပါ။ ခဏနေမှ ပြန်စမ်းပါ။");
     });
 }
 
 function shareApp() {
-    if (appState.shareCount >= 3) {
-        showMsg("ကန့်သတ်ချက် ပြည့်ပါပြီ", "ယနေ့အတွက် မျှဝေမှု ကန့်သတ်ချက် ပြည့်သွားပါပြီ။");
-        return;
-    }
-    
-    appState.shareCount += 1;
-    appState.tickets += 1;
-    saveState();
-    updateTicketDisplay();
-    
+    if (appState.shareCount >= 3) { showMsg("ပြည့်သွားပါပြီ", "ရှယ်ခွင့် ကုန်ပါပြီ။"); return; }
+    appState.shareCount += 1; appState.tickets += 1;
+    saveState(); updateTicketDisplay();
     if (window.Telegram && window.Telegram.WebApp) {
-        const url = "https://t.me/share/url?url=" + encodeURIComponent("https://t.me/YourBotName") + "&text=" + encodeURIComponent("Tarot App လေး စမ်းကြည့်ပါဦး");
-        window.Telegram.WebApp.openTelegramLink(url);
+        window.Telegram.WebApp.openTelegramLink("https://t.me/share/url?url=https://t.me/YourBot&text=Tarot");
     }
-    
-    showMsg("အောင်မြင်သည်", "မျှဝေမှုအတွက် +1 Ticket ရပါပြီ။");
+    showMsg("အောင်မြင်သည်", "+1 Ticket ရပါပြီ။");
 }
 
 function exitApp() {
-    if (window.Telegram && window.Telegram.WebApp) {
-        window.Telegram.WebApp.close();
-    } else {
-        window.location.href = 'tarot.html';
-    }
+    if (window.Telegram && window.Telegram.WebApp) window.Telegram.WebApp.close();
+    else window.location.href = 'index.html';
 }
