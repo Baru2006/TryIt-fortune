@@ -1,6 +1,6 @@
 // Global State
 let appState = {
-    tickets: 1,
+    tickets: 1, // စတင်ချိန်မှာ ၁ ခု
     lastLoginDate: "",
     adCount: 0,
     shareCount: 0,
@@ -11,8 +11,15 @@ let appState = {
     activeCardIndex: 0
 };
 
+// Audio
+const bgMusic = document.getElementById('bgMusic');
+const sfxClick = document.getElementById('sfxClick');
+const sfxShuffle = document.getElementById('sfxShuffle');
+const sfxReveal = document.getElementById('sfxReveal');
+let isSoundOn = true;
+
 // Adsgram
-const ADSGRAM_BLOCK_ID = "55409";
+const ADSGRAM_BLOCK_ID = "55409"; // ID အသစ်
 let AdController = null;
 
 // Session
@@ -23,8 +30,33 @@ let pickedCardObj = null;
 let selectedPickId = null;
 let onPickComplete = null;
 
+// Context Menu (Long Press) ကို ပိတ်မယ်
+document.addEventListener('contextmenu', event => event.preventDefault());
+
 // ==========================================
-// DISCLAIMER LOGIC (အလုပ်မလုပ်တာ ပြင်ထားတယ်)
+// AUDIO LOGIC
+// ==========================================
+function playSFX(audio) {
+    if (isSoundOn && audio) {
+        audio.currentTime = 0;
+        audio.play().catch(e => console.log(e));
+    }
+}
+
+function toggleSound() {
+    const cb = document.getElementById('setting-sound');
+    isSoundOn = cb.checked;
+    
+    if (isSoundOn) {
+        bgMusic.volume = 0.3;
+        bgMusic.play().catch(e => console.log(e));
+    } else {
+        bgMusic.pause();
+    }
+}
+
+// ==========================================
+// DISCLAIMER LOGIC
 // ==========================================
 function toggleAgreeButton() {
     const cb = document.getElementById('disclaimer-checkbox');
@@ -48,7 +80,11 @@ function agreeDisclaimer() {
     
     localStorage.setItem('tarot_disclaimer_agreed', 'true');
     
-    // စခရင်ကို တိုက်ရိုက်ပြောင်းမယ်
+    // နောက်ခံတီးလုံး စဖွင့်မယ်
+    bgMusic.volume = 0.3;
+    bgMusic.play().catch(e => console.log("Audio autoplay blocked:", e));
+    
+    // စခရင်ကို ပြောင်းမယ်
     document.getElementById('screen-disclaimer').classList.add('hidden');
     document.getElementById('screen-disclaimer').style.display = 'none';
     
@@ -89,7 +125,9 @@ function setSeasonBackground() {
     const month = new Date().getMonth();
     const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
     const bgEl = document.getElementById('season-bg');
-    if (bgEl) bgEl.style.backgroundImage = `url('assets/bg/${months[month]}.webp')`;
+    if (bgEl) {
+        bgEl.style.backgroundImage = `url('assets/bg/${months[month]}.webp')`;
+    }
 }
 
 function loadState() {
@@ -112,6 +150,7 @@ function checkDailyResets() {
 }
 
 function switchScreen(screenId) {
+    playSFX(sfxClick); // စခရင်ပြောင်းတိုင်း click သံ
     document.querySelectorAll('.screen').forEach(el => {
         el.classList.add('hidden');
         el.style.display = 'none';
@@ -131,7 +170,7 @@ function updateTicketDisplay() {
     if(tsc) tsc.innerText = appState.tickets;
     
     const adEl = document.getElementById('ad-status-text');
-    if(adEl) adEl.innerText = `ကျန်ရှိမှု - ${7 - appState.adCount}/7 ကြိမ် (+2 Tickets)`;
+    if(adEl) adEl.innerText = `ကျန်ရှိမှု - ${7 - appState.adCount}/7 ကြိမ် (+1 Ticket)`;
     
     const shareEl = document.getElementById('share-status-text');
     if(shareEl) shareEl.innerText = `ကျန်ရှိမှု - ${3 - appState.shareCount}/3 ကြိမ် (+1 Ticket)`;
@@ -154,6 +193,27 @@ function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 // ==========================================
 // READING FLOW
 // ==========================================
+function getDateFormat(mode) {
+    const today = new Date();
+    const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+    if (mode === 'daily') {
+        return today.toLocaleDateString('my-MM', options) + " အတွက်";
+    } else if (mode === 'weekly') {
+        // ဒီအပတ်ရဲ့ တနင်္လာနေ့ ကနေ တနင်္ဂနွေအထိ တွက်မယ်
+        let curr = new Date();
+        let first = curr.getDate() - curr.getDay() + 1; 
+        let last = first + 6; 
+        let firstday = new Date(curr.setDate(first));
+        let lastday = new Date(curr.setDate(last));
+        return firstday.toLocaleDateString('my-MM', {day: 'numeric', month: 'short'}) + " မှ " + lastday.toLocaleDateString('my-MM', {day: 'numeric', month: 'short', year: 'numeric'}) + " အတွက်";
+    } else if (mode === 'monthly') {
+        return today.toLocaleDateString('my-MM', {month: 'long', year: 'numeric'}) + " အတွက်";
+    } else if (mode === 'yearly') {
+        return today.getFullYear() + " ခုနှစ်အတွက်";
+    }
+    return "";
+}
+
 function checkAndStart(mode) {
     appState.currentMode = mode;
     appState.selectedCards = [];
@@ -255,6 +315,7 @@ function startPPFPick() {
 // SHUFFLE & PICK
 // ==========================================
 function startShuffle(callback) {
+    playSFX(sfxShuffle); // Shuffle သံ
     switchScreen('screen-shuffle');
     let imgEl = document.getElementById('shuffle-img');
     let frame = 1;
@@ -265,7 +326,7 @@ function startShuffle(callback) {
         frame = (frame % 9) + 1;
         imgEl.src = `assets/ui/shuffle-${frame}.png`;
         totalCycles++;
-        if (totalCycles >= 45) {
+        if (totalCycles >= 45) { // ၅ စက္ကန့်လောက်
             clearInterval(shuffleInterval);
             if (callback) callback();
         }
@@ -290,6 +351,7 @@ function startPickProcess() {
 }
 
 function proceedToPick13() {
+    playSFX(sfxClick);
     startPick13(() => showBeforeResultScreen(), "ဤ၁၃ပုံ ထဲက တစ်ပုံကို ရွေးပေးပါရှင်");
 }
 
@@ -322,6 +384,7 @@ function startPick13(callback, titleText) {
 }
 
 function selectCard(id) {
+    playSFX(sfxClick);
     document.querySelectorAll('[id^="pick-card-"]').forEach(el => {
         el.classList.remove('ring-2', 'ring-yellow-400', 'scale-110', 'opacity-100');
         el.classList.add('opacity-60');
@@ -345,6 +408,7 @@ function confirmPick13() {
     const isReversed = Math.random() > 0.7;
     pickedCardObj = { ...randomCard, isReversed };
 
+    playSFX(sfxReveal); // ကဒ်ဖွင့်သံ
     if (onPickComplete) onPickComplete();
 }
 
@@ -374,6 +438,7 @@ function showFinalResult() {
         mode: appState.currentMode,
         category: appState.currentCategory,
         date: new Date().toLocaleDateString('my-MM'),
+        dateText: getDateFormat(appState.currentMode), // ရက်စွဲစာသား ထည့်မယ်
         cards: appState.selectedCards
     };
     
@@ -384,11 +449,11 @@ function showFinalResult() {
 }
 
 function showCategoryResultScreen() {
-    displayResult({ mode: 'category', category: appState.currentCategory, date: new Date().toLocaleDateString('my-MM'), cards: appState.selectedCards });
+    displayResult({ mode: 'category', category: appState.currentCategory, date: new Date().toLocaleDateString('my-MM'), dateText: "", cards: appState.selectedCards });
 }
 
 function showPPFResultScreen() {
-    displayResult({ mode: 'ppf', date: new Date().toLocaleDateString('my-MM'), cards: appState.selectedCards });
+    displayResult({ mode: 'ppf', date: new Date().toLocaleDateString('my-MM'), dateText: "", cards: appState.selectedCards });
 }
 
 function displayResult(resData) {
@@ -396,8 +461,9 @@ function displayResult(resData) {
     appState.activeCardIndex = 0;
     switchScreen('screen-result');
     
-    document.getElementById('result-date-badge').innerText = resData.date;
-    document.getElementById('result-header-title').innerText = resData.mode === 'category' ? 'နယ်ပယ်အလိုက်' : (resData.mode === 'ppf' ? 'PPF ဟောကိန်း' : 'ယနေ့အတွက်');
+    // Header နဲ့ Date ကို ပြမယ်
+    document.getElementById('result-header-title').innerText = resData.mode === 'category' ? 'နယ်ပယ်အလိုက်' : (resData.mode === 'ppf' ? 'PPF ဟောကိန်း' : 'တာရော့ဟောစာတမ်း');
+    document.getElementById('result-date-badge').innerText = resData.dateText || resData.date;
     
     renderResultView();
     setupSwipeGesture();
@@ -424,6 +490,7 @@ function renderResultView() {
 }
 
 function setActiveCard(index) {
+    playSFX(sfxClick);
     appState.activeCardIndex = index;
     renderResultView();
 }
@@ -483,6 +550,7 @@ function setupSwipeGesture() {
 // SAVE, AGAIN, TICKET
 // ==========================================
 function saveCurrentResult() {
+    playSFX(sfxClick);
     if (!currentResultData) return;
     let saves = appState.savedResults;
     if (saves.length >= 5) saves.pop();
@@ -493,6 +561,7 @@ function saveCurrentResult() {
 }
 
 function openSaveModal() {
+    playSFX(sfxClick);
     const container = document.getElementById('save-list-container');
     container.innerHTML = '';
     if (appState.savedResults.length === 0) {
@@ -514,6 +583,7 @@ function openSaveModal() {
 }
 
 function openAgainModal() {
+    playSFX(sfxClick);
     const container = document.getElementById('again-options-container');
     container.innerHTML = '';
     ['daily', 'category', 'ppf'].forEach(m => {
@@ -540,9 +610,10 @@ function watchAd() {
     if (!AdController) { showMsg("စနစ် အသင့်မဖြစ်ပါ", "ခဏနေမှ ပြန်စမ်းပါ။"); return; }
 
     AdController.show().then(() => {
-        appState.adCount += 1; appState.tickets += 2;
+        appState.adCount += 1; 
+        appState.tickets += 1; // ၁ ခုပဲ ပေးမယ်
         saveState(); updateTicketDisplay();
-        showMsg("အောင်မြင်သည်", "+2 Tickets ရပါပြီ။");
+        showMsg("အောင်မြင်သည်", "+1 Ticket ရပါပြီ။");
     }).catch(() => {
         showMsg("မအောင်မြင်ပါ", "အင်တာနက် မကောင်းပါ။ ခဏနေမှ ပြန်စမ်းပါ။");
     });
