@@ -141,7 +141,12 @@ function setSeasonBackground() {
 
 function loadState() {
     const saved = localStorage.getItem('tarot_app_state');
-    if (saved) { try { appState = { ...appState, ...JSON.parse(saved) }; } catch(e) {} }
+    if (saved) { 
+        try { 
+            appState = { ...appState, ...JSON.parse(saved) }; 
+            if (!appState.ticketHistory) appState.ticketHistory = []; // Fallback for older saves
+        } catch(e) {} 
+    }
 }
 function saveState() { localStorage.setItem('tarot_app_state', JSON.stringify(appState)); }
 
@@ -214,21 +219,25 @@ function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 // READING FLOW
 // ==========================================
 function getFormattedDate(mode) {
-    const today = new Date();
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    if (mode === 'daily') {
-        return today.toLocaleDateString('my-MM', options) + " အတွက်";
-    } else if (mode === 'weekly') {
-        let curr = new Date();
-        let first = curr.getDate() - curr.getDay() + 1; 
-        let last = first + 6; 
-        let firstday = new Date(curr.setDate(first));
-        let lastday = new Date(curr.setDate(last));
-        return firstday.toLocaleDateString('my-MM', {day: 'numeric', month: 'short'}) + " မှ " + lastday.toLocaleDateString('my-MM', {day: 'numeric', month: 'short', year: 'numeric'}) + " အတွက်";
-    } else if (mode === 'monthly') {
-        return today.toLocaleDateString('my-MM', {month: 'long', year: 'numeric'}) + " အတွက်";
-    } else if (mode === 'yearly') {
-        return today.getFullYear() + " ခုနှစ်အတွက်";
+    try {
+        const today = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        if (mode === 'daily') {
+            return today.toLocaleDateString('my-MM', options) + " အတွက်";
+        } else if (mode === 'weekly') {
+            let curr = new Date();
+            let first = curr.getDate() - curr.getDay() + 1; 
+            let last = first + 6; 
+            let firstday = new Date(curr.setDate(first));
+            let lastday = new Date(curr.setDate(last));
+            return firstday.toLocaleDateString('my-MM', {day: 'numeric', month: 'short'}) + " မှ " + lastday.toLocaleDateString('my-MM', {day: 'numeric', month: 'short', year: 'numeric'}) + " အတွက်";
+        } else if (mode === 'monthly') {
+            return today.toLocaleDateString('my-MM', {month: 'long', year: 'numeric'}) + " အတွက်";
+        } else if (mode === 'yearly') {
+            return today.getFullYear() + " ခုနှစ်အတွက်";
+        }
+    } catch(e) {
+        return new Date().toLocaleDateString(); // Fallback အနေနဲ့
     }
     return "";
 }
@@ -455,7 +464,7 @@ function displayResult(resData) {
     if (resData.mode !== 'category' && resData.mode !== 'ppf') {
         document.getElementById('result-date-text').innerText = getFormattedDate(resData.mode);
     } else {
-        document.getElementById('result-date-text').innerText = resData.date; // Category/PPF အတွက် ရိုးရိုးရက်စွဲ
+        document.getElementById('result-date-text').innerText = resData.date; 
     }
     
     renderResultView();
@@ -532,6 +541,7 @@ function typeWriterEffect(text, element) {
     if (typeInterval) clearInterval(typeInterval);
     element.innerHTML = "";
     let plainText = text.replace(/<[^>]+>/g, '\n').trim(); 
+    let i = 0; 
     typeInterval = setInterval(() => {
         if (i < plainText.length) { 
             element.innerHTML += plainText.charAt(i) === '\n' ? '<br>' : plainText.charAt(i);
@@ -596,7 +606,27 @@ function openAgainModal() {
         const btn = document.createElement('button');
         btn.className = "w-full py-2.5 rounded-xl text-xs font-bold text-yellow-200 glass-panel border border-yellow-500/30";
         btn.innerText = m === 'daily' ? 'ဒီနေ့အတွက်' : (m === 'category' ? 'နယ်ပယ်အလိုက် (1 Ticket)' : 'PPF (1 Ticket)');
-        btn.onclick = () => { closeModal('modal-again'); checkAndStart(m); };
+        btn.onclick = () => { 
+            closeModal('modal-again'); 
+            if (m !== 'daily' && appState.tickets < 1) {
+                showMsg("Ticket မလုံလောက်ပါ", "ကြော်ငြာကြည့်ပြီး Ticket ယူပါ။");
+                return;
+            }
+            if (m !== 'daily') {
+                appState.tickets -= 1;
+                logTicketChange(-1, 'Again Reading');
+                saveState();
+            }
+            
+            // CheckAndStart ကို မသုံးတော့ဘဲ တိုက်ရိုက် စတင်မယ်
+            if (m === 'category') openDialogue('category');
+            else if (m === 'ppf') openDialogue('ppf');
+            else {
+                appState.currentMode = 'daily';
+                appState.selectedCards = [];
+                startShuffle(() => startPickProcess());
+            }
+        };
         container.appendChild(btn);
     });
     document.getElementById('modal-again').classList.remove('hidden');
