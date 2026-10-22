@@ -68,20 +68,17 @@ function setupEventListeners() {
     const disclaimerCb = document.getElementById('disclaimer-checkbox');
     const agreeBtn = document.getElementById('btn-disclaimer-agree');
 
-    disclaimerCb.addEventListener('change', (e) => {
-        if (e.target.checked) {
-            agreeBtn.disabled = false;
-            agreeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-        } else {
-            agreeBtn.disabled = true;
-            agreeBtn.classList.add('opacity-50', 'cursor-not-allowed');
-        }
-    });
-
-    agreeBtn.addEventListener('click', () => {
-        localStorage.setItem('tarot_disclaimer_agreed', 'true');
-        switchScreen('screen-main-menu');
-    });
+    if(disclaimerCb) {
+        disclaimerCb.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                agreeBtn.removeAttribute('disabled'); // Disabled ကို ဖြုတ်မယ်
+                agreeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                agreeBtn.setAttribute('disabled', 'true');
+                agreeBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        });
+    }
 }
 
 function checkDisclaimerState() {
@@ -91,6 +88,16 @@ function checkDisclaimerState() {
         switchScreen('screen-disclaimer');
     }
 }
+
+function agreeDisclaimer() {
+    try {
+        localStorage.setItem('tarot_disclaimer_agreed', 'true');
+    } catch(e) {
+        console.log("Local storage error", e);
+    }
+    switchScreen('screen-main-menu');
+}
+
 
 // ==========================================
 // UTILITIES & STATE MANAGEMENT
@@ -120,9 +127,15 @@ function checkDailyResets() {
 }
 
 function switchScreen(screenId) {
-    document.querySelectorAll('.screen').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.screen').forEach(el => {
+        el.classList.add('hidden');
+        el.style.display = 'none'; // Force hide
+    });
     const target = document.getElementById(screenId);
-    if (target) target.classList.remove('hidden');
+    if (target) {
+        target.classList.remove('hidden');
+        target.style.display = 'flex'; // Force show
+    }
     updateTicketDisplay();
 }
 
