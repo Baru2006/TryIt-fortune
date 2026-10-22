@@ -12,7 +12,7 @@ let appState = {
 };
 
 // Adsgram
-const ADSGRAM_BLOCK_ID = "52425";
+const ADSGRAM_BLOCK_ID = "52518";
 let AdController = null;
 
 // Session
