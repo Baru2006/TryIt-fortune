@@ -1,6 +1,6 @@
 // Global State
 let appState = {
-    tickets: 3,
+    tickets: 5,
     lastLoginDate: "",
     adCount: 0,
     shareCount: 0,
@@ -12,7 +12,7 @@ let appState = {
 };
 
 // Adsgram
-const ADSGRAM_BLOCK_ID = "52518";
+const ADSGRAM_BLOCK_ID = "55409";
 let AdController = null;
 
 // Session
