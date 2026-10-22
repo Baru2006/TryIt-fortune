@@ -1,6 +1,6 @@
 // Global State
 let appState = {
-    tickets: 1, // စတင်ချိန်မှာ ၁ ခု
+    tickets: 1, 
     lastLoginDate: "",
     adCount: 0,
     shareCount: 0,
@@ -9,7 +9,7 @@ let appState = {
     selectedCards: [],
     savedResults: [],
     activeCardIndex: 0,
-    ticketHistory: [], // User tab အတွက်
+    ticketHistory: [], 
     user: null
 };
 
@@ -21,7 +21,7 @@ const sfxReveal = document.getElementById('sfxReveal');
 let isSoundOn = true;
 
 // Adsgram
-const ADSGRAM_BLOCK_ID = "55409"; // ID အသစ်
+const ADSGRAM_BLOCK_ID = "55409"; 
 let AdController = null;
 
 // Session
@@ -32,6 +32,7 @@ let pickedCardObj = null;
 let selectedPickId = null;
 let onPickComplete = null;
 
+// Long Press / Context Menu ကို ပိတ်မယ်
 document.addEventListener('contextmenu', event => event.preventDefault());
 
 // ==========================================
@@ -187,7 +188,6 @@ function renderTicketHistory() {
         container.innerHTML = "<p class='text-xs text-gray-500 text-center'>မှတ်တမ်း မရှိသေးပါ။</p>";
         return;
     }
-    // Show recent 10
     appState.ticketHistory.slice().reverse().slice(0, 10).forEach(log => {
         const div = document.createElement('div');
         div.className = "flex justify-between items-center text-xs border-b border-white/5 pb-1";
@@ -200,7 +200,7 @@ function logTicketChange(amount, reason) {
     const now = new Date();
     const dateStr = `${now.getDate()}/${now.getMonth()+1} ${now.getHours()}:${now.getMinutes().toString().padStart(2,'0')}`;
     appState.ticketHistory.push({ amount, reason, date: dateStr });
-    if(appState.ticketHistory.length > 50) appState.ticketHistory.shift(); // Limit to 50 logs
+    if(appState.ticketHistory.length > 50) appState.ticketHistory.shift();
 }
 
 function showMsg(title, text) {
@@ -213,6 +213,26 @@ function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 // ==========================================
 // READING FLOW
 // ==========================================
+function getFormattedDate(mode) {
+    const today = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    if (mode === 'daily') {
+        return today.toLocaleDateString('my-MM', options) + " အတွက်";
+    } else if (mode === 'weekly') {
+        let curr = new Date();
+        let first = curr.getDate() - curr.getDay() + 1; 
+        let last = first + 6; 
+        let firstday = new Date(curr.setDate(first));
+        let lastday = new Date(curr.setDate(last));
+        return firstday.toLocaleDateString('my-MM', {day: 'numeric', month: 'short'}) + " မှ " + lastday.toLocaleDateString('my-MM', {day: 'numeric', month: 'short', year: 'numeric'}) + " အတွက်";
+    } else if (mode === 'monthly') {
+        return today.toLocaleDateString('my-MM', {month: 'long', year: 'numeric'}) + " အတွက်";
+    } else if (mode === 'yearly') {
+        return today.getFullYear() + " ခုနှစ်အတွက်";
+    }
+    return "";
+}
+
 function checkAndStart(mode) {
     appState.currentMode = mode;
     appState.selectedCards = [];
@@ -429,8 +449,14 @@ function displayResult(resData) {
     appState.activeCardIndex = 0;
     switchScreen('screen-result');
     
-    document.getElementById('result-date-badge').innerText = resData.date;
     document.getElementById('result-header-title').innerText = resData.mode === 'category' ? 'နယ်ပယ်အလိုက်' : (resData.mode === 'ppf' ? 'PPF ဟောကိန်း' : 'တာရော့ဟောစာတမ်း');
+    
+    // Date နဲ့ Badge ကို ပြမယ်
+    if (resData.mode !== 'category' && resData.mode !== 'ppf') {
+        document.getElementById('result-date-text').innerText = getFormattedDate(resData.mode);
+    } else {
+        document.getElementById('result-date-text').innerText = resData.date; // Category/PPF အတွက် ရိုးရိုးရက်စွဲ
+    }
     
     renderResultView();
     setupSwipeGesture();
@@ -439,6 +465,7 @@ function displayResult(resData) {
 function renderResultView() {
     const wrapper = document.getElementById('result-cards-wrapper');
     const swipeInd = document.getElementById('swipe-indicator');
+    const statusBadge = document.getElementById('result-status-badge');
     const cards = currentResultData.cards;
     
     if (cards.length > 1) swipeInd.classList.remove('hidden'); else swipeInd.classList.add('hidden');
@@ -452,6 +479,17 @@ function renderResultView() {
             </div>
         `;
     }).join('');
+
+    // Active Card ရဲ့ Upright/Reversed Badge ကို ပြမယ်
+    const activeCard = cards[appState.activeCardIndex];
+    if (activeCard.isReversed) {
+        statusBadge.innerText = "Reversed (ပြောင်းပြန်)";
+        statusBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-red-500/20 text-red-300 border border-red-500/30 mb-2";
+    } else {
+        statusBadge.innerText = "Upright (အတည့်)";
+        statusBadge.className = "px-3 py-1 rounded-full text-xs font-bold bg-green-500/20 text-green-300 border border-green-500/30 mb-2";
+    }
+
     updateResultText();
 }
 
@@ -472,17 +510,16 @@ function updateResultText() {
     if (currentResultData.mode === 'category') {
         if (appState.activeCardIndex === 0) {
             title = `ပြဿနာ - ${card.name}`;
-            displayText = card[stateKey][currentResultData.category]; // Love, Edu, Business, Health
+            displayText = card[stateKey][currentResultData.category]; 
         } else {
             title = `ဖြေရှင်းနည်း - ${card.name}`;
-            displayText = card[stateKey].advice; // Advice Data ကို ယူမယ်
+            displayText = card[stateKey].advice; 
         }
     } else if (currentResultData.mode === 'ppf') {
         title = `${card.role} - ${card.name}`;
         const pKey = appState.activeCardIndex === 0 ? 'past' : (appState.activeCardIndex === 1 ? 'present' : 'future');
         displayText = card[stateKey][pKey];
     } else {
-        // Time Reading
         title = `ကဒ်အမည် - ${card.name}`;
         displayText = `<p>${card[stateKey].general}</p><br><p style="color:#fbbf24; font-weight:bold;">အကြံပြုချက် - </p><p>${card[stateKey].advice}</p>`;
     }
@@ -494,8 +531,6 @@ function updateResultText() {
 function typeWriterEffect(text, element) {
     if (typeInterval) clearInterval(typeInterval);
     element.innerHTML = "";
-    let i = 0;
-    // HTML tags တွေ ပါနေရင် ဖျက်ပစ်မယ် (Typewriter အတွက်)
     let plainText = text.replace(/<[^>]+>/g, '\n').trim(); 
     typeInterval = setInterval(() => {
         if (i < plainText.length) { 
