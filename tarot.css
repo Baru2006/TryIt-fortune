@@ -10,10 +10,13 @@
     box-sizing: border-box;
 }
 
-/* ပုံတွေကို ဖိနှိပ်ရင် ကော်ပီမကျအောင်၊ Link မပေါ်အောင် ပိတ်မယ် */
+/* ပုံတွေကို ဖိနှိပ်ရင် ကော်ပီမကျအောင် ပိတ်မယ် (ဒါပေမယ့် click တော့ ရမယ်) */
 img {
-    pointer-events: none; 
+    -webkit-touch-callout: none;
     -webkit-user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 body {
