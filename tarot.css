@@ -1,4 +1,4 @@
-/* Global Reset for App-like feel */
+/* Global Reset */
 * {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -12,6 +12,8 @@
 
 body {
     touch-action: pan-y;
+    margin: 0;
+    padding: 0;
 }
 
 /* Glassmorphism Panels */
@@ -23,7 +25,7 @@ body {
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
 }
 
-/* Floating Animation for Profile & Logo */
+/* Floating Animation */
 @keyframes float {
     0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-8px); }
@@ -32,13 +34,7 @@ body {
     animation: float 4s ease-in-out infinite;
 }
 
-/* Glow Effect for Cards */
-.glow-card {
-    box-shadow: 0 0 20px rgba(157, 78, 221, 0.5), inset 0 0 10px rgba(212, 175, 55, 0.3);
-    border: 2px solid rgba(212, 175, 55, 0.6);
-}
-
-/* Custom Scrollbar for Result Box */
+/* Custom Scrollbar */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: rgba(11, 11, 22, 0.5); }
 ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 4px; }
@@ -54,15 +50,7 @@ body {
     50% { opacity: 0; }
 }
 
-/* Hide scrollbar for cards wrapper to make it look smooth */
-#result-cards-wrapper::-webkit-scrollbar {
-    display: none;
-}
-#result-cards-wrapper {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-    scroll-snap-type: x mandatory;
-}
-.result-card-item {
-    scroll-snap-align: center;
-}
+/* Hide scrollbar for cards wrapper */
+#result-cards-wrapper::-webkit-scrollbar { display: none; }
+#result-cards-wrapper { -ms-overflow-style: none; scrollbar-width: none; scroll-snap-type: x mandatory; }
+.result-card-item { scroll-snap-align: center; }
